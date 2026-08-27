@@ -92,6 +92,12 @@ def dehyphenate(text: str) -> str:
 
 
 def normalise(text: str) -> str:
+    # C-T48 measured that this reader RETAINS NUL bytes while lane C's strips them, so the
+    # two readers agree on every term COUNT and disagree on OFFSETS -- and a fixed-width
+    # context window turns any offset difference into passage-membership churn.  Dropping
+    # them costs nothing (a NUL is not text) and makes the two readers agree on WHICH
+    # passage a hit belongs to, which is what a cross-lane citation actually needs.
+    text = text.replace(chr(0), "")
     for k, v in LIGATURES.items():
         text = text.replace(k, v)
     for k, v in DASHES.items():

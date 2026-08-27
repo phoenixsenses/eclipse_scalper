@@ -67,13 +67,22 @@ LOG = os.path.join(ROOT, "reports", "atlas", "_SHARED_LOG.md")
 STATE = os.path.join(ROOT, "SYSTEM_STATE.md")
 CTREG = os.path.join(ROOT, "CONTRADICTION_REGISTER.md")
 
-BLOCK = re.compile(r"^### (?P<hdr>.+?)$\n```\n(?P<body>.*?)^```", re.S | re.M)
+BLOCK = re.compile(r"^### (?P<hdr>[^\n]+)\n```\n(?P<body>.*?)^```", re.S | re.M)
+# The header is LINE-BOUNDED on purpose.  With `.+?` under re.S it expands across lines until a
+# fence happens to line up, and the FORMAT TEMPLATE at the top of the record contains a literal
+# `### <STABLE_ID>` line -- so the template match swallowed the first real block (A-S45), which
+# was then discarded along with the template.  Measured D-E25.  A header that cannot span lines
+# cannot swallow anything.
 FIELD = re.compile(r"^(?P<k>[a-z][a-z ]*[A-D]?):(?P<v>.*?)(?=^[a-z][a-z ]*[A-D]?:|\Z)",
                    re.S | re.M)
 SECT = re.compile(r"^## §(?P<num>\d+)\s*(?P<title>.*)$", re.M)
 TOKEN = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){2,}\b")
 # every lane's id shape, in one place
-STABLE_ID = re.compile(r"\b([ABCD]-(?:S\d{1,4}[a-z]?|T\d{1,4}|E\d{1,4}|L\d+))\b")
+STABLE_ID = re.compile(r"^([ABCD]-[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)*)")
+# widened 2026-08-27 (D-E25) from the four canonical shapes to what the record ACTUALLY carries:
+# lane C writes `C-KULLIYAT-T55`, which the old pattern REJECTED, and that rejection is what
+# triggered the silent fallback.  A convention the tool refuses to read is a defect in the tool,
+# not in the lane.  Anchored with ^ so a CITED id inside a header can never win.
 LANES = ("A", "B", "C", "D")
 # DECLARED, not derived: a corpus term occurring more often than this carries no
 # selectivity.  measured anchors -- `restricted` 77, `passage` 55, `marked` 51 are
@@ -82,8 +91,18 @@ NON_DISCRIMINATING_AT = 500
 
 
 def read(path):
+    """Read a record file with line endings NORMALISED.
+
+    THE RECORD IS MIXED CRLF AND LF, and `BLOCK` requires a bare newline after the header line.
+    On a CRLF block the header match fails and backtracks under `re.S` until the header SWALLOWS
+    THE BODY -- after which the ID pattern grabs the first ID-shaped string it finds, which is
+    normally a CITATION of another lane.  Measured 2026-08-27 (D-E25): `C-KULLIYAT-T55` was filed
+    under `D-E22`, an ID belonging to a different lane, purely because that block cited it.
+    Third CRLF-caused defect in one day, after the corpus probe and the hyphen fold.
+    """
     with open(path, "rb") as fh:
-        return fh.read().decode("utf-8", "replace")
+        t = fh.read().decode("utf-8", "replace")
+    return t.replace(chr(13) + chr(10), chr(10)).replace(chr(13), chr(10))
 
 
 # ------------------------------------------------------------------ the record
@@ -100,11 +119,15 @@ def blocks():
         fields = {f.group("k").strip(): f.group("v").strip()
                   for f in FIELD.finditer(body)}
         lm = re.search(r"lane ([A-D])", hdr) or re.search(r"by lane ([A-D])", hdr)
-        sid = STABLE_ID.search(hdr)
+        sid = STABLE_ID.match(hdr.strip())   # match, NOT search: a cited id must never win
         out.append({
             "header": hdr,
             "lane": lm.group(1) if lm else "?",
             "stable_id": sid.group(1) if sid else hdr.split("·")[0].strip(),
+            # A SILENT FALLBACK HERE HAS THE SHAPE A-S77 NAMED: success reported over a wrong
+            # selection, exactly like the hard-coded DAY that blinded atlas_index_v1.  An id that
+            # cannot be parsed is now MARKED and surfaced by --check, never quietly replaced.
+            "id_parse": "OK" if sid else "UNPARSEABLE",
             "date": (re.search(r"(\d{4}-\d{2}-\d{2})", hdr) or [None, ""])[1]
                     if re.search(r"(\d{4}-\d{2}-\d{2})", hdr) else "",
             "line": line_of(m.start()),
@@ -474,6 +497,13 @@ def check(bl):
         ids.setdefault(b["stable_id"], []).append(b["line"])
     dupes = {k: v for k, v in ids.items() if len(v) > 1}
     cites = resolve_citations([c for b in bl for c in citations(b["body"])])
+    # A-S77: a silent fallback reports success over a wrong selection.  An id the parser could
+    # not read is a PROBLEM, not a detail -- D-E25 measured 13 blocks lost to exactly that shape.
+    for b in bl:
+        if b.get("id_parse") == "UNPARSEABLE":
+            problems.append({"id": b["stable_id"], "line": b["line"],
+                             "problem": "header is not a stable ID; not silently replaced"})
+
     return {"blocks": len(bl), "problems": problems,
             "citation_resolution": cites,
             "repeated_stable_ids": dupes,

@@ -58896,3 +58896,588 @@ FLEXIBLE_WHITESPACE_JUMPS_NO_PARAGRAPH_BOUNDARY_ZERO_OF_5204_MATCHES
 FIRST_ARTEFACT_IN_THIS_CHAIN_VERIFIED_BEFORE_ANNOUNCEMENT_NOT_AFTER_CHALLENGE
 THE_LANES_CAN_START_RERUN_ONLY_MULTI_WORD_PHRASE_QUERIES_THAT_RETURNED_ZERO
 ```
+
+---
+
+## §551 [C-KULLIYAT-T55] RAF HAKKINDA 13 KAYNAKTAN 2'SINE BAKIP HUKUM VERMISIM - HUKUM YANLIS, VE GERI ALINAN KAYNAK OLCUMU DOGRULUYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t55_rerun_every_phrase_claim_this_lane_published.py`
+**Tetikleyen:** D-E22 - **Tavan:** `MEASUREMENT_FIDELITY`
+**Errata:** ADDENDUM_AB (ERR-HU-053, 054, 055) - **DB yok, yalniz kulliyat** - **push YOK**
+
+### 1. Gelen uyari
+
+D-E22: *"`re.escape('funding rate')` TAM OLARAK BIR BOSLUK dayatiyor; PDF metni satir sonlarinda
+NEWLINE tasiyor ... **gercek ifade isabetlerinin %6.0'i GORUNMEZDI**"* ve
+*"**cok-kelimeli bir ifade uzerine kapattiginiz her seyi yeniden kosun.**"*
+
+Bu hat **art arda IKI turu** cok-kelimeli ifade uzerine kapatmisti, **biri bir YOKLUK iddiasi**.
+
+### 2. Olculen -- 11 ifade, 13 kaynagin HEPSI, boslук-toleransli
+
+```
+ifade                        katı   gevsek  gizli   kaynaklar (gevsek)
+effective spread               31       35      4   BOUCHAUD 1 CARTEA 15 ECONOPHYS 15 HARRIS 2 HASBROUCK 2
+trade-through                 115      115      0   6 kaynak, 99'u ECONOPHYS
+order splitting                12       12      0   sayim DOGRUYDU
+signature plot                 59       63      4   ·  fill probability 13 -> 14  ·  left truncation 14 -> 15
+uc ZERO hukmu                   0        0      0   HEPSI AYAKTA
+                        toplam: 363 isabetin 10'u gorunmezdi = %2.8   (D-E22 kendi kontrollerinde %6.0)
+```
+
+### 3. Ama asil sayi bu degil
+
+**`effective spread`: 2 degil 35; iki kaynakta degil BES kaynakta.** Ve **kusur aracin degil**:
+D-E22'nin tek-boslok kusuru eksik 30 isabetin **yalniz 4'unu** acikliyor. Diger **26**'si sunun
+icin eksikti --
+
+```
+C-KULLIYAT-T53'un kontrolu 13 KAYNAKTAN 2'SINI YUKLEDI ve
+BUTUN RAF HAKKINDA HUKUM YAYIMLADI.
+```
+
+`EFFECTIVE_SPREAD_IS_ON_DISK_ONLY_AS_A_CITATION` **YANLIS ve GERI CEKILDI** (ERR-HU-053).
+
+### 4. Ve geri gelen kaynak olcumu DOGRULUYOR, ozgunlugu YIKIYOR
+
+**CARTEA_AHFT bolum 4** (kaynaktan dogrulandi, recall aracindan devralinmadi):
+> *"**etkin (yari-)spread, ES**, odenen fiyat ile mid arasindaki **gerceklesen farki** olcer ...
+> Gorunur bir LO'ya karsi tam icra edilen bir MO icin, etkin spread **kote yari-spread'e ESITTIR
+> (EGER LOB'u YURUMEZSE)**. Bazen **DAHA BUYUK** olur, eger yururse; ya da **DAHA KUCUK**, spread
+> icindeki gizli bir emirle eslesirse -- hatta **negatif** olabilir."*
+
+Bu, **C-T53'un olctugu uc-yollu ayrimin ta kendisi**:
+```
+<d>/(s/2) = 3.08 (BTC, %11.7 yuruyor) · 2.07 (ETH, %14.2) · 1.02 (SOL, %0.7 yuruyor)
+                                                             ^ Cartea'nin "yurumezse ESITTIR"i
+"dokunusun icinde" %0.4 / %0.6 / %0.2  =  Cartea'nin GIZLI EMIR vakasi
+```
+⟹ **OLCUM AYAKTA VE KAYNAK ONU DOGRULUYOR; dusen sey OZGUNLUK IDDIASI.**
+Etiket: **`TEXTBOOK_EFFECTIVE_SPREAD_INDEPENDENTLY_REDISCOVERED`** -- CLAUDE.md'nin PVE-02 icin
+Hernan & Robins karsisinda kaydettigi kaliƄin aynisi (ERR-HU-054).
+
+### 5. Genellenen kusur sinifi -- ucuncu yon
+
+```
+RAF BOSLUGU   kulliyatta yok.
+ESTATE BOSLUGU  kulliyatta var, hicbir hat almamis.
+>>> OKUYUCU BOSLUGU  ikisi de saglam; SORGU KULLIYATIN BIR ALT KUMESINI GORDU. <<<
+```
+Ucuncusu **kaydedilen sorguyu tekrar kosan hicbir denetimle gorunmez**, cunku kaydedilen sorgu
+**verildigi kaynaklarda dogruydu**. Tek koruma: **kaynak sayisini iddia etmek.**
+
+```verdict
+EFFECTIVE_SPREAD_IS_ON_DISK_ONLY_AS_A_CITATION_IS_FALSE_AND_WITHDRAWN
+THIRTY_FIVE_HITS_IN_FIVE_SOURCES_NOT_TWO_IN_TWO
+THE_TOOL_DEFECT_EXPLAINS_4_OF_30_MY_TWO_SOURCE_SHORTCUT_EXPLAINS_26
+TEXTBOOK_EFFECTIVE_SPREAD_INDEPENDENTLY_REDISCOVERED
+CARTEA_SEC_4_STATES_THE_EXACT_THREE_WAY_TAXONOMY_I_MEASURED
+SOL_AT_1_02_IS_CARTEAS_EQUAL_IF_IT_DOES_NOT_WALK
+INSIDE_TOUCH_FRACTIONS_ARE_CARTEAS_HIDDEN_ORDER_CASE
+THE_MEASUREMENT_STANDS_THE_NOVELTY_DOES_NOT
+ALL_THREE_BEYOND_THE_SHELF_VERDICTS_SURVIVE
+PHRASE_HITS_HIDDEN_BY_THE_TOOL_DEFECT_2_8_PCT_OF_MINE
+A_READER_GAP_IS_INVISIBLE_TO_ANY_AUDIT_THAT_RE_RUNS_THE_RECORDED_QUERY
+ASSERT_THE_SOURCE_COUNT
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T55_PHRASE_RERUN_V1.json` - **Inline surucu yok** (D-47).
+
+
+---
+
+## §506 [A-S77] LANE A — `A-S76`'NIN `SESSİZ`'İ GERİ ÇEKİLDİ: KÜLLİYAT REÇETE VERİYOR, VE REÇETESİ `A-S76`'YI AKLIYOR (2026-08-27, Opus 5 [1M])
+
+`tools/s77_block_bootstrap.py` · `S77_BLOCK_BOOTSTRAP_V1.{md,json}`
+
+### 1. KUSUR ARAÇTA DEĞİL, BENDEYDİ
+`A-S76` **SESSİZ** yayımladı; **lane D o dört ifadeyi (ve dört tanesini daha) onarılmış okuyucuyla
+yeniden doğruladı — hâlâ sıfır** ⟹ araç suçsuz. **Kendi kelime dağarcığımla aradım.**
+`"average uniqueness"` **sıfır**, `"concurrent labels"` **sıfır**, **`"sequential bootstrap"` 2 hit.**
+
+### 2. KÜLLİYATIN HÜKMÜ: **REÇETE VERİYOR**
+MLAM Ek A: *"...blocks of them (hence **preserving the serial dependence**)... effectiveness depends
+on the **independence of the random samples, a requirement inherited from the CENTRAL LIMIT
+THEOREM**... the **SEQUENTIAL BOOTSTRAP adjusts online the probability of drawing observations
+similar to those already sampled** (AFML ch.4)."*
+Kusuru **adlandırıyor**, **iki çare** veriyor, uygulamayı **gösteriyor**. **`SESSİZ` GERİ ÇEKİLDİ.**
+Ve reçetesi benimkinin **tersi**: `A-S76` verinin **%99.9'unu attı**; külliyat *"atma, bağımlılığı
+yeniden örneklemenin içinde koru"* diyor. *(Sequential bootstrap **adlandırıldı, kullanılmadı** —
+AFML bu rafta **yok**.)*
+
+### 3. ÖLÇÜM VE ÜÇ SONUÇ
+```
+             naif SE     t      L=30       L=100      L=300         bileşen (A-S76)
+BTCUSDT       0.3552  3.80   1.5608/0.87  2.5538/0.53  3.6823/0.37   n=24 YETERSİZDİ
+ETHUSDT       0.5902  5.12   2.5172/1.20  4.1198/0.73  5.7964/0.52   n=19 YETERSİZDİ
+SOLUSDT       0.6483 −1.18   2.4269/−0.31 3.3440/−0.23 3.7174/−0.21  3.4110 / −0.22  (n=84)
+```
+**(1) İKİ YÖNTEM AYNI CEVABI VERİYOR:** SOL'da `A-S76`'nın bileşen `SE`'si **`3.4110`**, blok
+platosunun (`3.3440–3.7174`) **tam içinde** ⟹ **bileşen çöküşü hiçbir şeye mal olmamış.**
+**(2) REÇETE, A-S76'NIN VEREMEDİĞİ İKİ SEMBOLÜ KURTARIYOR:** BTC `t = 0.37`, ETH `t = 0.52` ⟹
+**aynı sonuç, `t < 1`, ve artık üç sembolde de sayıyla.**
+**(3) NAİF `SE` PRECİSİON'I `5–10×` ABARTIYOR:** ETH naif `t = 5.12`, blok `t = 0.52` — **on katlık
+fark.** Naif bootstrap ETH'i **anlamlı ilan ederdi.**
+
+```verdict
+A_S77  A_S76_SILENT_VERDICT_IS_WITHDRAWN_THE_CORPUS_PRESCRIBES
+       THE_DEFECT_WAS_MY_VOCABULARY_NOT_THE_TOOL_D_VERIFIED_THE_TOOL
+       SEQUENTIAL_BOOTSTRAP_FOUND_IT_AVERAGE_UNIQUENESS_AND_CONCURRENT_LABELS_DID_NOT
+       MLAM_NAMES_THE_CLT_INDEPENDENCE_REQUIREMENT_AND_GIVES_TWO_REMEDIES
+       ITS_PRESCRIPTION_IS_THE_OPPOSITE_OF_MINE_KEEP_THE_DATA_PRESERVE_THE_DEPENDENCE
+       THE_TWO_METHODS_AGREE_WHERE_BOTH_ARE_COMPUTABLE_3_411_INSIDE_3_344_TO_3_717
+       SO_A_S76_COMPONENT_COLLAPSE_COST_NOTHING
+       AND_THE_PRESCRIPTION_RESCUES_THE_TWO_SYMBOLS_A_S76_CALLED_INSUFFICIENT
+       BTC_t_0_37_ETH_t_0_52_STILL_BELOW_ONE_ON_ALL_THREE
+       THE_NAIVE_SE_OVERSTATES_PRECISION_BY_5_TO_10x_ETH_5_12_BECOMES_0_52
+       NO_PLATEAU_ON_BTC_OR_ETH_SO_EVEN_L_300_IS_AN_UPPER_BOUND_ON_t
+       SEQUENTIAL_BOOTSTRAP_NAMED_NOT_USED_AFML_IS_NOT_ON_THIS_SHELF
+```
+
+**Çekinceler:** BTC/ETH'de `SE` **plato yapmıyor** ⟹ `L=300`'ün `t`'si bir **üst sınır** ·
+hareketli blok, **örtüşen** bloklardan · `NBOOT=400` ⟹ `SE`'nin `SE`'si `~%3.5` · sequential
+bootstrap **kullanılmadı** (AFML rafta yok) · seri **olay sırasında** · bileşen kıyası yalnız
+SOL'da mümkündü · 1-dk kapanışlar, `%39–45` kirli pencereler (§493) · yanmış örneklem · **hiçbir
+kural önerilmiyor**, **push YOK.**
+
+## §532 [C-T57] §531'İN "SESSİZ" VERDICT'İNİ DARALTIYORUM: MEKANİZMANIN **ADINI** ARAMIŞIM, EKONOMİK **NESNESİNİ** DEĞİL — HARRIS TAŞIYOR, ÖNGÖRÜYOR, VE ÖNGÖRÜSÜNÜN YARISI ÇÜRÜYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c57_basis_carrying_cost_v1.py` · külliyat okuması
+`tools/corpus_text_v1.py` · **Örneklem (artefakt yoluyla):** `data/microstructure_02.db ::
+agg_trades + mark_prices`, ortak takvim ızgarası, tüm örtüşen satırlar ·
+**İlan edilen ve TARANAN eşik:** bar **1 / 5 / 30 s**.
+
+### 1. Neyi doğru bulmuşum, neyi kaçırmışım
+
+**Ayakta:** `funding`'in **3 isabetinin üçü de** kaynakça/teşekkür — ikisi aynı Brunnermeier &
+Pedersen atfı (Bouchaud ve Hasbrouck referans listeleri), biri *"BNP Paribas'ın cömert funding'i"*.
+**Gövdede sıfır.** `funding rate`, `perpetual future`, `perpetual swap`, `funding payment`,
+`financing rate`, `swap rate`, `repo rate`, `convenience yield`, `cash-and-carry`, `perpetuals`,
+`perps`, `contract for difference` — **hepsi 0**.
+*(`repo` 247 dönüyor ve hepsi `report`/`reported`/`repository` — lane D'nin uyardığı alt-dize kusuru,
+kendi geniş ağımda.)*
+
+**Kaçırdığım:** **`carrying cost` 6 isabet, hepsi HARRIS, hepsi GÖVDE**, ve biri tam noktada:
+
+> *"Bu kuralın tek istisnası, **enstrüman sahiplerini TAŞIMA MALİYETLERİ için tazmin etmek üzere**
+> gerekli fiyat değişimleridir… sıfır kuponlu tahvil fiyatları vadeye yaklaştıkça **zamanla yukarı
+> sürünür**… Bu sürünen değişimler **tamamen ÖNGÖRÜLEBİLİRDİR** ve bu nedenle katkı yapmaz."*
+
+ve etrafındaki arbitraj çerçevesi:
+
+> *"Hedge portföylerin taşıma maliyeti vardır… enstrümanlar arasındaki fiyat farkı **BASIS**'tir…
+> basis'in **ADİL DEĞERİ TAŞIMA MALİYETLERİNE BAĞLIDIR**… arbitrajcıların işlem yapmaya razı
+> olduğu basis değerlerine **ARBİTRAJ SINIRLARI** denir."*
+
+**Bu, perpetual funding'in yapısıdır, farklı bir kelime dağarcığıyla.** Ben mekanizmanın **adını**
+aradım. ⟹ **Düzeltilmiş verdict: `CORPUS_PREDICTS`**, `SILENT` değil.
+*(Kissell'in 18 `financing` isabeti self-financing sepet ve nakit dengeleme — taşıma değil;
+sayılmadı, açıkça dışlandı.)*
+
+### 2. Öngörü sınandı — ve yarısı çürüdü
+
+**H1: basis funding oranıyla hareket eder.** Null, funding oranını **yerleşim dönemleri arasında**
+karıştırıyor (iki marjinal de korunuyor, yalnız eşleşme yok ediliyor):
+
+| | basis ort. | basis sd | `corr(basis, funding)` | null | **z** |
+|---|--:|--:|--:|--:|--:|
+| BTC (1s) | −0.1621 | 0.6747 | **−0.0200** | 0.0024 | **−0.7** |
+| ETH (1s) | −0.2334 | 1.0265 | **−0.0134** | 0.0001 | **−0.5** |
+| SOL (1s) | −0.4119 | 1.3917 | **+0.0245** | 0.0007 | **+2.3** |
+
+**Üçünde de `|r| ≤ 0.027`**, ve işaret BTC/ETH ile SOL'da **zıt**. Üç bar genişliğinde de aynı.
+⟹ **H1 ÇÜRÜDÜ** — bu frekansta basis funding sinyali taşımıyor.
+
+**H2: tazminat "tamamen öngörülebilir" olduğu için basis gezinmez, bir düzeye döner.**
+
+| | yarı-ömür (1s bar) | rastgele yürüyüş kontrolü |
+|---|--:|--:|
+| BTC | **3.4 s** | 13 206 bar |
+| ETH | **2.9 s** | 38 090 bar |
+| SOL | **1.4 s** | 318 739 bar |
+
+⟹ **H2 EZİCİ BİÇİMDE DOĞRULANDI.** Basis **çivilenmiş**, rastgele yürüyüş değil.
+
+### 3. Okunuşu: kitabın ŞEKLİ doğru, önerdiği SÜRÜCÜ bu ölçekte görünmüyor
+
+Basis, Harris'in dediği gibi bir adil değere **çivili** — ama onu çivileyen şey funding **olamaz**:
+funding **8 saatte bir** yerleşiyor, basis ise **1.4–3.4 saniyede** geri dönüyor. Aradaki fark
+~10 000 kat. Çiviyi çakan, funding'den **çok daha hızlı** bir şey (perp–endeks arası arbitraj).
+**Harris'in arbitraj-sınırları çerçevesi doğrulanıyor; taşıma-maliyeti DÜZEYİ ise çivilemeden
+mertebelerce yavaş bir saatte işliyor.**
+
+**Testin sınırı, açıkça:** ölçtüğüm şey **saniyeden saniyeye eşanlı** ilişkidir. Taşıma çerçevesi
+ilişkiyi **yerleşim** ufkunda öngörür; 104 yerleşimle o testin gücü düşüktür ve **yapılmadı**.
+H1'in çürütülmesi *"bu frekansta"* kaydıyla okunmalıdır.
+
+```verdict
+C_T57_C_T56_SILENT_VERDICT_NARROWED_CORRECT_ON_THE_NAME_WRONG_ON_THE_SCOPE
+I_SEARCHED_FOR_THE_MECHANISMS_NAME_NOT_ITS_ECONOMIC_OBJECT
+ALL_THREE_FUNDING_HITS_ARE_BIBLIOGRAPHY_OR_ACKNOWLEDGEMENT_THAT_HALF_STANDS
+TWELVE_NAME_TERMS_STILL_RETURN_ZERO
+CARRYING_COST_RETURNS_SIX_ALL_HARRIS_ALL_BODY_AND_ONE_IS_ON_POINT
+HARRIS_GIVES_BASIS_FAIR_VALUE_AND_ARBITRAGE_BOUNDS_AND_FULLY_PREDICTABLE_COMPENSATION
+CORRECTED_VERDICT_CORPUS_PREDICTS_NOT_SILENT
+KISSELL_FINANCING_IS_SELF_FINANCING_BASKETS_EXCLUDED_EXPLICITLY
+REPO_247_IS_ALL_REPORT_SUBSTRING_THE_DEFECT_LANE_D_WARNED_ABOUT_IN_MY_OWN_NET
+H1_REFUTED_BASIS_DOES_NOT_MOVE_WITH_THE_FUNDING_RATE
+CORRELATIONS_ARE_MINUS_0_020_MINUS_0_013_PLUS_0_025_Z_MINUS_0_7_MINUS_0_5_PLUS_2_3
+THE_SIGN_IS_OPPOSITE_ON_THE_MAJORS_AND_ON_SOL
+H2_CONFIRMED_DECISIVELY_THE_BASIS_IS_PINNED_NOT_A_RANDOM_WALK
+HALF_LIFE_3_4_2_9_1_4_SECONDS_AGAINST_A_RANDOM_WALK_CONTROL_OF_THOUSANDS
+THE_BOOKS_SHAPE_IS_RIGHT_ITS_PROPOSED_DRIVER_IS_NOT_VISIBLE_AT_THIS_SCALE
+FUNDING_SETTLES_EVERY_EIGHT_HOURS_THE_BASIS_REVERTS_IN_SECONDS_A_TEN_THOUSAND_FOLD_GAP
+WHATEVER_PINS_THE_BASIS_IS_FASTER_THAN_FUNDING
+TEST_LIMIT_STATED_THIS_IS_THE_CONTEMPORANEOUS_SECOND_BY_SECOND_RELATION
+THE_SETTLEMENT_HORIZON_VERSION_HAS_LOW_POWER_AT_104_SETTLEMENTS_AND_WAS_NOT_RUN
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+
+---
+
+## §507 [A-S78] LANE A — BLOK `SE` PLATO YAPMIYOR ÇÜNKÜ YAPAMAZ; KÜLLİYAT BUNU ÖNGÖRÜYOR, VE BAĞLAYAN KITLIK **SPAN** (2026-08-27, Opus 5 [1M])
+
+`tools/s78_no_plateau.py` · `S78_NO_PLATEAU_V1.{md,json}`
+
+### 1. ÖNCE YENİDEN KOŞMA (talimat: yalnız sıfır dönen ÇOK KELİMELİ ifadeler)
+Bu hattın **on beş** sıfır ifadesi `§548/§550` sonrası yeniden koşuldu — **on beşi de hâlâ SIFIR**
+⟹ **bu hatta yanlış-sıfır yok.** Onlara dayanan tek yayımlanmış iddia (`A-S76` SESSİZ) zaten
+`A-S77`'de geri çekilmişti. **Tek kelimelik işler yeniden koşulmadı** (talimat gereği).
+
+### 2. AÇIK SORU VE KÜLLİYATIN HÜKMÜ: **ÖNGÖRÜYOR**
+`A-S77`'nin blok `SE`'si en büyük blokta hâlâ yükseliyordu ⟹ `t`'ler üst sınırdı. Külliyata **onun
+diliyle** soruldu (`"optimal block length"` SIFIR, `"block size selection"` SIFIR, ama
+**`"long memory"` 39 hit**):
+> **TQP:** *"the activity in financial markets is characterised both by **LONG MEMORY (the activity
+> is AUTOCORRELATED OVER VERY LONG PERIODS, OF 100 DAYS OR MORE)**"*
+
+Aktivite `100+` gün otokorele, örneklem **27 gün** ⟹ blok bootstrap **plato YAPAMAZ.**
+`A-S77`'nin platosuzluğu **kusur değil, öngörülen sonuç.**
+
+### 3. SINIRA KADAR
+```
+BTCUSDT  L=1804 (10 blok)  SE 4.4454  t 0.30  12.52× YÜKSELİYOR
+ETHUSDT  L=1912 (10)       SE 7.3140  t 0.41  12.39× YÜKSELİYOR
+SOLUSDT  L= 774 (10)       SE 4.1608  t −0.18  6.42× YÜKSELİYOR
+100 günlük bağımlılık = 66 837 / 70 815 / 28 696 olay · örneklem 18 046 / 19 120 / 7 748
+GEREKEN BLOK = TÜM ÖRNEKLEMİN 3.7 KATI   (= 100/27, üç sembolde de aynı)
+```
+
+### 4. NE KESİNLEŞTİ
+**`SE` yakınsayamaz** ⟹ `A-S77`'nin `t`'leri **üst sınır olarak kalıyor** ve **bu örneklemde
+hiçbir tarama onları daraltamaz.** **Ve `A-S76` ile döngü öbür taraftan kapanıyor:** `18 107`
+olayın `24` bileşen taşıması ile `SE`'nin hiç plato yapmaması **AYNI OLGU.** İki yöntem, iki yön,
+tek duvar. **Bağlayan kıtlık gözlem değil, yöntem değil — SPAN.** *(Estate'in merkezi kısıtının
+aynısı; `A-S59` `6.4 yıllık` taşıma verisini tam bu yüzden varlık saymıştı.)*
+
+```verdict
+A_S78  FIFTEEN_ZERO_MULTI_WORD_PHRASES_RE_RUN_ALL_FIFTEEN_STILL_ZERO_NO_FALSE_ZEROS_HERE
+       THE_CORPUS_PREDICTS_THE_NON_PLATEAU_ACTIVITY_AUTOCORRELATED_OVER_100_DAYS_OR_MORE
+       MY_SAMPLE_IS_27_DAYS_SO_A_BLOCK_BOOTSTRAP_ON_IT_CANNOT_CONVERGE
+       PUSHED_TO_TEN_BLOCKS_THE_SE_IS_STILL_RISING_ON_ALL_THREE
+       THE_REQUIRED_BLOCK_IS_3_7x_THE_ENTIRE_SAMPLE_IDENTICALLY_ON_ALL_THREE
+       A_S77_t_STATISTICS_STAY_UPPER_BOUNDS_AND_NO_SWEEP_CAN_TIGHTEN_THEM
+       TWENTY_FOUR_COMPONENTS_AND_A_NON_PLATEAUING_SE_ARE_THE_SAME_FACT
+       THE_BINDING_SCARCITY_IS_NOT_OBSERVATIONS_NOR_METHOD_IT_IS_SPAN
+       THE_CORPUS_100_DAYS_IS_FOR_EQUITIES_AND_MAY_BE_OUT_OF_REGIME_HERE
+```
+
+**Çekinceler:** `10 blok` bir **seçim**; altında bootstrap anlamını yitirir · `SE` **monoton değil**
+(`902`'de düşüp `1804`'te yükseliyor) ⟹ az bloklu tahminler gürültülü, **eğilim okunur, nokta
+değerleri okunmaz** · `NBOOT=400` ⟹ `SE`'nin `SE`'si `~%3.5` · **TQP'nin `100 gün`ü hisse
+aktivitesi için ve kripto perpetualleri için REJİM DIŞI OLABİLİR** — külliyat bir kaynaktır,
+otorite değil; ama yön (`bağımlılık ≫ örneklem`) `A-S76` tarafından **bağımsız** doğrulanıyor ·
+seri olay sırasında · 1-dk kapanışlar, `%39–45` kirli pencereler (§493) · yanmış örneklem ·
+**hiçbir kural önerilmiyor**, **push YOK.**
+
+---
+
+## §552 [C-KULLIYAT-T56] LITERAL SIFIRLAR DURUYOR, NESNELER DURMUYOR: IKI `BEYOND_THE_SHELF` HUKMUM DE GERI CEKILDI (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t56_re_ask_my_zero_verdicts_in_the_corpus_vocabulary.py`
+**Tetikleyen:** operator (§548/§550 sonrasi yeniden kosum) + C-T57 - **Tavan:** `MEASUREMENT_FIDELITY`
+**Errata:** ADDENDUM_AC (ERR-HU-056, 057, 058) - **Kaynak sayisi IDDIA EDILDI: 13/13**
+**`lane_mind_selftest_v1` isten ONCE kosuldu: PASSED.**
+
+### 1. Iki talimat ayni ise cikti
+
+**Operator:** *"yalniz SIFIR donen COK KELIMELI sorgulari yeniden kos -- yanlis-sifir riski ~8'de 1."*
+**C-T57:** *"mekanizmanin ADINI aradim, IKTISADI NESNESINI degil ... **terim terim bir kontrol,
+cekildigi sozcuk dagarciği kadar genistir.**"*
+
+Bu hattin uc sifir hukmunun **ucu de benim duz yazimla** yazilmisti.
+
+### 2. Once: sayim kusuru mu? HAYIR
+
+Onarilmis okuyucuyla, 13/13 kaynakta:
+```
+"sign autocorrelation conditioned on size"   0   HALA SIFIR
+"large trades are followed by same sign"     0   HALA SIFIR
+"distance actually crossed"                  0   HALA SIFIR
+```
+⟹ **D-E22'nin duzelttigi kusur bu turun hicbir basarisizligini aciklamiyor.** Arac saglamdi.
+
+### 3. Sonra: NESNE rafta mi? EVET, hem de fazlasiyla
+
+**Z1/Z2 -- "isaret otokorelasyonu buyuk/derin islemlerden sonra daha guclu":**
+```
+metaorder               316   BOUCHAUD          <<< bu hat bu kelimeyi HIC YAZMADI
+long memory              39   3 kaynak
+herding                  27   4 kaynak
+long-memory              19   4 kaynak
+order splitting          12   3 kaynak
+correlated order flow     6  · persistent order flow 5 · sign correlation 3
+identical signs           2   ABERGEL -- zaten alintiladigim cumle
+                        ---
+                        436 isabet, denenen 13 terimin 13'u de sifirdan buyuk
+```
+
+**Z3 -- "fiilen gecilen mesafe":**
+```
+trade-through           115   6 kaynak
+price improvement        75   5 kaynak
+effective spread         35   5 kaynak
+walk the LOB             14  · walk the book 11  (CARTEA) · realized spread 5 (HARRIS)
+                        ---
+                        265 isabet, 9 terimin 7'si
+```
+
+### 4. Genellenen ayrim
+
+```
+BENIM OLCTUGUM SEY:  PHRASE_NOT_ON_THE_SHELF
+BENIM IDDIA ETTIGIM: BEYOND_THE_SHELF
+BUNLAR AYNI IDDIA DEGIL.
+```
+Ve bu, **dordunçu kusur yonunu** tamamliyor -- dordu de artik bu hattin kendi kaydinda ornekli:
+```
+RAF boslugu       orada yok
+ESTATE boslugu    orada var, hicbir hat almamis
+OKUYUCU boslugu   sorgu kaynaklarin bir ALT KUMESINI gordu        (§551)
+SOZCUK boslugu    okuyucu ve raf saglam, sorgu YANLIS NESNEYI adlandirdi   (bu tur)
+```
+Son ikisi **tehlikeli cift**: ikisi de **dogru bir literal sifir** uretir, **yanlis bir hukum**
+altinda. Korumalari **farkli** -- biri icin *kaynak sayisini iddia et*, digeri icin
+*kaynagin sozcugüyle sor*.
+
+### 5. Ve A-S77'nin uyarisi kendi sayilarima karsi kaydedildi (ERR-HU-058)
+
+C-T51'de `R(1)` icin `sd/sqrt(n)` ile **0.00005 / 0.00007 / 0.00021** SE yayimladim -- **uzun
+hafizasini bu hattin kendisinin olctugu** bir seride. Bu, yuzunde savunulamaz; A'nin olcumunu
+beklemem gerekmezdi. **Nokta kestirimler etkilenmiyor**, yayimlanan hassasiyet **alt sinir**
+olarak geri cekiliyor. Blok SE ile yeniden olcum **bu turda yapilmadi**, duzeltilmis bir sayi
+**iddia edilmiyor**.
+
+```verdict
+THE_LITERAL_ZEROS_HOLD_UNDER_THE_REPAIRED_READER
+THIS_IS_NOT_A_COUNTING_DEFECT_THE_TOOL_WAS_SOUND
+BOTH_OBJECTS_ARE_ON_THE_SHELF_436_AND_265_HITS
+BOTH_BEYOND_THE_SHELF_VERDICTS_WITHDRAWN
+Z3_ZERO_VERDICT_WITHDRAWN
+METAORDER_IS_316_HITS_IN_BOUCHAUD_AND_NO_LANE_HAS_TYPED_THE_WORD
+A_LITERAL_ZERO_AND_AN_ABSENT_OBJECT_ARE_DIFFERENT_CLAIMS
+WHAT_I_MEASURED_LICENSED_PHRASE_NOT_ON_THE_SHELF
+FOURTH_FAILURE_DIRECTION_NAMED_VOCABULARY_GAP
+SOURCE_COUNT_ASSERTED_13_OF_13
+SELFTEST_PASSED_BEFORE_THE_WORK
+R1_STANDARD_ERRORS_WITHDRAWN_AS_A_LOWER_BOUND_POINT_ESTIMATES_UNAFFECTED
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T56_VOCABULARY_RERUN_V1.json` - **Inline surucu yok** (D-47).
+
+## §553 [C-T58] YENİDEN KOŞMA TALİMATINI UYGULARKEN **DÜZELTMENİN KANONİK OKUYUCUYA HİÇ ULAŞMADIĞINI** BULDUM — `absence()` RAFTA OLAN DÖRT İFADE İÇİN `supported=True` DÖNÜYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c58_phrase_reader_absence_audit_v1.py` ·
+**Örneklem (artefakt yoluyla):** `data/literature_v2/text/*.txt` (13 kaynak) +
+`reports/atlas/_SHARED_LOG.md` + `SYSTEM_STATE.md` ·
+**Sınıf:** CLAUDE.md N-tüketmeyen iş sınıfı **(b) veri-bütünlüğü denetimi**.
+
+### 1. Külliyat verdict'i: **ÖNGÖRÜYOR** — ve tam da yokluk iddialarından oluşan bir kayıt hakkında
+
+Terimler **tek tek** koşuldu; dördünün **birleşimi SIFIR** dönüyordu ve boş bir birleşim iddia
+değildir (kendi C-T56 aracımın uyardığı tuzak):
+
+| terim | isabet | kaynak |
+|---|--:|---|
+| `type II error` | **10** | LOPEZDEPRADO_MLAM 9 · KISSELL_SATPM 1 |
+| `power of the test` | **2** | LOPEZDEPRADO_MLAM |
+| `failure to reject` | 1 | CHAN_AT |
+| `absence of evidence` | 1 | HERNAN_ROBINS_WHATIF |
+| `negative result` | 1 | ABERGEL_LOB |
+
+**López de Prado §8.8.3, karar veren cümle:** *"K bağımsız denemeden sonra, **hepsinde** tip II
+hatası yapma olasılığı `β^K`'dır."* **Yanlış-sıfır TAM OLARAK bir tip II hatasıdır** ⟹ çok sayıda
+yokluk iddiası taşıyan bir kayıt **bir kez değil, çarpımsal olarak** bozulur. Chan ekliyor:
+*"bir null hipotezi reddedememek çok ilginç içgörülere ilham verebilir"* — null bir **sonuçtur**,
+yanlış olanı bu yüzden pahalıdır.
+
+### 2. İşi açmadan önce iki okuyucuyu okudum — **ve anlaşmıyorlar**
+
+```
+lane_mind_v1.who_corpus   satır 381   re.compile(r"\s+".join(re.escape(w) for w in t.split()))
+corpus_text_v1.count      satır ~118  hay.count(needle)        <-- KATI literal alt-dize
+```
+
+`dehyphenate()` **dizgicinin böldüğü bir KELİMEYİ** birleştiriyor. **İki tam kelime ARASINDAKİ
+satır sonunu kapatmıyor.** Yani `funding\nrate` `--who`'ya görünür, `count()`'a görünmez.
+**Ve `count()`, CLAUDE.md'nin *"tek doğru okuyucu"* dediği, `absence()`'ın üstüne kurulduğu, ve bu
+estate'teki HER yayımlanmış külliyat yokluk iddiasının geçtiği okuyucudur.**
+
+### 3. Ölçüm — ve önce negatif kontrol
+
+**Negatif kontrol 8/8 sıfır.** (Rafta bulunması imkânsız 8 dizi esnek okuyucudan geçirildi;
+her şeyi eşleştiren bir "onarım" yerine geçtiği kusurdan kötüdür ve recall onsuz kanıt değildir.)
+
+**M1 — rafın kendi iki-kelimelik ifade popülasyonu:**
+
+| | ayrık ifade |
+|---|--:|
+| esnek okuyucu | 289 819 |
+| katı okuyucu (kanonik) | 241 471 |
+| **KANONİK OKUYUCUYA GÖRÜNMEZ** | **48 348 (%16.68)** |
+| bunların estate'in çalıştığı bir terimi taşıyanı | **2 321** |
+
+En sık: `order` 486 · `spread` 170 · `tick` 151 · `estimator` 145 · `impact` 145 ·
+`volatility` 124 · `hazard` 114 · `censor` 102 · `execution` 101 · `microstructure` 99 ·
+`queue` 80 · `frailty` 78.
+*(Estate-ilgili sayımı ayrı bir geçişte alındı ve 48 348 yerine 48 353 saydı — %0.01 fark,
+bulguya etkisiz, **kovalamadım**, ve tek sayı seçip sessizce geçmemek için yazıyorum.)*
+*(D-E23'ün %11.8'i ile çelişmiyorum — o daha dar bir ifade popülasyonu tanımlamıştı; bu farklı
+bir payda, çürütme değil.)*
+
+**M4 — KARAR VEREN GÖSTERİM.** Yokluk iddialarını **onaylamak için var olan** fonksiyon,
+docstring'i *"bir yokluk iddiası ancak `supported` True iken yayımlanabilir"* diyen fonksiyon:
+
+| ifade | `absence().supported` | `total_hits` | **RAFTA GERÇEKTE** |
+|---|---|--:|--:|
+| `bid depth` | **True** | 0 | **1** |
+| `actual hazard` | **True** | 0 | **1** |
+| `book spread` | **True** | 0 | **1** |
+| `frailty density` | **True** | 0 | **1** |
+
+**Sertifikacının kendisi düşüyor.**
+
+### 4. Kendi yayımladığım sıfırlar — hepsi ayakta
+
+**M2 — kayıttaki 226 çok-kelimeli backtick'li ifade**, iki okuyucudan da geçirildi:
+**4 tanesi** katıda 0 / esnekte >0. **Dördü de** `actual hazard`, `bid depth`, `book spread`,
+`frailty density` — yani **D-E23'ün §548'de kusur ÖRNEĞİ olarak yazdığı ifadeler**, kayda oradan
+girmişler. **Popülasyonum bu ölçüde döngüsel**: örnek olarak adlandırılmamış **222 ifadenin
+0'ı dönüyor**. Bunu bir oran olarak sunmuyorum; ama ters yönde bir şey **doğruluyor** — D-E23'ün
+onarımı, adlandırdığı vakaları gerçekten kurtarıyor.
+
+**M3 — C-T56/C-T57'de yayımladığım on çok-kelimeli sıfır**, esnek okuyucuyla yeniden:
+`funding rate` · `perpetual future` · `perpetual swap` · `funding payment` · `financing rate` ·
+`swap rate` · `repo rate` · `convenience yield` · `cash-and-carry` · `contract for difference`
+⟹ **ONU DA HÂLÂ SIFIR.** D-E23'ün öngördüğü gibi. **C-T57'nin "isim terimleri sıfır" yarısı
+kayıtsız şartsız ayakta**, ve o turun asıl düzeltmesi (isim yerine ekonomik nesne) zaten
+okuyucuyla ilgili değildi.
+
+### 5. Ne öğrendim — ve bu benim turumun tekrarı
+
+C-T57'de kaydettiğim şey *"okuyucu düzeltmesi bir arama dağarcığını düzeltemez"*ti. Bu tur bunun
+**tersi**: **bir arama dağarcığı düzeltmesi de okuyucuyu düzeltmez** — ve ikisi ayrı dosyalarda
+yaşadığı için biri onarılırken diğeri geride kalabilir. **Bir düzeltmenin hangi okuyucuya
+indiğini, düzeltmenin duyurusundan değil ÇAĞRI YERİNDEN doğrula.**
+
+**Kapsam çiti:** `corpus_text_v1.py` ve `lane_mind_v1.py` **D hattının dosyaları — DEĞİŞTİRMEDİM.**
+Bu bir bulgudur ve D'ye yazılmıştır.
+
+```verdict
+C_T58_THE_PHRASE_FIX_REACHED_LANE_MIND_ONLY_NOT_THE_CANONICAL_READER
+CORPUS_PREDICTS_LOPEZDEPRADO_8_8_3_TYPE_II_ERROR_ON_ALL_K_TRIALS_IS_BETA_TO_THE_K
+A_FALSE_ZERO_IS_A_TYPE_II_ERROR_SO_A_RECORD_OF_ABSENCE_CLAIMS_DECAYS_MULTIPLICATIVELY
+FIVE_TERMS_RUN_SINGLY_THE_FOUR_TERM_CONJUNCTION_RETURNED_ZERO_AND_IS_NOT_A_CLAIM
+CORPUS_TEXT_V1_COUNT_IS_A_RIGID_LITERAL_SUBSTRING_SEARCH
+LANE_MIND_WHO_CORPUS_JOINS_WORDS_WITH_FLEXIBLE_WHITESPACE_THE_TWO_DISAGREE
+DEHYPHENATE_REJOINS_A_BROKEN_WORD_IT_DOES_NOT_CLOSE_A_NEWLINE_BETWEEN_TWO_WORDS
+EIGHT_NEGATIVE_CONTROLS_ALL_ZERO_RECALL_WITHOUT_THEM_IS_NOT_EVIDENCE
+48348_OF_289819_DISTINCT_SHELF_PHRASES_ARE_INVISIBLE_TO_THE_CANONICAL_READER_16_68_PERCENT
+2321_OF_THEM_CARRY_A_TERM_THIS_ESTATE_WORKS_ON
+NO_CONTRADICTION_WITH_D_E23_11_8_PERCENT_A_DIFFERENT_PHRASE_POPULATION_NOT_A_REFUTATION
+RECOUNT_DIFFERED_BY_FIVE_PHRASES_0_01_PERCENT_NOT_CHASED_AND_SAID_SO
+ABSENCE_RETURNS_SUPPORTED_TRUE_FOR_FOUR_PHRASES_THAT_ARE_ON_THE_SHELF
+THE_CERTIFIER_BUILT_TO_APPROVE_ABSENCE_CLAIMS_IS_ITSELF_THE_DEFECTIVE_READER
+M2_POPULATION_IS_CIRCULAR_ALL_FOUR_FLIPS_ARE_D_E23S_OWN_WORKED_EXAMPLES
+OF_THE_222_PHRASES_NOT_NAMED_AS_EXAMPLES_ZERO_FLIP_NOT_OFFERED_AS_A_RATE
+IT_VERIFIES_D_E23_IN_THE_OTHER_DIRECTION_THE_REPAIR_DOES_RECOVER_THE_CASES_IT_NAMED
+MY_TEN_PUBLISHED_MULTI_WORD_ZEROS_ARE_ALL_STILL_ZERO_UNDER_THE_FLEXIBLE_READER
+C_T57_NAME_TERM_HALF_STANDS_WITHOUT_QUALIFICATION
+LAST_ROUND_A_READER_FIX_CANNOT_CORRECT_A_VOCABULARY_THIS_ROUND_THE_CONVERSE
+VERIFY_WHICH_READER_A_FIX_LANDED_IN_AT_THE_CALL_SITE_NOT_FROM_ITS_ANNOUNCEMENT
+SCOPE_FENCE_BOTH_TOOLS_ARE_LANE_D_FILES_NOT_EDITED_REPORTED_AS_A_FINDING
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+## §552 [D-E25] HATIRLAMA KATMANI KAYDIN **%11'İNİ DÜŞÜRÜYORMUŞ** — BANA YAZILMIŞ YEDİ MESAJ HİÇ ULAŞMAMIŞ; KAYIT DEĞİL **OKUYUCU** YANLIŞTI (2026-08-27, Opus 5 [1M])
+
+### KÜLLİYAT: SESSİZ DEĞİL, **ÖNGÖRÜYOR**
+`--who "measurement error"` tek başına Hernán & Robins'te **70 hit**. Sayıyı alıntılamak yerine
+pasajı okudum: bölüm 9, **bağımsız** ölçüm hatasını (Şekil 9.2, collider'larla bloklanmış,
+*"veri giriş hataları gelişigüzel oluştu"*) **bağımlı** olandan (Şekil 9.3, Teknik Nokta 9.1)
+ayırıyor. Bu kusur tam olarak ikincisi: **yanlış ID rastgele değildi, bloğun ALINTILADIĞI ID'ydi**
+— yani hata, kaydın kendi içeriğinin deterministik bir fonksiyonu. H&R'nin uyarısı bağımlı vakada
+basit düzeltmelerin işlemediği; burada da log'u tekrar okumak işe yaramazdı, çünkü **her okuyucu
+aynı kusuru paylaşıyordu**.
+
+### A-S77 DOĞRULANDI — AMA TEŞHİS DEĞİŞİYOR
+A bunu *"ayrıştırılamayan ID bir önceki bloğun ID'sini devralıyor"* diye okudu. Ölçüldü: `BLOCK`
+başlıktan sonra **çıplak** satırbaşı istiyor, kayıt **karışık CRLF/LF**, ve CRLF bir blokta eşleşme
+`re.S` altında geri izleyip **başlığın gövdeyi yutmasına** yol açıyor. Ardından `STABLE_ID.search`
+o metindeki **ilk ID-şekilli diziyi** alıyor — ki o genelde bir **ATIF**tır.
+`C-KULLIYAT-T55`, beni alıntıladığı için **`D-E22` altına dosyalanmış**. Komşudan devralım değil,
+**atıf tarafından ele geçirilme**. Aynı semptom, başka çözüm.
+
+### BÜYÜKLÜĞÜ
+Dosya **120** blok taşırken parser **103** çıkarıyordu. Eski parser'ın hiç üretmediği offset'lerde
+**14** blok var ve bunların **13'ü dolu bir `to X` satırı taşıyor**. **YEDİ'Sİ LANE D'YE
+YAZILMIŞTI ve hiç görmedim:** `A-S64` · `A-S65` · `A-S66` · `A-S69` · `C-T48` · `C-T51` · `A-S77`.
+Çözülen alıntı **34 → 40**.
+
+**KAYIT HİÇBİR ZAMAN YANLIŞ DEĞİLDİ.** Kutsal/türetilmiş ayrımı tam da bunun için kurulmuştu:
+hiçbir şey kaybolmadı, okuyucu onarılır onarılmaz **hepsi geri geldi**.
+
+### İKİNCİ SEBEP — YENİ GUARD İLK KOŞUŞUNDA BULDU
+120 başlık hâlâ 119 blok veriyordu. Bu dosyanın tepesindeki **FORMAT ŞABLONU** birebir bir
+`### <STABLE_ID>` satırı içeriyor; `re.S` altında o eşleşme şablonu aşıp **ilk gerçek blok
+`A-S45`'i** yutuyor, sonra şablon diye **birlikte atılıyordu**. Başlık artık **satır sınırlı**;
+satır aşamayan bir başlık hiçbir şeyi yutamaz.
+
+### DÜZELTMELER
+Satır sonları okumada normalize · başlık satır sınırlı · ID `search` değil **`match`** ile başa
+bağlı (atıf asla kazanamaz) · ID şekli **kaydın gerçekte taşıdığına genişletildi** — lane C
+`C-KULLIYAT-T55` yazıyor, eski kalıp reddediyordu ve **fallback'i tetikleyen o reddetmeydi.
+Aracın okumayı reddettiği bir konvansiyon, hattaki değil ARAÇTAKİ kusurdur.** Kalan iki
+ayrıştırılamaz başlık (`B (18 sections)`, `LANE D OPENED`) artık **işaretleniyor ve `--check`
+tarafından raporlanıyor**, sessizce değiştirilmiyor.
+
+### C-T48 KAPANDI
+NUL baytları artık **strip ediliyor** (1 337 taneydi) — iki hattın okuyucusu artık **offset**'lerde,
+dolayısıyla **pasaj üyeliğinde** anlaşıyor. Dokuz kontrol terimi öncesi/sonrası **birebir aynı**,
+tam da C-T46'nın ölçtüğü gibi.
+
+### GERİ ÇEKİLEN: §550'NİN *"ARAÇLAR TEST EDİLMİŞ"* İDDİASI
+Test paketi, parser kaydın **%11'ini düşürürken PASS verdi** — çünkü her vaka **külliyat**
+yarısını sınıyordu ve **hiçbiri KAYDI saymıyordu**. **Geçen bir test kapsam değildir.** İki guard
+eklendi — her `###` başlığı bir bloğa dönüşmeli, ve hiçbir ID sessizce fallback yapamaz — ve
+**ikisi de ilk koşuda DÜŞTÜ**; ikinci sebep böyle bulundu. Şimdi 120/120.
+
+```verdict
+CORPUS_PREDICTS_THIS_HERNAN_ROBINS_CH9_FIG_9_3_DEPENDENT_MEASUREMENT_ERROR
+THE_WRONG_ID_WAS_THE_ID_THE_BLOCK_CITED_SO_THE_ERROR_TRACKS_THE_CONTENT
+A_S77_CONFIRMED_BUT_THE_MECHANISM_IS_CAPTURE_BY_CITATION_NOT_INHERITANCE
+MIXED_CRLF_MADE_THE_HEADER_SWALLOW_THE_BODY_UNDER_RE_S
+103_BLOCKS_PARSED_WHERE_THE_FILE_HOLDS_120
+THIRTEEN_OF_FOURTEEN_LOST_BLOCKS_CARRIED_A_NON_EMPTY_TO_X_LINE
+SEVEN_MESSAGES_ADDRESSED_TO_LANE_D_WERE_NEVER_DELIVERED
+CITATIONS_RESOLVED_34_TO_40
+THE_RECORD_WAS_NEVER_WRONG_THE_READER_WAS_AND_EVERYTHING_CAME_BACK
+SECOND_CAUSE_THE_FORMAT_TEMPLATE_SWALLOWED_THE_FIRST_REAL_BLOCK_A_S45
+HEADER_IS_NOW_LINE_BOUNDED_ID_ANCHORED_WITH_MATCH_NOT_SEARCH
+ID_SHAPE_WIDENED_TO_WHAT_THE_RECORD_CARRIES_A_CONVENTION_THE_TOOL_REFUSES_IS_A_TOOL_DEFECT
+UNPARSEABLE_IDS_ARE_MARKED_AND_SURFACED_NEVER_SILENTLY_REPLACED
+C_T48_CLOSED_NUL_STRIPPED_NINE_CONTROL_TERMS_BYTE_IDENTICAL
+SECTION_550_WITHDRAWN_A_PASSING_TEST_IS_NOT_COVERAGE
+BOTH_NEW_GUARDS_FAILED_ON_THEIR_FIRST_RUN_WHICH_IS_HOW_THE_SECOND_CAUSE_WAS_FOUND
+```

@@ -31,6 +31,7 @@ Exit code is 0 only if every case passes.
 from __future__ import annotations
 
 import glob
+import io
 import os
 import random
 import re
@@ -212,6 +213,27 @@ def main():
     if not case("a term the record certainly carries returns hits", len(liv) > 200,
                 "%d chars" % len(liv)):
         failures.append("estate_liveness")
+
+    # ------------------------------------------------------------ parser completeness
+    # ADDED D-E25.  The suite passed while the block parser was silently dropping 13 of 116
+    # blocks -- 7 of them messages addressed to this lane -- because every case tested the
+    # CORPUS half and nothing counted the RECORD.  A passing test is not coverage.
+    print("")
+    print("PARSER COMPLETENESS   (the suite passed while 11 percent of the record was invisible)")
+    txt = io.open(L.LOG, "rb").read().decode("utf-8", "replace")
+    txt = txt.replace(chr(13) + chr(10), chr(10)).replace(chr(13), chr(10))
+    headers = [h for h in re.findall(r"^### (.+)$", txt, re.M)
+               if not h.strip().startswith("<STABLE_ID>")]
+    bl2 = L.blocks()
+    if not case("every ### header becomes a block", len(headers) == len(bl2),
+                "%d headers, %d parsed" % (len(headers), len(bl2))):
+        failures.append("parser_completeness")
+
+    unp = [b for b in bl2 if b.get("id_parse") == "UNPARSEABLE"]
+    surfaced = str(L.check(bl2))
+    ok = all(str(b["line"]) in surfaced or b["stable_id"] in surfaced for b in unp) if unp else True
+    if not case("no id falls back SILENTLY", ok, "%d unparseable" % len(unp)):
+        failures.append("silent_fallback")
 
     print("\n" + "=" * 78)
     if failures:
