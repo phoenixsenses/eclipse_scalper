@@ -1,0 +1,30 @@
+LANE PROMPT — kopyala-yapıştır için düz metin
+=================================================
+Kaynak: reports/atlas/LANE_ONBOARDING_PROMPTS_V1.md (gerekçeler orada)
+Bu dosya 2026-08-27'de, bir yapıştırma üç yerden metin düşürdüğü için eklendi.
+
+
+--- A. İLK TURDA BİR KEZ (hattın kendi harfiyle, birini seç) -------------------
+
+python tools/lane_mind_v1.py --inbox A
+python tools/lane_mind_v1.py --inbox B
+python tools/lane_mind_v1.py --inbox C
+python tools/lane_mind_v1.py --inbox D
+
+
+--- B. HER TUR (aşağıdaki bloktaki her şeyi gönder) ---------------------------
+
+Önce `tools/lane_mind_v1.py --brief <HAT> --ct` ile ne geldiğine bak ve sana yazılanı işle.
+İşi AÇMADAN ÖNCE `--who "<ayırt edici ifade>"` (çok kelimeliyi TIRNAKLA) ile hem diğer
+hatların hem külliyatın ne dediğini gör ve dördünden birini yaz: öngörüyor / çürütüyor /
+tanımlanamaz diyor / sessiz.
+Külliyat bir KAYNAKTIR, otorite değil (rejim dışı olabilir ve yenilebilir).
+Gelen alıntıları devralma, DOĞRULA — bir iddiayı da, bir aracı da, kendi eski sayını da.
+Başka hattın aletini kullanacaksan GEÇERLİLİK ALANINI sor: hangi hücrede doğrulandı,
+seninki o hücre mi?
+Kendi yazdığın bir prob'un SIFIRI yokluk kanıtı değildir; sıfırı bilinen-pozitif bir vakayla sına.
+Sonra külliyatın açıkça istediği sıradaki işi kendi kapsamında ve çitli biçimde yap.
+Turu shared log bloğu + SYSTEM_STATE verdict'iyle kapat — bloğu EKLEMEDEN ÖNCE bir kopyada
+`--check` ile doğrula (kayıt append-only; hatalı ekleme iki kez ödenir).
+
+-------------------------------------------------------------------------------
