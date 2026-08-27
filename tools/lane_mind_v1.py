@@ -501,11 +501,25 @@ def main():
             cited = {c["source"] for b in bl for c in citations(b["body"])}
             for src, v in cw.get("per_source", {}).items():
                 v["ever_cited_in_the_log"] = src in cited
-            # a FALSE never-cited flag is worse than none, because that flag is advertised as the
-            # highest-value output here.  it is suppressed when the query is not discriminating.
-            cw["never_cited_sources"] = (
-                [] if cw.get("non_discriminating_terms")
-                else [s2 for s2 in cw.get("per_source", {}) if s2 not in cited])
+            # THREE LEVELS, not two.  The first version reported "never cited" for anything with
+            # no parseable locator, and that fires on 7 of 13 sources -- including HONORE_1993,
+            # which lane D read end to end and built two rounds on.  It was measuring citation
+            # FORMATTING, not neglect.  Short and unstructured sources have no section numbers to
+            # cite, so they can never leave that bucket.
+            mentioned = set()
+            alltext = " ".join(b["body"] for b in bl)
+            for src, al in SOURCE_ALIASES.items():
+                if any(re.search(re.escape(a), alltext, re.I) for a in al):
+                    mentioned.add(src)
+            hits = list(cw.get("per_source", {}))
+            weak_q = bool(cw.get("non_discriminating_terms"))
+            cw["never_mentioned_sources"] = [] if weak_q else [x for x in hits
+                                                               if x not in mentioned]
+            cw["mentioned_not_cited_sources"] = [] if weak_q else [
+                x for x in hits if x in mentioned and x not in cited]
+            cw["flag_semantics"] = ("NEVER MENTIONED is the strong signal.  MENTIONED-NOT-CITED "
+                                    "only means no locator was pinned, which short sources can "
+                                    "never satisfy -- it is a weak hint, not neglect.")
             out["who_corpus"] = cw
     if a.owed:
         o = owed(bl)
@@ -583,10 +597,17 @@ def main():
                       % (src, v["hits"], v["anchor_term"], v["term_counts"]))
                 for sn in v["snippets"]:
                     print("      L%-7d %s" % (sn["line"], sn["text"]))
-            if cw.get("never_cited_sources"):
-                print("  >> NEVER CITED IN THE LOG: %s" % ", ".join(cw["never_cited_sources"]))
-                print("     a source that speaks to your terms and that no lane has ever cited is")
-                print("     the highest-value object here -- D-E2 found ABG ch.10 this way.")
+            if cw.get("never_mentioned_sources"):
+                print("  >> NEVER MENTIONED IN THE LOG: %s"
+                      % ", ".join(cw["never_mentioned_sources"]))
+                print("     STRONG signal -- a source that speaks to your terms and that no lane")
+                print("     has ever named.  D-E2 found ABG chapter 10 this way.")
+            if cw.get("mentioned_not_cited_sources"):
+                print("  -- mentioned but no locator pinned: %s"
+                      % ", ".join(cw["mentioned_not_cited_sources"]))
+                print("     WEAK hint only.  short sources have no section numbers to cite and can")
+                print("     never leave this bucket -- HONORE_1993 sits here after two rounds")
+                print("     built on it.  this measures citation FORMATTING, not neglect.")
             if cw["n_sources"] == 1:
                 print("  NOTE: all hits sit in ONE source.  Check the SENSE in the snippet before")
                 print("  citing it -- a term can be a homonym across books (A-S66: `saturat` was")

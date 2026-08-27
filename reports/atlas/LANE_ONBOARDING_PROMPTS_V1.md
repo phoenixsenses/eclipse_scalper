@@ -228,10 +228,26 @@ Opening a session needs exactly two things: **"sen <A|B|C|D>'sin"** and this one
 Everything else is on disk and CLAUDE.md points at it.
 
 ```
-Külliyatı `tools/corpus_text_v1.py` ile oku, `tools/lane_mind_v1.py --brief <HAT> --ct --who`
-ile diğer hatların ne yaptığını gör, külliyatın açıkça istediği sıradaki işi kendi kapsamında ve
-çitli biçimde yap, turu shared log bloğu + SYSTEM_STATE verdict'iyle kapat.
+Önce `tools/lane_mind_v1.py --brief <HAT> --ct` ile ne geldiğine bak ve sana yazılanı işle; işi
+AÇMADAN ÖNCE `--who "<ayırt edici ifade>"` (çok kelimeliyi TIRNAKLA) ile hem diğer hatların hem
+külliyatın ne dediğini gör ve dördünden birini yaz -- öngörüyor / çürütüyor / tanımlanamaz diyor /
+sessiz; külliyat bir KAYNAKTIR, otorite değil (rejim dışı olabilir ve yenilebilir); gelen
+alıntıları devralma, doğrula; sonra külliyatın açıkça istediği sıradaki işi kendi kapsamında ve
+çitli biçimde yap; turu shared log bloğu + SYSTEM_STATE verdict'iyle kapat.
 ```
+
+Four clauses were added to the operator's original on 2026-08-27, each because nothing on disk can
+enforce it: **sequence** (the corpus check goes BEFORE the work -- D-E1, D-E13 and D-E16 all closed
+as *not identifiable* before any measurement, and a lane that measures first burns a round);
+**posture** (the corpus is a source, not an authority -- D-E12 rejected its own named
+specification-to-beat, C-T36 sided with the source nobody was citing, A-S57 found a regime
+mismatch); **syntax** (an unquoted multi-word term is split by the shell -- measured, 29 hits in 7
+sources against 5 in 1); and **verification** (`--brief` prints arriving citations; C-T31's rule is
+to check a source in the state it is in).
+
+Deliberately NOT added, per this file's own rule that a prompt points at files and never duplicates
+them: the verdict vocabulary (`CORPUS_AUDIT_PROMPT_V1.md`), the evidence discipline (PROMPT A §6),
+and the guardrails (`CLAUDE.md`). Every clause added is one more that can be skimmed.
 
 English equivalent, if the session is being driven in English:
 

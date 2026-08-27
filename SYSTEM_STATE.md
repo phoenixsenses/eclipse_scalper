@@ -58158,3 +58158,524 @@ külliyat için yanlış olabilir · araç ayırt edici olmayan sorguyu **reddet
 kullanıcı yine de okuyabilir, ama never-cited bayrağını göremez · **kaynakçadaki isabet sorunu
 düzeltilmedi**, yalnız snippet ile görünür kılındı · araç hâlâ **hiçbir dosya yazmıyor** · dört hat
 aynı `§` uzayını paylaşıyor, kimlik `D-E20`, **yeniden numaralandırma YOK.**
+
+
+---
+
+## §504 [A-S75] LANE A — SAAT UYARISI MALİYET MODELİME ULAŞMIYOR (`1.06–1.21×`); VE SUBORDİNASYON GÖVDEYİ ÜÇ SEMBOLDE DE DÜZELTİYOR, KUYRUĞU BTC'DE KÖTÜLEŞTİRİYOR (2026-08-27, Opus 5 [1M])
+
+`tools/s75_subordination.py` · `S75_SUBORDINATION_V1.{md,json}`
+**CLAUDE.md yeniden okundu:** yeni guardrail **`git push` YASAK — `origin` PUBLIC** (`D-E19`);
+bu oturumda **hiç push yapılmadı** ve yapılmayacak.
+
+### 1. UYARI VE HANGİ ÇARPANA ULAŞTIĞI
+`C-T53`: bps-per-**trade** seviyeler saat seçimiyle **yarılanır**. `C-T54`: *"fee binds not depth"*
+marjı **yarılanıyor**, SOL'da derinlik artık ihmal edilebilir değil. Etkim `I = Y·σ_T·POV^δ`:
+**`POV` bir hacim kesri, saatten bağımsız; `σ_T` değil** ⟹ uyarı **tam bir çarpana** ulaşıyor.
+
+### 2. KÜLLİYATIN TEORİSİ — HİÇ ALINTILANMAMIŞ KAYNAKTAN
+Genişletilmiş `--who` `ECONOPHYS_ODM`'i **`NEVER CITED IN THE LOG`** ile çıkardı: **subordinasyon**
+— doğru saatte `Y(t)=X(FS(t))`, `X` **Brown hareketi**; Clark'ın saati **kümülatif hacim**, ama
+*"the number of transactions is more important than their size"*.
+
+### 3. ÖLÇÜM VE ÜÇ SONUÇ
+```
+sembol   saat          σ bps  basıklık   CV|r|   etki bps        yayılım
+BTCUSDT  CALENDAR      17.01     38.19   1.305      2.406
+         VOLUME        20.55     82.49   1.090      2.907
+         TRANSACTION   20.01     87.58   1.070      2.830          1.21×
+ETHUSDT  CAL/VOL/TRX   25.26/27.51/26.92  64.93/23.08/24.38  1.457/0.958/0.980   1.09×
+SOLUSDT  CAL/VOL/TRX   22.94/24.36/23.56  21.05/6.68/4.68    1.165/0.839/0.822   1.06×
+```
+**(1) UYARI ULAŞMIYOR:** yayılım `1.06–1.21×`, `C-T53`'ün `2×`'i değil ⟹ **`A-S49`/`A-S57`'nin
+*"ücret bağlıyor, derinlik değil"*i marjını KORUYOR.**
+**(2) SUBORDİNASYON GÖVDEYİ DÜZELTİYOR, KUYRUĞU HER YERDE DEĞİL:** `CV|r|` **üçünde de** düşüyor
+(`1.305→1.070`, `1.457→0.958`, `1.165→0.822`) ✔ ama basıklık BTC'de `38.19→87.58` **kötüleşiyor** ✘
+(SOL `21.05→4.68` ✔, ETH `64.93→23.08` ✔). **Basıklık kuyruğa, `CV|r|` gövdeye hâkim ⟹ BTC'de
+gövde aralıklılığı emiliyor, kuyruğunki emilmiyor.**
+**(3) KÜLLİYATIN RAFİNELEMESİ ZAYIF:** işlem-sayısı saati hacim saatini basıklıkta **1/3**,
+`CV|r|`'de **2/3** yeniyor — **kesin değil.**
+
+```verdict
+A_S75  THE_CLOCK_CAUTION_DOES_NOT_REACH_MY_COST_MODEL_SPREAD_IS_1_06_TO_1_21x
+       BECAUSE_POV_IS_A_VOLUME_FRACTION_AND_IS_CLOCK_FREE_BY_CONSTRUCTION
+       FEE_BINDS_NOT_DEPTH_KEEPS_ITS_PUBLISHED_MARGIN
+       SUBORDINATION_HOMOGENISES_THE_BULK_ON_ALL_THREE_CV_ABS_R_FALLS_EVERYWHERE
+       BUT_IT_WORSENS_THE_TAIL_ON_BTC_KURTOSIS_38_TO_88
+       THE_TWO_DIAGNOSTICS_DISAGREE_AND_THAT_IS_THE_FINDING_NOT_A_DEFECT
+       BULK_INTERMITTENCY_IS_ABSORBED_TAIL_INTERMITTENCY_IS_NOT_ON_BTC
+       TRANSACTION_BEATS_VOLUME_ONLY_1_OF_3_ON_KURTOSIS_AND_2_OF_3_ON_CV
+       THE_CORPUS_REFINEMENT_IS_NOT_CONFIRMED_HERE
+       ECONOPHYS_ODM_WAS_NEVER_CITED_BY_ANY_LANE_BEFORE_THIS
+```
+
+**Çekinceler:** pencere sayıları saatler arasında **farklı** (`2 159` vs `1 863–2 008`) — akış-saati
+pencereleri bitişiklik filtresine takılıyor ⟹ **karşılaştırma tam aynı örneklem değil**, BTC'deki
+basıklık artışının bir kısmını açıklayabilir, **test edilmedi** · `σ` pencere getirilerinin sd'si ·
+kuantum toplam akışı hedef pencere sayısına bölerek seçildi, **veriye bakılarak değil** · `POV`'un
+saat-bağımsızlığı **inşadan**, ölçülmedi · yalnız `18.10 dk` ortalamada · yanmış örneklem · **hiçbir
+kural önerilmiyor**, `-EnableLive` BLOKE, **push YOK.**
+
+## §530 [C-T55] VERİMLİLİK HÜKMÜ KİTABIN SAATİNDE YENİDEN KARARA BAĞLANDI: `β` BANTTAN **4.4 KAT FAZLA** YÜKSELİYOR VE ÜÇÜ DE KOŞULU KARŞILIYOR — BTC SINIRDA (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c55_propagator_event_clock_v1.py` · **Örneklem (artefakt yoluyla):**
+`data/microstructure_02.db :: agg_trades`, sembol başına `ts_ms`'e göre ilk 2 000 000 satır ·
+**İlan edilen ve TARANAN eşik:** `L ∈ {128, 512, 1024, 2048}`, `β` 4…0.75·L üzerinde fit —
+C-T35'in taramasıyla aynı, çünkü C-T35 `β`'nın ona bağlı olduğunu gösterdi.
+
+### 1. C-T54'ün kapanışı yine dar ifade edilmişti
+
+C-T54 *"ekonomi eski birimdeki son taşıyıcı nicelikti"* diye kapattı — ve **kendi dersi** dar
+kapanışların örnek bıraktığıydı. Bir örnek kaldı: **`β`**, propagator sönümü, ve §499'un
+*"verimlilik koşulu BTC ve ETH'de İHLAL EDİLMİYOR"* hükmü tamamen ona dayanıyor.
+
+### 2. İki taraf da hareket ediyor — ve bunu görmemek üçüncü bir birim hatası olurdu
+
+`β` gecikmede bir sönüm, ve değişen tam da gecikme birimi. Ama `γ` de değişiyor: C-T53 `χ_işaret`'in
+saatler arası **+0.040 / +0.047 / +0.001** kaydığını ölçtü, ve `γ = 2(1−χ)`. Yani **gereken bant da
+kayıyor.** Yeni bir `β`'yı eski bantla kıyaslamak bir düzeltme değil, **üçüncü bir birim hatası**
+olurdu. İkisi de her saatte hesaplandı.
+
+| | saat | `χ` | `γ` | gereken `β` | L=128 | L=512 | L=1024 | **L=2048** |
+|---|---|--:|--:|--:|--:|--:|--:|--:|
+| BTC | aggTrade | 0.7776 | 0.4447 | 0.2776 | 0.0505 | 0.1178 | 0.1375 | **0.1428** |
+| BTC | **olay** | 0.8179 | 0.3642 | **0.3179** | 0.1903 | 0.3273 | 0.3456 | **0.3215** |
+| ETH | aggTrade | 0.7043 | 0.5914 | 0.2043 | 0.0535 | 0.1172 | 0.1431 | **0.1573** |
+| ETH | **olay** | 0.7512 | 0.4976 | **0.2512** | 0.1631 | 0.2747 | 0.2973 | **0.2763** |
+| SOL | aggTrade | 0.8918 | 0.2164 | 0.3918 | 0.4451 | 0.5302 | 0.5288 | **0.6052** |
+| SOL | **olay** | 0.8928 | 0.2144 | 0.3928 | 0.4695 | 0.5387 | 0.5343 | **0.5970** |
+
+**`β` banttan çok daha fazla yükseliyor:** BTC'de **+0.1787** vs bant +0.0403 (**4.4 kat**),
+ETH'de +0.1190 vs +0.0469 (2.5 kat). Sebebi mekanik: yürüyüşleri çökertmek kısa gecikmelerdeki
+aynı-işaretli koşuları kaldırıyor, o koşular `G(ℓ)`'yi düzleştirip fit edilen sönümü bastırıyordu.
+
+**SOL yine değişmez** (`β` −0.0082) — yürüyüş-oranı imzası, beşinci kez.
+
+### 3. Hüküm: üçü de karşılıyor, ama BTC sınırda
+
+| | aggTrade | **olay saati** |
+|---|---|---|
+| BTC | 0.1428 vs 0.2776, boşluk **−0.1349** | 0.3215 vs 0.3179, boşluk **+0.0036** |
+| ETH | 0.1573 vs 0.2043, **−0.0470** | 0.2763 vs 0.2512, **+0.0250** |
+| SOL | 0.6052 vs 0.3918, +0.2134 | 0.5970 vs 0.3928, **+0.2042** |
+
+**BTC'nin marjı 0.0036'dır ve bu, bu hattın `β` için ölçtüğü TEK standart hatadan küçüktür**
+(C-T34, `L=128`'de boot sd **0.0062**). Dolayısıyla BTC **"karşılıyor" değil, "sınırdan ayırt
+edilemiyor"** diye okunmalıdır. ETH +0.0250 ile hafif üstünde, SOL +0.2042 ile rahat.
+
+### 4. §499 ile ilişki — çelişki değil, sıkılaştırma
+
+§499 `β`'yı **iki `γ` rotasından gelen bir BANDA** karşı okudu (BTC 0.113–0.278) ve *"bandın
+içinde"* dedi. Ben tek bir `γ` rotası (varyans/`χ_işaret`) kullanıyorum, bu **bandın katı ucunu**
+tek nokta olarak veriyor (0.2776). Bu yüzden aggTrade sütunum *"UNDER-RELAXED"* diyor: `β=0.143`
+katı noktanın altında ama §499'un bandının içinde. **İki okuma tutarlı; ben daha katı referansı
+kullanıyorum** — ve olay saatinde `β` o katı referansı da geçiyor. ⟹ §499'un hükmü **geri
+çekilmiyor, güçleniyor.**
+
+```verdict
+C_T55_EFFICIENCY_VERDICT_RE_DECIDED_IN_THE_BOOKS_CLOCK
+C_T54_CLOSURE_WAS_NARROW_AGAIN_BETA_WAS_STILL_IN_THE_OLD_CLOCK
+BOTH_SIDES_OF_THE_COMPARISON_MOVE_BETA_AND_THE_REQUIRED_BAND
+COMPARING_A_NEW_BETA_TO_AN_OLD_BAND_WOULD_BE_A_THIRD_UNIT_ERROR_AND_WAS_AVOIDED
+BETA_RISES_4_4X_MORE_THAN_THE_BAND_ON_BTC_AND_2_5X_ON_ETH
+MECHANISM_COLLAPSING_WALKS_REMOVES_SHORT_LAG_SAME_SIGNED_RUNS
+SOL_INVARIANT_AGAIN_BETA_SHIFT_MINUS_0_008_FIFTH_INSTANCE
+IN_THE_BOOKS_CLOCK_ALL_THREE_SATISFY_THE_EFFICIENCY_CONDITION
+BTC_MARGIN_IS_PLUS_0_0036_SMALLER_THAN_THE_ONLY_SE_THIS_LANE_HAS_FOR_BETA
+BTC_MUST_BE_READ_AS_INDISTINGUISHABLE_FROM_THE_BOUNDARY_NOT_AS_SATISFYING_IT
+ETH_PLUS_0_0250_MARGINALLY_ABOVE_SOL_PLUS_0_2042_COMFORTABLY
+SECTION_499_USED_A_BAND_FROM_TWO_GAMMA_ROUTES_I_USE_THE_STRICTER_POINT
+THE_TWO_READINGS_ARE_CONSISTENT_AND_499_IS_STRENGTHENED_NOT_WITHDRAWN
+INSTRUMENT_INHERITED_FROM_C_T35_WITH_CITATION_NOT_RE_RUN
+SOL_READ_AT_THE_LARGEST_L_BECAUSE_C_T35_MEASURED_IT_L_BIASED_THERE
+NO_STANDARD_ERROR_EXISTS_FOR_BETA_AT_L_2048_AND_THAT_IS_STATED_NOT_HIDDEN
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §541 [C-KULLIYAT-T53] FAZLALIK KOTE SPREAD DEGIL, FIILEN GECILEN MESAFEYMIS - VE OZDESLIGIN COKMESI EMIR BOLMEYI OLCTURDU (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t53_is_the_excess_the_quoted_spread_or_the_crossed_distance.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AA (ERR-HU-052) - **DB salt-okunur**
+**Guardrail:** `origin` PUBLIC, **push YOK** - bu tur yalniz dosya yaziyor.
+
+### 1. Kulliyat bu nesneyi tasimiyor -- ve bu da bir bulgu
+
+`effective spread`: **BOUCHAUD_TQP'de 1 isabet** (17.1'in ucret pasaji) · **HASBROUCK_EMM'de 1
+isabet** ve o da bir **KAYNAKCA satiri** (Stoll & Schenzler 2002, *quoted vs effective spreads*).
+⟹ Bu estate'in surekli ihtiyac duydugu kavram diskte **yalnizca bir isaretci olarak** var.
+Cebir bu yuzden **alintilanmadi, turetildi.**
+
+### 2. Turetim (serbest parametre yok)
+
+Olayin baskisini on-olay mid'inden uzakligiyla yaz: `p_t = m_t (1 + eps_t · d_t)`. Birinci
+mertebede:
+```
+C − A  =  <d>  −  <eps_t · eps_{t−1} · d_{t−1}>
+       =  <d> · (1 − C(1))          EGER d, isaret carpimindan bagimsizsa
+```
+
+### 3. P1 DOGRULANDI -- ve SOL anomalisi cozuluyor
+
+```
+sembol    <d>     s/2 (islem aninda)   <d>/dokunus   dokunusun OTESINDE basan
+BTCUSDT  0.0352        0.0114              3.08            %11.7
+ETHUSDT  0.0761        0.0368              2.07            %14.2
+SOLUSDT  0.6941        0.6833              1.02             %0.7
+```
+**SOL tam olarak dokunusu geciyor** ⟹ C-T52'deki *"%36"* anomalisi bir **buyuk-tick hikayesi
+degildi**: SOL, kote spread ile gecilen mesafenin **ayni sey oldugu tek sembol**.
+Ve *"dokunusun otesinde basan"* oranlari (**%11.7 / %14.2 / %0.7**), C-T52'nin **hic yuruyus
+saymadan** olculen yuruyus oranlarini (%10.75 / %13.81 / %0.297) **bagimsizca yeniden uretiyor**.
+
+### 4. P2 COKTU -- ve asil sonuc bu
+
+```
+sembol    ongorulen   olculen    oran
+BTCUSDT      0.0261    0.0117    2.23
+ETHUSDT      0.0548    0.0440    1.25
+SOLUSDT      0.5423    0.4718    1.15
+```
+Bagimsizlik varsayimi **yanlis**. Ne olmasi gerektigini cozunce isin degerli kismi cikiyor:
+```
+<eps_t eps_{t−1} d_{t−1}> / <d>  =  0.667 / 0.422 / 0.320      d-agirlikli
+duz C(1)                         =  0.259 / 0.280 / 0.219
+oran                             =  2.6x  /  1.5x  /  1.5x
+```
+**Onceki islemin NE KADAR YURUDUGUYLE agirliklandirilmis isaret otokorelasyonu, duz olanin
+2.6 / 1.5 / 1.5 kati.** Derin bir yuruyusu, ortalama bir olaydan cok daha sik **ayni isaretli**
+bir olay izliyor. **Bu, olculmus emir bolmedir** -- ve masadaki sayilardan, **ek gecis olmadan**
+turetildi.
+
+### 5. Ve yeni bir kusur (ERR-HU-052)
+
+C-T51'in Denk. (17.15) oranlarinda **zaman-ortalamali** spread kullanmisim; denklem **maker'in
+fiilen vuruldugu** spread'i istiyor. Olay aninda: `s/2` = **0.0114 / 0.0368 / 0.6833** --
+zaman ortalamasinin **1.46x / 1.38x / 1.04x**'i. Kucuk-tick islemleri spread **GENISKEN**
+geliyor; buyuk-tick'te spread cakili oldugu icin ikisi cakisiyor.
+```
+MRR basabas orani:   0.53 / 0.88 / 10.68      (yayimlanmisti: 0.37 / 0.63 / 10.31)
+```
+**Hukum degismiyor** -- BTC ve ETH hala basabas spread'in ALTINDA, SOL cok USTUNDE -- ama
+**ETH basabasa yayimladigimdan cok daha yakin** (0.88), ve okuyucunun uzerine karar verecegi
+sayi budur.
+
+```verdict
+THE_EXCESS_IS_THE_CROSSED_DISTANCE_NOT_THE_QUOTED_SPREAD
+MEAN_CROSSED_DISTANCE_IS_3_08_2_07_1_02_TIMES_THE_TOUCH
+THE_SOL_ANOMALY_DISSOLVES_IT_IS_THE_ONLY_SYMBOL_WHERE_THE_TWO_COINCIDE
+BEYOND_TOUCH_FRACTIONS_REPRODUCE_C_T52_WALK_RATES_WITHOUT_COUNTING_A_WALK
+THE_NAIVE_IDENTITY_FAILS_2_23_1_25_1_15
+D_IS_NOT_INDEPENDENT_OF_THE_SIGN_PRODUCT
+D_WEIGHTED_SIGN_CORRELATION_IS_0_667_0_422_0_320_VERSUS_PLAIN_0_259_0_280_0_219
+A_DEEP_WALK_IS_FOLLOWED_BY_A_SAME_SIGNED_EVENT_FAR_MORE_OFTEN
+ORDER_SPLITTING_MEASURED_AS_A_RESIDUAL_WITH_NO_EXTRA_PASS
+THE_TRADE_TIME_SPREAD_IS_1_46X_THE_TIME_AVERAGE_ON_BTC
+MRR_RATIOS_CORRECTED_TO_0_53_0_88_10_68_VERDICT_UNCHANGED
+EFFECTIVE_SPREAD_IS_ON_DISK_ONLY_AS_A_CITATION
+```
+
+**Artefaktlar:** `reports/atlas/CT_KULLIYAT_T53_CROSSED_DISTANCE_V1.json` +
+`CT_KULLIYAT_T53_DERIVED_V1.json` - **Inline surucu yok** (D-47) - **tek gun, birinci mertebe.**
+
+
+---
+
+## §505 [A-S76] LANE A — GERÇEK `N` ÖLÇÜLDÜ: `18 107` OLAY `24` BAĞIMSIZ BİRİM, VE HİÇBİR `t` 1'İ GEÇMİYOR (2026-08-27, Opus 5 [1M])
+
+`tools/s76_the_real_n.py` · `S76_THE_REAL_N_V1.{md,json}`
+
+### 1. KÜLLİYAT ÖNCE SORULDU — **SESSİZ**
+Dört ifade (`"overlapping observations effective sample size"`, `"overlapping returns
+autocorrelation"`, `"sample size independent observations"`, `"overlapping returns"`), 13 kaynak.
+İlk üçü **sıfır**; dördüncüsünün iki hiti **anlamlı değil** (biri bir gözlem, biri bir **özellik
+listesi** — protokolün bibliyografya uyarısı). ⟹ **Örtüşen gözlemler altında etkin örneklem için
+külliyatta YÖNTEM YOK.** Terimler yayımlandı. **Külliyat bir kaynaktır, otorite değil.**
+**Ama bir hiti planımın karşısında:** `ECONOPHYS_ODM` — *"**non-overlapping** returns are strongly
+correlated"* ⟹ **ayrık destek bağımsızlık satın almıyor**, ölçülmesi gerek.
+
+### 2. BİRİM DONDURULMUŞ — HAFIZADAN DEĞİL ARTEFAKTTAN DOĞRULANDI
+`CONNECTED_COMPONENT_IS_NOW_THE_FROZEN_UNIT_GREEDY_RETIRED` · `81_GREEDY_VS_57_CONNECTED_COMPONENT`
+· `..._OVERCOUNTED_INDEPENDENT_UNITS_BY_1_42X`. **Greedy kullanılmadı.**
+
+### 3. SONUÇ
+```
+taban $0     olay  bileşen    deff    SR net      SE       t    acf1
+BTCUSDT    18 107       24       —   YETERSİZ (24 < 30 eşiği)
+ETHUSDT    19 167       19       —   YETERSİZ
+SOLUSDT     7 766       84   92.45  −0.0653   3.411  −0.60  −0.030
+$500k  BTC 244→58 (4.21) SR +0.1266 SE 6.465 t +0.96 acf1 +0.301
+       ETH 230→65 (3.54) SR +0.0083 SE 7.587 t +0.07 acf1 −0.078   SOL 32→13 YETERSİZ
+```
+**`18 107` OLAY `24` BAĞIMSIZ BİRİM TAŞIYOR** — olaylar `~2 dk`'da bir, pencere `60 dk`, her şey
+zincirleniyor. **Ve gerçek `N` ile hiçbir `t` 1'i geçmiyor.** `A-S74`'ün yıllıklandırmayı reddi
+**doğru karardı**; beklediği sayı buydu. Hattın bütün önceki bulguları — `A-S72`'nin **sıfır
+medyanı**, `A-S73`'ün **yazı-tura isabeti**, `A-S74`'ün **minik net SR'si** — hepsi savunulabilir
+bir `N`'de **`t < 1`** olan bir etkiyle **geriye dönük tutarlı.**
+
+### 4. VE `N = 58` BİLE İYİMSER
+BTC `$500k`'da **`acf1 = +0.301`** ⟹ bileşenler **bağımsız değil**, `§371`'in `+0.24`'ü ve
+`ECONOPHYS_ODM`'in uyarısıyla aynı yönde. **Etkin birim `58`'in altında.**
+
+```verdict
+A_S76  THE_CORPUS_IS_SILENT_ON_EFFECTIVE_SAMPLE_SIZE_UNDER_OVERLAP_FOUR_PHRASES_THIRTEEN_SOURCES
+       ITS_ONLY_RELEVANT_HIT_ARGUES_AGAINST_MY_PLANNED_FIX_DISJOINT_IS_NOT_INDEPENDENT
+       THE_UNIT_IS_THE_ESTATES_FROZEN_CONNECTED_COMPONENT_GREEDY_RETIRED_AND_UNUSED
+       EIGHTEEN_THOUSAND_EVENTS_CARRY_TWENTY_FOUR_INDEPENDENT_UNITS
+       DESIGN_EFFECT_REACHES_92_45x_ON_SOL
+       BTC_AND_ETH_FALL_BELOW_THE_THIRTY_UNIT_THRESHOLD_AND_ARE_REPORTED_INSUFFICIENT
+       WITH_THE_REAL_N_NO_t_EXCEEDS_ONE_0_96_AND_0_07_AND_MINUS_0_60
+       A_S74_REFUSAL_TO_ANNUALISE_WAS_CORRECT_AND_THIS_IS_WHAT_IT_WAITED_FOR
+       EVERY_EARLIER_FINDING_IS_RETROSPECTIVELY_CONSISTENT_WITH_t_BELOW_ONE
+       AND_N_58_IS_STILL_OPTIMISTIC_COMPONENT_acf1_IS_PLUS_0_301_ON_BTC
+```
+
+**Çekinceler:** bileşen gözlemi *"ilk olayda gir, `60 dk` tut"* olarak **tanımlandı**, başka tanım
+başka sayı verir · `30` eşiği **önceden** kondu · `deff = olay/bileşen`, `A-S47`'nin **kesitsel**
+etkin bahsi değil (o hâlâ nokta-tanımlanamaz) · `acf1` bileşen sırasında, takvim aralıkları eşit
+değil · 1-dk kapanışlar, `%39–45` kirli pencereler (§493) · `$500k`'da `n=58/65` küçük ⟹ `t`'ler
+gürültülü · yanmış örneklem · **hiçbir kural önerilmiyor**, `-EnableLive` BLOKE, **push YOK.**
+
+## §531 [C-T56] FUNDING ALETİ AÇILDI: GERÇEKLEŞEN YILLIK ORAN %6.91/%5.34/%4.75 — REFERANS ALINAN %12.10'UN YARISI; VE TEK BİR YILLIK SAYI ENSTRÜMANIN ÖZELLİĞİ DEĞİL (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c56_funding_instrument_v1.py` · **Örneklem (artefakt yoluyla):**
+`data/microstructure_02.db :: mark_prices`, sembol başına **tüm satırlar** (34.68 gün, 104 yerleşim) ·
+**Sınıf:** CLAUDE.md'nin N-tüketmeyen iş sınıfı **(b) muhasebe denetimi** — yeni hipotez yok.
+
+### 1. Külliyat verdict'i: **SESSİZ** — ve terim terim doğrulandı
+
+Araç, boş bir **birleşim** aramasının iddia sayılmayacağını uyarıyor. Terimleri tek tek saydım:
+
+| terim | isabet | terim | isabet |
+|---|--:|---|--:|
+| `funding rate` | **0** | `perpetual swap` | **0** |
+| `perpetual future` | **0** | `funding payment` | **0** |
+| `perpetual` | 4 (yalnız CARTEA, enstrüman anlamında değil) | `cost of carry` | 1 |
+| `contango` | 21 (yalnız CHAN, **tarihli** futures roll'u) | `carry` | 75 (çoğu ABG/H&R'de İngilizce fiil) |
+
+Ve hiçbir kaynakta oran/perpetual bağlamında `funding` pasajı yok. **Raf, TARİHLİ futures için
+cost-of-carry'yi işliyor; perpetual funding mekanizmasına dair hiçbir şeyi yok.**
+⟹ **`CORPUS_SILENT`**, ve bu operatörün adlandırdığı **rejim dışı** durumdur: kitaplar enstrümandan
+önce yazıldı. **Rafın veremediğini estate ölçmek zorunda.**
+
+### 2. Devralmadım, kaynağında doğruladım
+
+Brief bana A-S62'yi *"fee'yi yalnız CARRY aşıyor"* diye getirdi. **§491'i açtım:** bölüm kendi
+özetinden daha dikkatli — *"HER ORAN SIFIR BOYUTTA"* ve *"Bu bir **ŞEKİL** kıyası, getiri tahmini
+**DEĞİL**"* diyor. Tek satırlık versiyon **iki çekinceyi de düşürüyor**. Doğrulamak buna değdi.
+
+Ve **D-E2, D-E3, D-E4 üçü de** *"funding aleti hâlâ açılmadı"* diye kaydetmiş. `mark_prices`
+`funding_rate` ve `next_funding_time_ms` taşıyor; kimse bakmamış.
+
+### 3. İki nesne ayrı tutuldu — ve tuzak bu örneklemde ısırmıyor
+
+Binance akışı ikisini karıştırmaya davetlidir: her mark satırındaki `funding_rate` **bir sonraki
+yerleşimin koşan TAHMİNİDİR**, ödeme değil; **gerçekleşen** ise 8 saatlik sınırda duran değerdir
+(`next_funding_time_ms` değişimiyle saptandı). İkisi de ölçüldü:
+
+| | anlık yıllık % | **gerçekleşen yıllık %** | fark | negatif yerleşim payı |
+|---|--:|--:|--:|--:|
+| BTC | 6.957 | **6.907** | −0.050 | **%0.0** |
+| ETH | 5.536 | **5.340** | −0.196 | %7.7 |
+| SOL | 4.758 | **4.754** | −0.004 | **%24.0** |
+
+**Tahmin ile yerleşim arasındaki fark ihmal edilebilir** — tuzak burada ısırmıyor, ve bu kaydediliyor
+ki sıradaki hat tekrar bakmasın.
+
+### 4. Referans alınan sayı iki katı
+
+A-S59/A-S62'nin carry sütunu **%12.10** üzerine kurulu. Bu örneklemin gerçekleşen yerleşimleri
+**%6.91 / %5.34 / %4.75** veriyor — **1.8–2.5 kat düşük** (fark −5.19 / −6.76 / −7.35 puan).
+A-S62 farklı bir pencere ya da kaynak ölçmüş olabilir, **onun yanlış olduğunu iddia etmiyorum**;
+ama carry'nin geri ödeme süresi orana **ters orantılıdır**: *"BTC'de 1.21 gün"* gerçekleşen oranda
+**~2.1 gün**e çıkar.
+
+### 5. Ve tek bir yıllık sayı enstrümanın özelliği DEĞİL
+
+| bölme | BTC | ETH | SOL |
+|---|---|---|---|
+| 2 | 6.14 · 7.67 (**1.53**) | 3.59 · 7.09 (**3.51**) | 4.12 · 5.39 (1.26) |
+| 4 | 5.71 … 9.11 (**3.41**) | 3.19 … 9.50 (**6.30**) | 0.74 … 10.03 (**9.30**) |
+| 8 | 5.15 … 9.38 (**4.23**) | 3.14 … 9.71 (**6.57**) | **−1.86 … 10.38 (12.24), 2 İŞARET DEĞİŞİMİ** |
+
+**Ne kadar ince bölersen o kadar oynak**, ve **SOL'da işaret bile sabit değil**. Bir *"yıllık funding
+oranı"* olarak alıntılanan sayı, 35 günün yeniden ölçeklenmesidir — **yıllık bir ölçüm değil**, ve
+alt-pencere kararsızlığı tam da bu yüzden önemlidir.
+
+### 6. Ne ayakta, ne değil
+
+- **Ayakta:** A-S62'nin **şekil** iddiası — carry zamanla birikir, fee round-trip'te bir kez ödenir;
+  §508'in çapraz-hat sentezi bundan etkilenmiyor.
+- **Ayakta değil:** carry'nin **düzeyi** sabit bir sayı olarak. Geri ödeme süresi bu örneklemde
+  ~1.75× uzuyor, ve SOL'da rejim negatife dönebiliyor.
+
+```verdict
+C_T56_FUNDING_INSTRUMENT_OPENED_FIRST_TIME_IN_THIS_ESTATE
+CORPUS_VERDICT_SILENT_VERIFIED_TERM_BY_TERM_NOT_BY_CONJUNCTION
+FUNDING_RATE_PERPETUAL_FUTURE_PERPETUAL_SWAP_FUNDING_PAYMENT_ALL_ZERO
+THE_SHELF_TREATS_DATED_FUTURES_CARRY_ONLY_AN_OUT_OF_REGIME_SILENCE
+THREE_LANES_RECORDED_THE_INSTRUMENT_AS_UNOPENED_AND_IT_WAS
+A_S62_VERIFIED_AT_SOURCE_NOT_INHERITED_FROM_THE_BRIEF
+THE_SOURCE_SAYS_EVERY_RATE_IS_AT_VANISHING_SIZE_AND_IT_IS_A_SHAPE_COMPARISON
+THE_ONE_LINE_SUMMARY_DROPPED_BOTH_CAVEATS
+INSTANTANEOUS_AND_REALISED_DIFFER_NEGLIGIBLY_THE_TRAP_DOES_NOT_BITE_HERE
+REALISED_ANNUAL_IS_6_907_5_340_4_754_PERCENT
+THE_REFERENCE_FIGURE_12_10_IS_1_8X_TO_2_5X_HIGHER
+CARRY_PAYBACK_LENGTHENS_ABOUT_1_75X_ON_BTC_FROM_1_21_TO_ABOUT_2_1_DAYS
+NO_CLAIM_IS_MADE_THAT_A_S59_IS_WRONG_A_DIFFERENT_WINDOW_MAY_BE_MEASURED
+A_SINGLE_ANNUALISED_NUMBER_IS_NOT_A_PROPERTY_OF_THE_INSTRUMENT
+EIGHT_WAY_SPLIT_RANGES_4_23_6_57_AND_12_24_POINTS
+SOL_FLIPS_SIGN_TWICE_AND_24_PERCENT_OF_ITS_SETTLEMENTS_ARE_NEGATIVE
+THE_ANNUAL_FIGURE_IS_A_RESCALING_OF_35_DAYS_NOT_AN_ANNUAL_MEASUREMENT
+A_S62_SHAPE_CLAIM_STANDS_ITS_LEVEL_DOES_NOT
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §542 [C-KULLIYAT-T54] KULLIYAT NESNEME AD VERDI VE BIR IDDIA ONE SURDU: TRADE-THROUGH SONRASI SPREAD GEVSEMESI - REJIM DISINDA DA TUTUYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t54_trade_through_spread_relaxation.py`
+**Tavan:** `MECHANISM_CHARACTERISATION` - **Errata yok** - **DB salt-okunur** - **push YOK**
+
+### 1. Isi ACMADAN once: kulliyat ne diyor?
+
+`--who "order splitting"` -> **estate'te SIFIR**, **kulliyatta 12 isabet, 3 kaynakta** -- ve
+**hicbir hat bu uc kaynagi hic alintilamamis** (ABERGEL_LOB, ECONOPHYS_ODM, HASBROUCK_EMM).
+
+**KULLIYAT VERDICT: ONGORUYOR.** Alintlar recall aracindan devralinmadi, `corpus_text_v1` ile
+**kaynaktan dogrulandi**:
+
+> **Pomponio & Abergel**, *"Trade-throughs: Empirical Facts and Application to Lead-lag
+> Measures"* (ECONOPHYS_ODM): *"...bu notta diger islemlere odaklaniyoruz, **trade-through**
+> denen, defterdeki **en iyi mevcut fiyati gecen** islemler."* ve
+> *"**Trade-through sonrasi fazla spread'in FIZIKSEL ZAMANDA tipik bir GUC-YASASI gevsemesi**
+> oldugunu gosteriyoruz."*
+
+> **ABERGEL_LOB:** *"**emir bolme, ayni isaretli piyasa emirlerinin kumelenmesini uretir**"*
+
+⟹ C-T53'un uc turdur adini koyamadigim nesnesinin **adi trade-through'muş**, ve gecen turun
+`d`-agirlikli korelasyonu (**0.667/0.422/0.320** vs duz **0.259/0.280/0.219**) **ders kitabinin
+soyledigi seydir** -- bu estate'te ilk kez olculdu ama **YENI DEGIL**.
+
+### 2. Rejim uyarisi (olcmeden ONCE kaydedildi)
+
+Onlarin verisi **2010 civari TRTH, EU/US hisse futures + Fransiz hisseleri**. Benimki **2026
+kripto perpetual**. **Kulliyat bir KAYNAKTIR, otorite degil** -- burada bir basarisizlik
+**venue hakkinda mesru bir sonuc** olurdu, olcumun yanlisligi degil.
+
+### 3. Olculen (gun medyani uzerine fazla spread, bps)
+
+```
+BTCUSDT   tau ms:        0        1       10      100     1000     5000
+  trade-through    +0.0522  +0.0545  +0.0249  +0.0066  +0.0022  +0.0005
+  control (dokunus)+0.0046  +0.0053  +0.0042  +0.0019  +0.0008  +0.0003
+  PLACEBO          +0.0003  +0.0003  +0.0002  +0.0001  +0.0002  +0.0001
+ETHUSDT trade-through +0.1193 -> +0.0005    · control +0.0107 · placebo 0.0002
+SOLUSDT trade-through +0.4084 -> +0.0138    · control +0.0069 · placebo 0.0058
+```
+
+**P1 spread SICRIYOR** · **P3 PLASEBO HICBIR SEY DONDURMUYOR** (trade-through/plasebo =
+**173x / 759x / 71x**) · **P4 KONTROL 11x / 11x / 59x DAHA KUCUK** ⟹ etki *"bir islem oldu"*
+degil, *"bir trade-through oldu"*.
+
+### 4. P2 -- guc yasasi, onceden sabitlenmis 10-5000 ms araliginda
+
+```
+log-log egim   trade-through   control
+BTCUSDT            -0.537       -0.399
+ETHUSDT            -0.618       -0.452
+SOLUSDT            -0.331       -0.045   <- kontrol DUZ
+```
+**2010'da EU/US hisse futures'inda bulunan bir sonuc, 2026 kripto perpetual'de yeniden
+uretiliyor.** Ve buyuk-tick sembolde temiz bir ayirici cikiyor: **SOL'da siradan bir dokunus
+islemi spread'i hic bozmuyor (-0.045), yalnizca trade-through bozuyor.**
+
+### 5. Sinirlama (kesfedilmedi, ILAN EDILDI)
+
+`tau=0`'da alinan defter satiri olay milisaniyesinde **veya oncesinde**ki son satirdir ve
+islemin yol actigi guncelleme **ayni milisaniyeyi paylasabilir** -- BTC'de `tau=1`'in
+`tau=0`'dan **yuksek** cikmasinin sebebi budur (+0.0545 vs +0.0522). Fit araligi **10-5000 ms**
+ve etkilenmiyor. **Egimler standart hatasiz nokta kestirimleridir**; *"BTC SOL'dan farkli"*
+IDDIA EDILMIYOR -- yalnizca her kolun fit araliginda **guc-yasasi bicimli** oldugu.
+
+```verdict
+THE_CORPUS_NAMED_MY_OBJECT_TRADE_THROUGHS
+CORPUS_VERDICT_PREDICTS
+THE_PREDICTION_HOLDS_OUT_OF_REGIME_2010_EQUITY_FUTURES_TO_2026_CRYPTO_PERPS
+POWER_LAW_SLOPES_MINUS_0_537_0_618_0_331_OVER_10_TO_5000_MS
+PLACEBO_RETURNS_NOTHING_RATIOS_173_759_71
+CONTROL_AT_TOUCH_IS_11X_11X_59X_SMALLER
+IT_IS_THE_TRADE_THROUGH_NOT_THE_TRADE
+ON_SOL_ONLY_TRADE_THROUGHS_PERTURB_THE_SPREAD_CONTROL_SLOPE_MINUS_0_045
+MY_D_WEIGHTED_SIGN_CORRELATION_IS_TEXTBOOK_PREDICTED_BY_ABERGEL_LOB
+THREE_SOURCES_SPEAK_TO_THIS_AND_NO_LANE_HAD_EVER_CITED_THEM
+TAU_ZERO_IS_AMBIGUOUS_THE_FIT_RANGE_IS_NOT
+SLOPES_CARRY_NO_STANDARD_ERROR_NO_BETWEEN_SYMBOL_CLAIM
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T54_TRADE_THROUGH_RELAXATION_V1.json` -
+**Inline surucu yok** (D-47) - **tek gun.**
+
+## §542 [D-E21] BAŞKA BİR HATTIN BENİM ARACIMI KULLANIŞINI DOĞRULADIM: **ONLARIN TURU SAĞLAM, BENİM BAYRAĞIM AŞIRI İDDİALIYDI** — 13 KAYNAĞIN 7'SİNDE YANIYOR, HONORÉ DAHİL (2026-08-27, Opus 5 [1M])
+
+**Tetikleyici.** `--brief D --ct` iki blok getirdi, ikisi de bana. **A-S75** şunu yazmıştı:
+*"genişletilmiş `--who` kendini hemen amorti etti: `ECONOPHYS_ODM` NEVER CITED diye işaretlendi ve
+soru için gereken teoriyi tam olarak o taşıyordu."* Ama A o bayrağı **D-E20'nin ayırt-edicilik
+düzeltmesinden ÖNCEKİ sürümden** almıştı. Kendi aracımın başka bir hattın turunu taşıdığı bir
+durumda, ilk iş doğrulamaktı.
+
+**A'nın turu SAĞLAM — ölçümle, güvenceyle değil.** `--who "subordination"`: külliyatın tamamında
+**15 geçiş**, ilan edilen 500 eşiğinin çok altında ⟹ **ayırt edici**, yani D-E20'nin kusuru bu
+sorguya dokunmuyor. 13 geçiş `ECONOPHYS_ODM`'de, 2'si `ABERGEL_LOB`'da. A'nın dayandığı bayrak
+doğruydu.
+
+**KUSUR BENİM, VE DAHA BÜYÜĞÜ.** Bayrak, ayrıştırılabilir bir **locator** taşımayan her kaynak için
+*"NEVER CITED IN THE LOG"* diyordu. 89 blok üzerinde ölçüldü:
+
+| kademe | sayı | kaynaklar |
+|---|--:|---|
+| locator İLE alıntılanan | 6/13 | ABG · Bouchaud · H&R · Kissell · LdP · STK4080 |
+| adı geçen, locator YOK | **7/13** | Abergel · Cartea · Chan · Econophys · Harris · Hasbrouck · **HONORÉ_1993** |
+| hiç adı geçmeyen | **0/13** | — |
+
+**Rafın yarısından fazlasında yanıyor**, ve **`HONORE_1993`'te** — lane D onu `D-E2`'de baştan sona
+okudu ve **üstüne iki tur kurdu** (`§437` MPH kapısı). On sayfalık bir makalenin alıntılanacak bölüm
+numarası yoktur, dolayısıyla o kovadan **hiçbir zaman çıkamaz**. Bayrak **ihmali değil, ALINTI
+BİÇİMİNİ** ölçüyormuş — ve ben onu iki kez *"bu sistemdeki en yüksek değerli nesne"* diye ilan
+ettim.
+
+**Düzeltme: iki değil ÜÇ kademe.** `NEVER MENTIONED` güçlü sinyal olarak basılır;
+`mentioned-but-no-locator` **ZAYIF ipucu** olarak, yanına Honoré örneği iliştirilmiş halde basılır,
+ki hiçbir hat onu ihmal diye okumasın. Ve güçlü kademe **şu an BOŞ** — bu da başlı başına bulgu:
+**raftaki 13 kaynağın hepsi en az bir kez anılmış.**
+
+**Külliyat sınıflandırması, standing prompt gereği: SESSİZ.** Rafta alıntı-karşı-anma taksonomisi
+üzerine hiçbir şey yok ve uydurma bir külliyat açısı üretmiyorum.
+
+**Geri çekilen.** `D-E18`'in bayrağı değil, **GÜCÜ**. *"hiçbir hat bunu alıntılamadı"* → *"hiçbir hat
+locator sabitlemedi"*, çok daha zayıf bir ifade. `D-E20` gösterimini geri çekmişti; bu, **anlamını**
+geri çekiyor.
+
+**C-T55'e.** *"Bir teorik referans ancak hiçbir girdisi değiştirdiğiniz birimde ölçülmüyorsa
+sabittir"* kuralı bana **iniyor ve zaten karşılanmış**: `τ = 60 dk` **ölçülmüş bir CIF**'e dayanan
+bir kuralla sabitleniyor, dolayısıyla sabit referans değil. `D-E8` bunu *"at the declared floor"*
+diye ifade ediyor, `D-E2` de CIF'in tabanlar arasında %96.3 → %48.4 gezindiğini ölçtü. Uyarı
+geçerli, prereg zaten taşıyor; değişen bir şey yok.
+
+**Üç turdur aynı şekil.** Bir özellik yayımladım, gücünü ilan ettim, güç yanlıştı — ve **her üç
+düzeltme de onu KULLANAN birinden geldi**, benim yeniden okumamdan değil.
+
+```verdict
+A_S75_QUERY_WAS_DISCRIMINATING_SUBORDINATION_OCCURS_15_TIMES_ITS_FLAG_WAS_SOUND
+MY_FLAG_FIRES_ON_SEVEN_OF_THIRTEEN_SOURCES_INCLUDING_HONORE_1993
+IT_MEASURED_CITATION_FORMATTING_NOT_NEGLECT
+A_TEN_PAGE_PAPER_HAS_NO_SECTION_NUMBERS_SO_IT_CAN_NEVER_LEAVE_THAT_BUCKET
+SPLIT_INTO_THREE_LEVELS_NEVER_MENTIONED_STRONG_MENTIONED_NOT_CITED_WEAK_CITED
+THE_STRONG_TIER_IS_EMPTY_ALL_THIRTEEN_SOURCES_HAVE_BEEN_NAMED_BY_SOMEONE
+D_E18_FLAG_STANDS_ITS_ADVERTISED_MEANING_IS_WITHDRAWN
+CORPUS_IS_SILENT_ON_THIS_ROUND_NO_ANGLE_MANUFACTURED
+C_T55_CAUTION_LANDS_ON_TAU_AND_THE_PREREG_ALREADY_CARRIES_IT_AT_THE_DECLARED_FLOOR
+THREE_ROUNDS_RUNNING_THE_CORRECTION_CAME_FROM_A_USER_NOT_FROM_ME
+```
