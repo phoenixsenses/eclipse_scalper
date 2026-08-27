@@ -75,6 +75,10 @@ TOKEN = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){2,}\b")
 # every lane's id shape, in one place
 STABLE_ID = re.compile(r"\b([ABCD]-(?:S\d{1,4}[a-z]?|T\d{1,4}|E\d{1,4}|L\d+))\b")
 LANES = ("A", "B", "C", "D")
+# DECLARED, not derived: a corpus term occurring more often than this carries no
+# selectivity.  measured anchors -- `restricted` 77, `passage` 55, `marked` 51 are
+# discriminating; `mean` 2446, `process` 4185, `first` 1730, `point` 1563 are not.
+NON_DISCRIMINATING_AT = 500
 
 
 def read(path):
@@ -370,6 +374,15 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
     except Exception as e:                                  # corpus absent is not a crash
         return {"error": "corpus unreadable: %s" % e, "per_source": {}, "total": 0}
     pats = [(t, re.compile(re.escape(t), re.I)) for t in terms]
+    # HOW DISCRIMINATING IS EACH TERM?  A term that occurs thousands of times carries no
+    # selectivity, and a proximity search anchored beside it returns coincidence.  Measured:
+    # `--who restricted mean` returns 29 hits in 7 sources; `--who "restricted mean"` returns 5 in
+    # 1, and the second is the right answer.  The whole difference is a pair of quotes, and the
+    # cause is that `mean` occurs 2,446 times while `restricted` occurs 77.
+    freq = {}
+    for t, pp in pats:
+        freq[t] = sum(len(pp.findall(b)) for b in bodies().values())
+    weak = [t for t, n in freq.items() if n > NON_DISCRIMINATING_AT]
     out, total = {}, 0
     for name, body in sorted(bodies().items()):
         counts = {t: len(p.findall(body)) for t, p in pats}
@@ -393,7 +406,15 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
             out[name] = {"hits": hits, "anchor_term": anchor_t,
                          "term_counts": counts, "snippets": snips}
     return {"total": total, "n_sources": len(out), "per_source": out,
-            "proximity_window_chars": window}
+            "proximity_window_chars": window,
+            "term_frequency": freq,
+            "non_discriminating_terms": weak,
+            "threshold": NON_DISCRIMINATING_AT,
+            "reliable": not weak,
+            "note": ("a term above the threshold carries no selectivity and the proximity hits "
+                     "beside it are coincidence.  quote a multi-word term to search it as ONE "
+                     "phrase -- the shell splits it into separate terms otherwise.")
+            if weak else ""}
 
 
 def brief(lane, bl):
@@ -480,7 +501,11 @@ def main():
             cited = {c["source"] for b in bl for c in citations(b["body"])}
             for src, v in cw.get("per_source", {}).items():
                 v["ever_cited_in_the_log"] = src in cited
-            cw["never_cited_sources"] = [s2 for s2 in cw.get("per_source", {}) if s2 not in cited]
+            # a FALSE never-cited flag is worse than none, because that flag is advertised as the
+            # highest-value output here.  it is suppressed when the query is not discriminating.
+            cw["never_cited_sources"] = (
+                [] if cw.get("non_discriminating_terms")
+                else [s2 for s2 in cw.get("per_source", {}) if s2 not in cited])
             out["who_corpus"] = cw
     if a.owed:
         o = owed(bl)
@@ -541,6 +566,18 @@ def main():
             print("  are discriminating.  Name the terms you used when you publish it.")
         else:
             print("  %d hits in %d of 13 sources" % (cw["total"], cw["n_sources"]))
+            fq = cw.get("term_frequency", {})
+            print("  term frequency in the corpus: %s"
+                  % ", ".join("%s=%d" % (t, n) for t, n in sorted(fq.items(),
+                                                                 key=lambda x: -x[1])))
+            if cw.get("non_discriminating_terms"):
+                print("  !! NOT DISCRIMINATING (> %d): %s"
+                      % (cw["threshold"], ", ".join(cw["non_discriminating_terms"])))
+                print("     the hits beside such a term are COINCIDENCE, and the never-cited")
+                print("     flag is SUPPRESSED for this query.  quote a multi-word term to")
+                print("     search it as ONE phrase -- the shell splits it otherwise.")
+                print("     measured: --who restricted mean -> 29 hits / 7 sources;")
+                print("               --who \"restricted mean\" -> 5 hits / 1 source.")
             for src, v in sorted(cw["per_source"].items(), key=lambda x: -x[1]["hits"]):
                 print("  %-26s %4d hits   anchor=%s   %s"
                       % (src, v["hits"], v["anchor_term"], v["term_counts"]))

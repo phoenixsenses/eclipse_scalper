@@ -58095,3 +58095,66 @@ görülmesi için basıyor, sayım gösteremez — **düzeltilmedi, görünür k
 **gözlenen tek bir yanlış pozitife göre** ayarlandı, başka biçimler hâlâ kaçabilir · `--ct` ve
 `--owed` bağlanmadı ve gerekçesi yazıldı · dört hat aynı `§` uzayını paylaşıyor, kimlik `D-E18`,
 **yeniden numaralandırma YOK.**
+
+---
+
+## §540 [D-E20] *"İŞ KALMADI"* İDDİASINI ARAMAYLA SINADIM — VE ARAMA, ARAMA ARACINDA BİR KUSUR BULDU (2026-08-27, Opus 5 [1M])
+
+**Study `D-E20` · lane D.** Döngü koşuldu: bana gelen yok, açık çelişkilerin hiçbiri benim.
+Geçen tur *"kapsamımda külliyat-talepli iş kalmadı"* demiştim. Bunu **tekrar iddia etmek yerine
+`--who`'nun yeni bayrağıyla ARADIM** — ve arama, aradığım aracın kendisinde bir kusur buldu, ki o da
+bir tur önce yayımladığım örneği düşürdü.
+
+### 1. KUSUR — VE FARK YALNIZCA TIRNAK
+Tırnaksız yazılan çok-kelimeli bir terimi **kabuk** ayrı yakınlık terimlerine bölüyor; biri yaygınsa
+sonuç gürültü:
+```
+--who restricted mean     -> 29 isabet, 13 kaynagin 7'sinde
+--who "restricted mean"   ->  5 isabet, 13 kaynagin 1'inde     <- DOGRU CEVAP
+```
+Sebep ölçüldü: `mean` külliyatta **2 446**, `restricted` **77** kez geçiyor.
+Ayırt edici **olmayanlar**: `process` 4 185 · `first` 1 730 · `point` 1 563 · `queue` 687.
+Ayırt edici olanlar: `passage` 55 · `marked` 51.
+
+### 2. DÜZELTME — ÜÇ PARÇA
+`--who` artık **her terimin külliyat sıklığını her zaman basıyor** · **beyan edilmiş** 500 eşiğinin
+üstündeki terim `NOT DISCRIMINATING` diye işaretleniyor, yukarıdaki ölçülmüş kıyasla birlikte ·
+ve o sorguda **"hiç alıntılanmamış" bayrağı BASTIRILIYOR** — çünkü **yanlış** bir never-cited bayrağı,
+hiç olmamasından **kötüdür**: o bayrağı bu sistemin en yüksek değerli çıktısı diye tanıtmıştım.
+
+### 3. VE BU KENDİ ÖRNEĞİMİ DÜŞÜRÜYOR
+`D-E18` şunu yayımlamıştı: *"ilk canlı örnek: `queue reactive` → `ABERGEL_LOB`, 86 blokta hiç
+alıntılanmamış."* `queue` **687** ⟹ o sorgu artık işaretleniyor ve bayrak bastırılıyor. Üstelik doğru
+ifade sorgusu (`"queue-reactive"`) **tamamı KAYNAKÇA girdisi** olan isabetler döndürüyor — bu sınırı
+**aynı blokta kendim yazmıştım** ve kendi örneğime uygulamamıştım. İddia **iki kez birden zayıftı.**
+
+### 4. GERİ ÇEKİLEN
+Yalnız `D-E18`'in `FIRST_LIVE_EXAMPLE_ABERGEL_LOB_ON_QUEUE_REACTIVE`'i. `D-E18`'in gerisi **ayakta**:
+`--check`'in alıntı çözümlemesi, `--brief`'in gelen alıntıları, ve never-cited bayrağı **mekanizma
+olarak**. Düşen **gösteri**, özellik değil.
+
+```verdict
+D_E20_TESTED_MY_OWN_NOTHING_LEFT_CLAIM_INSTEAD_OF_REPEATING_IT
+THE_SEARCH_FOUND_A_DEFECT_IN_THE_SEARCH_TOOL
+UNQUOTED_MULTIWORD_TERMS_ARE_SPLIT_BY_THE_SHELL_INTO_PROXIMITY_TERMS
+MEASURED_29_HITS_IN_7_SOURCES_VERSUS_5_IN_1_THE_DIFFERENCE_IS_QUOTES
+MEAN_2446_VERSUS_RESTRICTED_77_IS_THE_CAUSE
+TERM_FREQUENCY_NOW_PRINTED_ON_EVERY_QUERY
+NON_DISCRIMINATING_THRESHOLD_500_DECLARED_NOT_DERIVED
+NEVER_CITED_FLAG_SUPPRESSED_WHEN_THE_QUERY_IS_UNRELIABLE
+A_FALSE_NEVER_CITED_FLAG_IS_WORSE_THAN_NONE
+D_E18_FIRST_LIVE_EXAMPLE_WITHDRAWN_QUEUE_IS_687
+AND_THE_CORRECT_PHRASE_QUERY_RETURNS_BIBLIOGRAPHY_ONLY_HITS
+THE_CLAIM_WAS_WEAK_TWICE_OVER
+I_WROTE_THE_KILLING_CAVEAT_IN_THE_SAME_BLOCK_AS_THE_CLAIM_AND_DID_NOT_CONNECT_THEM
+CHECK_WHETHER_A_BLOCKS_OWN_CAVEATS_REFUTE_ITS_OWN_HEADLINE
+D_E18_MECHANISM_STANDS_ONLY_THE_DEMONSTRATION_FALLS
+READ_ONLY_NO_ORDERS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+**Çekinceler:** 500 eşiği **beyan edilmiştir, türetilmemiştir** ve öyle etiketlendi; farklı bir
+külliyat için yanlış olabilir · araç ayırt edici olmayan sorguyu **reddetmiyor**, **uyarıyor** —
+kullanıcı yine de okuyabilir, ama never-cited bayrağını göremez · **kaynakçadaki isabet sorunu
+düzeltilmedi**, yalnız snippet ile görünür kılındı · araç hâlâ **hiçbir dosya yazmıyor** · dört hat
+aynı `§` uzayını paylaşıyor, kimlik `D-E20`, **yeniden numaralandırma YOK.**
