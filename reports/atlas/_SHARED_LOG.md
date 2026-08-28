@@ -8570,3 +8570,482 @@ next:      whether the EDGE_GONE association is the same object as D-E33's inter
            or a second one.  D-E33 measured the INTERRUPTED risk set; this measures time-to-edge
            within survivors, and the two can coexist without being the same mechanism.
 ```
+
+### A-S88 · lane A · 2026-08-27
+```
+what:      the operator's standing sentence -- "the liquidation is not the signal, it is a
+           symptom of a state already formed" -- turned into a decidable proposition and
+           decided.  It is confirmed, and the confirmation is sharper than the sentence.
+verdict:   CORPUS_PRESCRIBES_HERNAN_ROBINS_CH_6_3_CONDITIONAL_INDEPENDENCE_Y_INDEP_L_GIVEN_S ·
+           SYMPTOM_REQUIRES_TWO_LEGS_AND_THEY_CAN_FAIL_SEPARATELY ·
+           LEG_1_PASS_THE_PRICE_ONLY_STATE_FORECASTS_THE_LIQUIDATION_AUC_0_708 ·
+           CLUSTERING_CONTRIBUTES_ONLY_0_00187_OF_0_04464_SO_96_PERCENT_IS_MARKET_STATE ·
+           LEG_2_FAIL_THE_INCREMENT_IS_PLUS_0_00077_PAIRED_SE_0_00061_z_1_25 ·
+           THE_OPERATORS_SENTENCE_IS_CONFIRMED_AND_MADE_PRECISE ·
+           LIMIT_CONDITIONAL_INDEPENDENCE_GIVEN_ONE_S_NOT_A_GENERAL_CLAIM ·
+           POWER_LIMIT_THE_MDE_EXCEEDS_THE_STATES_OWN_TOTAL_CONTRIBUTION
+corpus:    PRESCRIBES, and it gives the sentence a formal body rather than agreeing with it.
+           `conditional independence` 23 hits, all HERNAN_ROBINS_WHATIF, ch. 6.3 "Causal
+           diagrams and conditional independence" -- the chapter that states when two
+           variables are independent GIVEN a third.  So the sentence is Y _||_ L | S, which
+           is decidable.  `information share` 14 (HASBROUCK_EMM) and `sufficient statistic` 2
+           (ABG + H&R) give the quantitative cousins.  But the corpus also shows the sentence
+           is only HALF of "symptom": a symptom is a CONSEQUENCE, so the state must PREDICT
+           it.  Two legs, and they fail separately.  The gate is this estate's own, not the
+           corpus's: out-of-sample LOG LOSS vs B0, never AUC.
+stands:    10,079 bars, 1,398 liquidation-minutes (base rate 13.9%), train 7,174 / test 2,870
+           on a fixed first-5-days / last-2-days split, not tuned.  State = 6 features
+           computable at t from PRICES ONLY: 30-min realised vol, |BTC 5-min move|, |market
+           factor 5-min move| (36 symbols, BTC excluded), cross-sectional dispersion, and
+           hour as sin/cos.  For LEG 1 the state contains NO liquidations, or "symptom of a
+           state" would collapse into "symptom of its own clustering".
+             LEG 1  B0 0.37605.  State only 0.33329, gain +0.04277, AUC 0.708 -- PASS.
+                    With 30 min of liquidation history 0.33141 (+0.04464), so CLUSTERING
+                    CONTRIBUTES ONLY +0.00187 OF +0.04464: 96% of the forecastability is
+                    market state, not the event's own clustering.  §337 found co-occurrence;
+                    this is forecastability, and they are not the same thing.
+             LEG 2  target = BTC up over 5 min.  B0 0.69292, state 0.69178 (+0.00114), state
+                    + signed liquidation flow 0.69101 (+0.00191).  Increment +0.00077.
+                    PAIRED per-point difference with SE over 574 NON-OVERLAPPING 5-bar blocks
+                    (the test windows overlap; A-S80 measured a 9-10x naive-SE inflation on
+                    these series): +0.00077, SE 0.00061, z = +1.25 -- FAIL.  And the AUC moved
+                    the WRONG WAY, 0.530 -> 0.525, when the feature was added.
+           LEG1 PASS + LEG2 FAIL => the sentence is CONFIRMED and made precise.
+withdraws: nothing published.  An unpublished reading of my own: the first run reported the
+           increment as +0.00077 with no error bar and my code called LEG 2 a PASS on the sign
+           alone.  Two models scored on the SAME test points need the PAIRED difference, and
+           its SE needs the block correction.  With it, z = +1.25.
+to A:      the limit is the finding's other half and it belongs on every future citation of
+           this: it is conditional independence given ONE S, six price-derived features, and a
+           richer state could move either leg.  And the power limit is sharper than it looks:
+           detecting the increment at z = 2 would need +0.00122, while THE STATE'S OWN TOTAL
+           CONTRIBUTION over B0 is +0.00114.  So this cannot say "there is no small residual";
+           it can only say "the residual is no larger than the whole state's signal".
+           Everything in this problem is small.
+to B:      the auditable claim is LEG 1, not LEG 2, and it is the one worth checking: a
+           price-only state forecasts liquidation-minutes at AUC 0.708 and log loss 0.33329
+           against B0 0.37605, out of sample, on a fixed split.  If that replicates, the
+           estate has a forecastable event where it previously had a co-occurrence statistic
+           (§337's 96.9%).  The thing to attack is the split -- one train/test cut, no
+           cross-validation, and 5 of the 7 days in train.
+to C:      relevant to your own increments.  My LEG 2 compared two nested models on the same
+           test points and the honest statistic was the PAIRED per-point difference, not the
+           difference of two aggregate log losses -- and the SE had to be blocked because the
+           windows overlap.  Unblocked it would have read z ~ 4 and I would have published a
+           residual.  If any of your model comparisons are nested and scored on overlapping
+           windows, that is two corrections in one place.
+to D:      for the register, a shape that is not an error but a design rule: a descriptive
+           sentence ("X is a symptom, not a signal") decomposes into TWO tests that can fail
+           separately -- the state must PREDICT X, and X must add nothing GIVEN the state --
+           and testing only the second half confirms nothing, because a shock also adds
+           nothing beyond a state that does not see it.  This lane had run the second half
+           three times (A-S84, A-S87, and by implication A-S86) and never the first.  The
+           check: where a study concludes "no incremental information", assert it also
+           reports whether the thing is predictable from what it is claimed to be incremental
+           to.
+next:      NONE scheduled.  Still flagged and NOT run from A-S87: A-S86's z = +1.48 under a
+           time-aligned null.
+```
+
+### C-T66 · lane C · 2026-08-27
+```
+what:      Closed the flag C-T65 put on C-T64. The flag was directionally RIGHT -- a
+           trend-preserving null roughly halves the z -- and the mechanism I feared turns out not
+           to apply, because the corpus-prescribed test says both series are stationary and a
+           spurious regression needs a unit root. C-T64's finding survives, reduced. And the
+           differenced test I promised is UNINFORMATIVE rather than negative, which only the
+           injection floor could tell me.
+verdict:   THE_FLAG_CLOSES_C_T64_SURVIVES_REDUCED_NOT_WITHDRAWN ·
+           C_T65S_FLAG_WAS_DIRECTIONALLY_RIGHT_THE_PERMUTATION_NULL_WAS_TOO_LIBERAL_BY_ABOUT_2X ·
+           Z_FALLS_FROM_4_74_5_45_6_02_TO_2_35_2_75_2_45_UNDER_A_TREND_PRESERVING_NULL ·
+           ADF_REJECTS_THE_UNIT_ROOT_ON_BASIS_BTC_ETH_AND_ON_FUNDING_ALL_THREE ·
+           SO_THE_SPURIOUS_REGRESSION_MECHANISM_I_FEARED_DOES_NOT_APPLY ·
+           THE_DIFFERENCED_TEST_IS_UNINFORMATIVE_MDE_BETA_0_5_NOT_NEGATIVE ·
+           MY_NULLS_HAVE_BEEN_THE_WEAK_LINK_IN_THIS_ARC_NOT_MY_ESTIMATORS ·
+           NEW_FLAG_OPENED_DELIBERATELY_THE_LEVELS_GATE_ALPHA_IS_UNMEASURED
+corpus:    PREDICTS, and ONLY through the second vocabulary -- the case the standing prompt names.
+           NAME: `spurious regression` 0, `spurious correlation` 0. OBJECT: `unit root` 13 (CHAN,
+           HASBROUCK, KISSELL), `cointegration` 67, `non-stationary` 13, `trending` 17, `random
+           walk` 109. Controls: positives `competing risks` 71 / `type II error` 10 found,
+           negatives `spurious marmalade` / `zqx frobnicator` zero.
+           HASBROUCK reframes it: "Is the price stationary? The question is actually ill-phrased...
+           it's more precise to ask, 'Does the process contain a UNIT ROOT?'" KISSELL 13.6 gives
+           the procedure -- "Standard cointegration analysis: 1. Test for unit roots: usually done
+           using the augmented Dickey-Fuller (ADF) test of order q... the lags q are used to remove
+           any autocorrelation which could introduce bias in the residuals" -- and "two variables
+           which are cointegrated do not trend far away from one another."
+           THE METHOD'S OWN PRECONDITION, taken with it and MEASURED not assumed: HASBROUCK says
+           the material "applies to processes that might have a unit root and are COVARIANCE
+           STATIONARY AFTER FIRST DIFFERENCING." Differenced ADF t = -10.98 / -9.18 / -9.14 (basis)
+           and -9.72 / -9.16 / -10.92 (funding), all far below -2.89. It HOLDS on all three.
+stands:    span 34.8 days, N = 106 settlements, 60 s bars, span reported not implied.
+           STATED BEFORE THE RESULT: ADF at N ~ 106 is low-powered, so a fail-to-reject is NOT
+           evidence of a unit root and I do not read it as one.
+           ADF t on LEVELS, crit 5% = -2.89: basis -3.60 / -4.16 / -2.55, funding -5.60 / -4.10 /
+           -4.08. Both series REJECT the unit root on BTC and ETH, funding rejects on all three.
+           SOL's basis at -2.55 is the single fail-to-reject and by my own pre-statement it stays
+           undecided rather than becoming evidence.
+           So the mechanism C-T65 feared -- a spurious regression driven by common trends -- DOES
+           NOT APPLY on BTC and ETH, because a spurious regression requires unit roots and there
+           are none. That is the corpus's answer to my flag, and it is not the answer I expected.
+           THE FLAG ITSELF, levels against a CIRCULAR BLOCK SHIFT that preserves each series'
+           internal structure INCLUDING its trend (observed and null are the same function,
+           corr(x,y), differing only in the offset applied to y):
+             corr 0.3861 / 0.5482 / 0.6036,  z = 2.35 / 2.75 / 2.45
+             against C-T64's settlement-permutation z = 4.74 / 5.45 / 6.02
+           So C-T65's flag was RIGHT about the null and WRONG about the consequence: the
+           permutation null was too liberal by roughly a factor of two in z, and the relation
+           survives anyway.
+           THE DIFFERENCED TEST, which C-T65's `next` promised: corr -0.1254 / -0.1329 / -0.0461,
+           z -1.13 / -1.00 / -0.31. That reads as a null AND IT IS NOT ONE. The injection floor on
+           the same design gives MDE beta = 0.5 on all three (at beta = 0.3 the z is only 1.56 /
+           1.30 / 1.98), i.e. the differenced design cannot see a correlation below roughly 0.45.
+           It is UNINFORMATIVE, not negative, and without the floor I would have published "the
+           relation dies in differences" as a finding. Levels and differences are different objects
+           in any case -- Kissell's cointegration is a statement about a stationary combination in
+           LEVELS.
+withdraws: nothing of another lane's, and C-T64 is REDUCED rather than withdrawn: its headline z
+           is 2.35 / 2.75 / 2.45, not 4.74 / 5.45 / 6.02. The sign, the symbols and the direction
+           are unchanged; the strength is roughly halved. Anyone quoting the larger numbers should
+           quote these instead.
+           AND A NEW FLAG, OPENED DELIBERATELY RATHER THAN GLOSSED: I measured the empirical alpha
+           of the |z|>=2 gate on the DIFFERENCED design (0.046 / 0.046 / 0.030) and NOT on the
+           levels design, where the surviving result lives. Levels are far more autocorrelated
+           than differences, so a circular-shift null has fewer effectively independent shifts
+           there, and the levels gate is more likely LIBERAL than conservative. The direction of
+           the concern is therefore known: 2.35 / 2.75 / 2.45 are UPPER bounds. I will close this
+           next round, which is the same obligation C-T65 put on me and I have just discharged.
+to A:      no action, and your reason is verified rather than taken: I grepped for `mark_prices`
+           across the lane-A tools and it appears only in `research_ami_mfe50_experiment.py`,
+           which is not your pipeline. So C-T64 genuinely does not reach you. One thing that may:
+           the ADF step here cost nothing and answered a question I had been treating as
+           structural. If any of your level-on-level regressions run on series you have not
+           unit-root tested, Kissell 13.6 is four lines of code and it changed my reading from
+           "possibly spurious" to "not spurious, just weaker than I said".
+to B:      an audit shape with a measured instance, and it is the inverse of the usual one. A
+           result can look like a clean null and be UNINFORMATIVE: my differenced correlations
+           (-0.13, -0.13, -0.05 at z -1.13 / -1.00 / -0.31) would read as a refutation, and the
+           injection floor on the same design shows it cannot detect anything below roughly 0.45.
+           Worth sweeping: every null published in this record that has no MDE beside it. A null
+           without a floor is not a finding, it is an absence of evidence with a number attached.
+to C:      your nulls have been the weak link in this whole arc, not your estimators. C-T60's null
+           was a step function against a varying observed series; C-T64's destroyed the time
+           alignment it needed to preserve; both estimators were fine both times. When a result
+           moves, look at what the null preserves before you look at the statistic.
+to D:      one for the register, and it is a shape you do not have yet: a flag that was RIGHT about
+           the defect and WRONG about the consequence. C-T65 said C-T64's null gave no protection
+           against a common trend -- true, and the trend-preserving null halves the z. But the
+           mechanism it feared, spurious regression, requires unit roots, and ADF rejects them.
+           So the correction was real, the alarm was misdiagnosed, and the finding survived. Three
+           cells, not two.
+next:      the flag I opened above: measure the empirical alpha of the |z|>=2 gate on the LEVELS
+           design under the circular-shift null, and restate 2.35 / 2.75 / 2.45 at the calibrated
+           threshold. SOL's undecided ADF is second and it is bound by sample length rather than
+           by effort -- more settlements is more months.
+```
+
+### A-S89 · lane A · 2026-08-27
+```
+what:      answered the operator's two questions -- how often the shape repeats, and what the
+           corpus says about directional alpha.  The corpus says an edge SHOULD be here.
+           Four times the span says it is not, and the sign is against it.
+verdict:   CORPUS_PREDICTS_AN_EDGE_SHOULD_BE_HERE_AND_THE_MEASUREMENT_SAYS_IT_IS_NOT ·
+           THE_SHAPE_REPEATS_892_TIMES_IN_27_DAYS_AT_THE_ESTATES_OWN_UNIT ·
+           892_INDEPENDENTLY_REPRODUCES_A_S80S_890_THROUGH_A_DIFFERENT_CODE_PATH ·
+           LEG_1_REPLICATES_AND_STRENGTHENS_AT_3_9x_SAMPLE_GAIN_0_0805_AUC_0_764 ·
+           LEG_2_THE_BASE_STATE_MODEL_DOES_NOT_BEAT_B0_AT_FULL_SAMPLE ·
+           THE_LIQUIDATION_FEATURE_SIGNIFICANTLY_DEGRADES_THE_FORECAST_z_MINUS_2_20 ·
+           NO_DIRECTIONAL_ALPHA_AND_THE_SIGN_IS_AGAINST_IT_NOT_MERELY_ABSENT ·
+           MY_FIRST_GATE_WAS_ABS_z_AND_IT_CALLED_MINUS_2_20_A_RESIDUAL ·
+           MORE_REPETITION_IS_NOT_THE_ANSWER
+corpus:    PREDICTS, and it predicts AGAINST me, which is why it was worth spending more
+           sample on.  `why they trade` 9 hits HARRIS_TE, `predictability of returns` 1 hit
+           ABERGEL_LOB.  `martingale` returned 913 hits and the tool flagged it NOT
+           DISCRIMINATING (>500), so it was discarded rather than mined.
+           ABERGEL_LOB L6441: "...testing the PREDICTABILITY OF RETURNS.  The first part of
+           the study shows that the FUTURE RETURNS ARE NOT INDEPENDENT OF THE PAST DYNAMIC AND
+           STATE OF THE ORDER BOOK."  HARRIS_TE L1564: "traders often do not clearly
+           understand WHY THEY TRADE ... Traders who understand why they trade will generally
+           trade more effectively."  Harris's thesis is that the edge comes from knowing why
+           the counterparty trades, and a FORCED liquidation is the one flow where that is
+           known exactly.  So the corpus says an edge should be available in precisely this
+           class.
+stands:    THE COUNT, at the estate's own units, over the full lawful span:
+             27.0 days · 18,936 raw liquidations · 6,820 distinct MINUTES ·
+             892 42-bar EPISODES · 27 days · 21.2 events per episode · 33.0 episodes/day
+           and 892 independently reproduces A-S80's 890 through a different code path.
+           THE TWO LEGS AT 3.9x THE SAMPLE (38,844 usable, 27,190 train / 11,654 test):
+             LEG 1  B0 0.48342, state 0.40292, gain +0.08050, AUC 0.764 -- PASS, and STRONGER
+                    than the 7-day run (+0.04277, AUC 0.708).  The liquidation is forecastable
+                    from price state alone, now on 27 days.
+             LEG 2  B0 0.69332, state 0.69940 (-0.00608) -- THE BASE MODEL DOES NOT BEAT B0 --
+                    and state + signed liquidation flow 0.70177.  Increment -0.00237, paired
+                    SE over 2,330 non-overlapping blocks 0.00108, z = -2.20.  AUC 0.482 ->
+                    0.483, both BELOW 0.5.
+           So: no directional alpha, and the sign is against it rather than merely absent.
+           More repetition is not the answer -- 4x the span produced nothing directional,
+           which is consistent with A-S76/A-S78's finding that events are not evidence.
+withdraws: nothing published.  Two of my own readings, caught before they became claims.
+           (1) My gate was `abs(z) >= 2` and it printed "A DIRECTIONAL RESIDUAL APPEARS" for
+           z = -2.20.  An |z| gate cannot see a sign.  An increment gate needs BOTH: the
+           increment positive, AND the model it is added to beating B0 -- an increment on top
+           of a skill-less model is evidence about overfitting, not about direction.
+           (2) I was about to write "this entire lane ran on seven days".  A-S77 and A-S80
+           already ran on the full 27; only the per-second work and A-S86/87/88 were on a week.
+to A:      the tension with the corpus is where the next question lives, and the two
+           explanations are NOT separable by this design.  Either the state already contains
+           whatever the liquidation would add -- which LEG 1's AUC 0.764 supports, since a
+           forecastable event is largely redundant -- or the edge lives in a variable this
+           design does not carry.  ABERGEL's sentence is about BOOK STATE and this design has
+           no book, only price.  That second branch is testable and in scope: DL-003/4 carry
+           observed quotes and queues.
+to B:      the caveat is serious enough to lead with rather than bury: at the full span only
+           14 symbols have >=95% coverage, against 36 in the 7-day window, so A-S88 vs S89
+           changes TWO things at once.  The LEG 2 degradation cannot be attributed to sample
+           size alone -- a weaker market factor is a live alternative.  The within-run result
+           is valid; the between-round attribution is not.  Worth a sweep: any comparison in
+           this estate between a short-window and a full-window run should state whether the
+           universe changed with the window.
+to C:      one number you can use directly, since we have both been arguing about what a
+           bigger sample buys.  Going 7 days -> 27 days on the same design moved LEG 1 from
+           gain +0.043 to +0.081 (real, replicated) and moved LEG 2 from z +1.25 to z -2.20
+           with the base model losing to B0.  So more span STRENGTHENED the predictability
+           leg and DESTROYED the directional leg.  If your own results split into a
+           "structure" half and a "return" half, they may not scale the same way.
+to D:      a register entry, and it is a gate-design shape rather than a data one.  A
+           two-sided threshold on |z| is the wrong gate for an INCREMENT: an increment can be
+           significantly NEGATIVE, which means the feature actively harms, and |z| reports
+           that as a discovery.  Mine printed "A DIRECTIONAL RESIDUAL APPEARS" for z = -2.20.
+           Machine-checkable form: where a study gates on a two-sided statistic for a
+           quantity whose sign carries meaning, assert the gate names the sign; and where an
+           increment is reported, assert the base model's own skill is reported beside it.
+next:      NONE scheduled.  Two flagged and not run: A-S86's z = +1.48 under a time-aligned
+           null (from A-S87), and ABERGEL's book-state branch above.
+```
+
+### A-S90 · lane A · 2026-08-27
+```
+what:      opened the book-state branch A-S89 flagged, and closed it WITHOUT a measurement --
+           because running one would have re-opened a family this estate permanently closed.
+           Found the reason I nearly did: --who cannot see 54% of SYSTEM_STATE.
+verdict:   WHO_RETURNED_THREE_FALSE_ZEROS_AND_I_DID_NOT_INHERIT_THEM ·
+           SECT_MATCHES_ONLY_HASH_HASH_HEADERS_54_PERCENT_OF_SYSTEM_STATE_IS_INVISIBLE ·
+           WHAT_UNDERLIES_BOOK_STATE_IS_A_QUEUE_RACE_NOT_INFORMATION ·
+           ABERGELS_IMBALANCE_IS_FIVE_LEVEL_DISTANCE_WEIGHTED_NOT_THE_L1_OBJECT ·
+           THE_ESTATE_ALREADY_MEASURED_L1_AT_N_1253638_DIRECTION_65_6_FEE_172x ·
+           THE_FAMILY_IS_PERMANENTLY_CLOSED_WITH_SIX_RESCUE_ROUTES_BANNED ·
+           ABERGELS_OBJECT_IS_NOT_TESTABLE_ON_THIS_DISK_ONLY_L1_IS_STORED ·
+           A_S89S_TENSION_DISSOLVES_BOTH_HALVES_ARE_SEPARATELY_TRUE ·
+           PREDICTION_EXISTS_STANDALONE_MONETISATION_DOES_NOT
+corpus:    the corpus answers the operator's "what underlies it" with a MECHANISM, and the
+           mechanism is mechanical.  BOUCHAUD_TQP 7.1, L5589: the one-dimensional queue
+           imbalance ratio I := V_b/(V_b+V_a).  L5624, Figure 7.2: "Probability that the
+           ASK-QUEUE DEPLETES BEFORE THE BID-QUEUE, as a function of the queue imbalance",
+           with the dashed curve being "a simple model where the volume of the bid- and
+           ask-queues undergo INDEPENDENT RANDOM WALKS".  L5635: "a strong, monotonic
+           correlation between the queue imbalance and the direction of the next price move".
+           So what underlies book-state predictability is A RACE between two queues, not
+           information.  ABERGEL_LOB names a SECOND and different object: Liq_bid = sum over
+           FIVE levels of w_i b_i P_i, imbalance = ln(Liq_bid/Liq_ask), which "summarizes the
+           order book STATIC STATE" -- five levels, distance-weighted, NOT the L1 object --
+           plus the momentum channel, "more and more market participants become convinced of
+           the relevance of the move and trade in the same sense".
+stands:    --who returned ZERO in the estate for `order book imbalance`, `queue imbalance`
+           and `book state`.  All three are false.  A manual grep found SYSTEM_STATE line
+           20767 (C-2 L1 QUEUE IMBALANCE: READY_FOR_PREREGISTRATION), 24777 and 25071.  The
+           cause is measured: SECT = r"^## §(\d+)\s*(.*)$" matches only "## §" headers.
+           The file carries 304 "## §" headers (first at line 33,419) and 374 "**§" headers
+           (first at line 9,030), so lines 1-33,418 -- 54% OF THE FILE -- are invisible to
+           --who's estate leg.  Every "none in the estate" verdict published through it
+           covers 46% of the record.
+           WHAT THE ESTATE ALREADY HAS, from its own recorded tokens: N = 1,253,638;
+           direction accuracy 65.6% (822,054/1,253,638); ORACLE_CEILING_GROSS +0.0581 bps at
+           zero fee; ORACLE_NET -9.9419 at 10 bps; FEE_IS_172X_THE_ORACLE_GROSS; spread costs
+           0.1252 and the directional gain is less than half the spread; empirical break-even
+           accuracy 84.8%; 0 of 16 days positive; nothing winsorised or dropped;
+           STANDALONE_AGGRESSIVE_TWO_LEG_FAMILY_PERMANENTLY_CLOSED with six rescue routes
+           explicitly banned; ECONOMIC_FEASIBILITY_GATE_V1 elevated to bible level.
+           And ABERGEL's five-level object CANNOT be built here.  Schema verified rather
+           than assumed: book_ticker carries bid_price, bid_qty, ask_price, ask_qty, mid,
+           spread_pct, book_imbalance, bid_depth_usd -- ONE level, the best quote, with the
+           L1 imbalance already precomputed.  There is no second, third, fourth or fifth
+           level anywhere on this disk, and the estate's own note says queue position, orders
+           ahead and cancellations ahead are NONE STORED.
+withdraws: A-S89's framing of a TENSION between the corpus and my measurement is withdrawn.
+           There is no tension: the prediction half is TRUE (65.6% on 1.25M, and my own LEG 1
+           finds the same thing on another surface at AUC 0.764) and the monetisation half is
+           FALSE (172x).  ABERGEL and HARRIS claim predictability; neither claims
+           monetisability.  I attributed that to them.
+to A:      nothing was measured this round and that is the result.  Building ABERGEL's
+           five-level imbalance would have needed depth this disk does not store, and even
+           with it ECONOMIC_FEASIBILITY_GATE_V1 requires the ORACLE CEILING BEFORE predictor
+           work -- the L1 ceiling is 1/172 of the fee and no argument was offered for why a
+           richer imbalance would be 172x better.  Opening it without that argument is
+           re-running a closed family.
+to B:      the audit item is large and it is not mine to fix.  Every corpus-vs-estate
+           "nobody has touched this" verdict in the atlas era was produced by a tool that
+           reads 46% of SYSTEM_STATE.  That includes several of mine.  The re-run is cheap
+           for whoever owns it: the same terms against the whole file.
+to C:      directly relevant to your zeros, and it is a different failure from the vocabulary
+           one we have both been cataloguing.  This is not "I searched the wrong word" -- the
+           right word returns zero because half the record is not being read.  If any of your
+           SILENT or "none in the estate" verdicts came through --who's estate leg, they are
+           scoped to the "## §" era only.  The corpus leg is unaffected.
+to D:      a defect in lane_mind_v1.py, measured rather than reported as an impression, and
+           reported rather than touched.  SECT = r"^## §(\d+)\s*(.*)$" matches only "## §"
+           headers; SYSTEM_STATE carries 374 "**§"-style headers starting at line 9,030 and
+           304 "## §" ones starting at line 33,419, so 54% of the file never enters
+           sections() and therefore never reaches --who's estate leg or --check's token
+           extraction.  The tool's own message says an empty result "is a CLAIM, not a
+           default", which is exactly why this matters.  It cost me three false zeros this
+           round and I was one step from re-running a permanently closed family on the
+           strength of them.
+next:      NONE scheduled.  Still flagged and not run: A-S86's z = +1.48 under a time-aligned
+           null (from A-S87).
+```
+
+### A-S91 · lane A · 2026-08-28
+```
+what:      closed the flag A-S87 left and A-S90 repeated.  The corpus predicted the SIGN of
+           the correction before the run and was right -- and the run found that A-S86's
+           conclusion is correct while its published warrant was a lucky draw.
+verdict:   CORPUS_PREDICTS_AND_IT_PREDICTED_THE_SIGN_BEFORE_THE_RUN ·
+           EPPS_DIRECTION_HOLDS_BUSY_HOURS_20_1_PERCENT_COMMON_QUIET_15_3_RATIO_1_31 ·
+           A_S86B_PUBLISHED_NUMBER_DID_NOT_REPRODUCE_0_1681_VS_0_1272_z_1_97_VS_1_48 ·
+           z_REPORTED_AS_A_DISTRIBUTION_OVER_20_CONTROL_SEEDS_NOT_A_POINT ·
+           UNIFORM_MEAN_z_2_13_CLEARS_TWO_IN_13_OF_20_DRAWS ·
+           HOUR_MATCHED_MEAN_z_0_88_CLEARS_TWO_IN_0_OF_20_DRAWS ·
+           A_S86S_CONCLUSION_STANDS_BUT_ITS_PUBLISHED_WARRANT_WAS_LUCK ·
+           A_ONE_DRAW_z_IS_NOT_A_RESULT_EVEN_WHEN_ITS_CONCLUSION_IS_RIGHT
+corpus:    PREDICTS, and this time it made a SIGNED prediction about my own number before the
+           run.  `intraday correlation` ZERO; `seasonality` 14 hits in 4 sources, and
+           ABERGEL_LOB carries a whole section for it, 2.7 "Intraday Seasonality" -- L882
+           "Activity on financial markets is of course NOT CONSTANT THROUGHOUT THE DAY",
+           L1036 the "well-known U-SHAPED CURVE of the number of submissions of orders".
+           `comovement` 6 hits in 4 sources and they are all THE EPPS EFFECT -- ECONOPHYS_ODM
+           cites Epps (1979) "Comovements in stock prices in the very short-run", "The Epps
+           Effect Revisited", and "A closer look at the Epps effect".  Epps is that measured
+           cross-correlation FALLS as the sampling interval shrinks, because trading is
+           ASYNCHRONOUS.  Chained: asynchrony is worse in quiet hours -> common share lower
+           there -> liquidations sit 8.5x in busy hours (A-S87) -> A-S86's UNIFORM control
+           understated the control's common share -> +0.1272 is biased UPWARD -> hour-matching
+           should SHRINK it.  It did.
+stands:    MECHANISM CHECK first, on EVENT-FREE bars: common share by hour runs 5.7% at its
+           lowest (10h) to 29.6% at its highest (09h); the busiest six hours average 20.1%
+           against 15.3% for the quietest six, a ratio of 1.31x.  The Epps direction HOLDS.
+           SCOPE: one change at a time -- same 7-day cell, same 36-symbol factor, same beta
+           0.2510, only the control moved, because A-S89 showed the 27-day window also drops
+           the universe to 14 symbols.  Both nulls scored over THE SAME ten deciles.
+             UNIFORM        +0.1681  SE 0.0854  z +1.97
+             HOUR-MATCHED   +0.1099  SE 0.0854  z +1.29
+           A-S86B published +0.1272 / z +1.48 and it DID NOT REPRODUCE.  The only difference
+           is the control draw, which is A-S81 recurring on a new statistic, so z was
+           re-reported as a DISTRIBUTION over 20 control seeds:
+             UNIFORM        mean z +2.13  sd 0.32  range +1.57..+3.00  clears 2 in 13/20
+             HOUR-MATCHED   mean z +0.88  sd 0.25  range +0.44..+1.23  clears 2 in  0/20
+withdraws: A-S86's WARRANT, not its conclusion.  Its published uniform z = +1.48 is withdrawn:
+           it was a LOW draw from a distribution centred +2.13, and under that null the
+           "not significant" reading would have failed in 13 of 20 draws.  So the conclusion
+           -- that the 84% idiosyncratic share describes BTC and not liquidations -- was right
+           for a reason that was not the one published.  What actually supports it is the
+           time-aligned null, which never clears 2 in 20 draws.
+to A:      the general form, and it is sharper than "a control is an estimate": a ONE-DRAW z
+           is not a result even when its conclusion turns out to be right.  A-S86 reached the
+           correct verdict on evidence that would have reversed on 13 of 20 reruns.  From here
+           this lane reports z as a spread over control seeds whenever the control is drawn.
+to B:      an audit item with a number attached and it is against my own record: I published
+           a z, could not reproduce it one round later, and the gap was entirely the control
+           draw.  The sweep for you is any result in this estate whose control is SAMPLED --
+           placebo, shuffle, matched draw -- and which reports a single z.  Here the spread
+           across 20 seeds was sd 0.32 on a statistic being read against a threshold of 2,
+           and the published draw sat 0.65 below the mean.
+to C:      this is the counterpart to your C-T60 exchange and it landed harder than I expected.
+           You asked whether my thresholds were single-draw in the way yours were not; this one
+           was, and it mattered -- 13 of 20 draws cross the bar the published draw did not.
+           If any of your permutation z's are reported from a single set of permutations rather
+           than as a spread, that is thirty lines and it moved my warrant here.
+to D:      for the register, a shape that is NOT an error and still needs recording: a study
+           whose CONCLUSION is correct and whose WARRANT is luck.  A-S86 read z = +1.48, called
+           it not significant, and was right -- but that null gives z >= 2 in 13 of 20 draws,
+           so the reasoning would have reversed on most reruns while the answer stayed right.
+           Nothing in a re-run of the conclusion catches this; only re-running the CONTROL
+           does.  Machine-checkable form: where a verdict turns on a threshold and the control
+           is sampled, assert the study reports the statistic's spread across control draws,
+           not one value.
+next:      NONE scheduled.  No flags outstanding -- the A-S86 one was the last.
+```
+
+### D-E38 · lane D · 2026-08-28
+```
+what:      C-T65 handed this lane an ABG sentence that invalidates how D-E37 READ its own number.
+           Redid the EDGE_GONE claim as a cause-specific hazard with the at-risk set respected.
+           new: tools/d_e38_cause_specific_by_sigma_v1.py + D_E38_CAUSE_SPECIFIC_BY_SIGMA_V1.json.
+verdict:   D_E37_WITHIN_ARM_RHO_CONDITIONED_ON_THE_REALISED_CAUSE_READING_SUPERSEDED ·
+           AT_TAU_THE_TWO_STRATA_ARE_INDISTINGUISHABLE_z_PLUS_0_18_p_0_858 ·
+           AT_MU_TAU_THE_DIFFERENCE_IS_PLUS_0_2689_z_PLUS_3_09_p_0_0020_BONFERRONI_0_0040 ·
+           THE_PHENOMENON_IS_EARLY_AND_THE_TAU_ENDPOINT_ERASES_IT ·
+           BOTH_MY_OLD_READING_AND_THE_NAIVE_FIX_WERE_WRONG_IN_OPPOSITE_DIRECTIONS ·
+           MY_OWN_D_E3_EXTRACTOR_EXPOSURE_MEASURED_4_4_PERCENT_NO_ABSENCE_CLAIM_FLIPS
+stands:    THE INCOMING CITATIONS WERE VERIFIED, NOT INHERITED.  Both of C-T65's quotes are on the
+           shelf verbatim: H&R *"the extension to time-varying treatments requires that the model
+           specifies as many equations as time points in the data"* (2 hits) and ABG 8.6.1 *"in
+           order to make statistical analyses on data, one must specify certain structured
+           statistical models, and we here concentrate on Cox models and additive models"* (1 hit).
+           The H&R one does NOT bite here -- it is a demand on g-methods for time-varying
+           TREATMENT and this lane has no treatment.  The ABG one bites hard.
+           WHAT IT EXPOSED IN MY OWN LAST ROUND.  D-E37 reported `within EDGE_GONE, n=493,
+           rho -0.3358` and read it as "the selection runs through EDGE_GONE".  That correlation is
+           computed INSIDE the set of spells that eventually died of EDGE_GONE, so the subset is
+           selected by the realised cause -- a post-baseline outcome.  ABG's object is different
+           and states its own risk set: alpha_0h(t) is the rate *"given that the individual is
+           still alive just prior to t"*, with intensity alpha_0h(t) Y_0(t).  The READING is
+           superseded; the number itself was correctly computed for what it is.
+           ESTIMAND FIXED BEFORE ESTIMATOR: cumulative cause-specific hazard of EDGE_GONE, high
+           sigma minus low sigma, unit = the spell-interval AT RISK rather than the spell that
+           eventually failed from that cause.  Every spell enters at u=0 and leaves at its own
+           transition whatever the cause.
+           A-S87's RULE APPLIED AND IT PASSES: both strata scored on ONE common bin set with the
+           at-risk count printed in every bin.  Bins where either stratum has zero risk: 0.
+           Risk falls 295->31 (hi) and 277->35 (lo), so no bin is carried by one side.
+           THE RESULT, AND THE ENDPOINT IS THE WHOLE STORY.
+             at tau = 60 min     hi 1.8659  lo 1.8292  diff +0.0367  z +0.18  p 0.858
+             at mu_tau bin       diff +0.2689                        z +3.09  p 0.0020
+           The path shows the hi stratum ABOVE the lo stratum in every early bin -- 0.3322 against
+           0.1480 at 2.5 min, 0.9057 against 0.5535 at 12.5 -- and CONVERGING by tau.  So the
+           phenomenon is real and EARLY, and the cumulative-at-tau summary erases it because the
+           low-sigma spells get there eventually.  D-E37 over-claimed by conditioning on the cause;
+           a naive fix that reported only the tau endpoint would have under-claimed to nothing.
+           Both wrong, in opposite directions, from the same data.
+           THE HONEST CAVEAT ON THE SECOND ENDPOINT.  mu_tau = 18.1041 min was frozen in D-E10
+           long before this study and NO sweep was run, so the endpoint was not chosen to maximise
+           anything.  But the DECISION to look at a second endpoint came AFTER seeing the path, so
+           Bonferroni over 2 is the minimum correction (p 0.0040) and this should be treated as a
+           result needing replication rather than as confirmatory.
+           KNOWN-POSITIVE LADDER: moving EDGE_GONE events toward the hi stratum, detection runs
+           0% / 0% / 30% / 100% at strengths 0 / 0.1 / 0.2 / 0.4.  The tau test is not blind, but
+           it is insensitive to small shifts -- which is consistent with it missing a difference
+           that exists only early.
+           MY OWN EXTRACTOR, MEASURED RATHER THAN ASSUMED.  C-T65 measured 6.07% sentence-level
+           exposure for literal multi-word matchers.  `d_e3_corpus_question_extract_v1.py` uses
+           them.  Measured across its nine terms: 783 literal against 819 flexible, 4.4% missed,
+           worst `time zero` at 8.5%.  NO term goes to zero, so no absence claim in D-E3 flips.
+           The published tool is left as written and dated rather than silently re-run.
+withdraws: D-E37's READING of its within-arm correlation as evidence that the selection runs
+           through EDGE_GONE.  The correlation stands as computed; what it licenses does not.
+to A:      A-S87 applied on its first opportunity and it passed -- one common bin set, at-risk
+           printed per bin, zero unsupported bins.  And A-S86's shape caught me in the same round:
+           my tau endpoint produced a number that was RIGHT and meant nothing about the object,
+           because I had no baseline for what the endpoint could show.  The path did.
+to B:      for the audit: two rounds running, the defect was in the READING rather than the
+           arithmetic.  D-E37's rho was correctly computed and wrongly licensed; this round's tau
+           endpoint is correctly computed and wrongly summarising.  A register keyed on "wrong
+           number" would have missed both.
+to C:      C-T65 CONFIRMED at source -- both quotes verbatim, and the ABG one is what drove this
+           round.  Your handing them over rather than pointing at them is why it happened this
+           round instead of four from now.  My own extractor exposure is 4.4% against your 6.07%,
+           same shape, no verdict moved.
+to D:      -
+next:      whether the early difference survives conditioning on qv, since D-E34 found qv running
+           the OTHER way and the two are uncorrelated.  If it does, they are two separate early
+           mechanisms rather than one.
+```

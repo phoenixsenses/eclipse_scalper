@@ -62205,3 +62205,449 @@ CORPUS_LICENSES_CAUSE_SPECIFIC_AND_FORBIDS_SUBDISTRIBUTION_WHICH_IS_ZERO_ON_THE_
 A_S85_ACCEPTED_THE_ORIGINAL_BLOCK_IS_NEVER_REPAIRED_LABEL_TIGHTENED
 C_KULLIYAT_T63_CONFIRMED_MY_FORMAT_CHANGE_BROKE_THEIR_GATE_JSON_IS_THE_CONTRACT
 ```
+
+
+---
+
+## §517 [A-S88] LANE A — *"TASFİYE SİNYAL DEĞİL, STATE'İN BELİRTİSİ"* KARARA BAĞLANDI: **DOĞRULANDI**. STATE ONU ÖNGÖRÜYOR (`+0.0428` log loss, `AUC 0.708`, `%96`'sı PİYASA STATE'İ), TASFİYE STATE'E **HİÇBİR ŞEY EKLEMİYOR** (`z = +1.25`) (2026-08-27, Opus 5 [1M])
+
+`tools/s88_symptom_or_signal.py` · `S88_SYMPTOM_OR_SIGNAL_V1.{md,json}`. **Operatör talebi.**
+
+### 1. KÜLLİYAT: **REÇETE VERİYOR** — cümleye gövde
+`HERNAN_ROBINS` böl. 6.3 (`23` hit) koşullu bağımsızlığı kuruyor ⟹ operatörün cümlesi
+**`Y ⊥ L | S`**. Ama *"belirti"* bunun yarısı: belirti, belirtisi olduğu şeyin **sonucu**
+olmalı ⟹ **iki bacak, ayrı ayrı düşebilir.** Kapı: **log loss vs `B0`**, `AUC` DEĞİL.
+
+### 2. SONUÇ
+```
+LEG 1  B0 0.37605 · state (TASFİYE GEÇMİŞİ YOK) 0.33329  vs B0 +0.04277  AUC 0.708  GEÇTİ
+       +tasfiye geçmişi 0.33141 (+0.04464) -> KÜMELENME KATKISI YALNIZ +0.00187
+       => ÖNGÖRÜLEBİLİRLİĞİN %96'SI PİYASA STATE'İ, kendi kümelenmesi DEĞİL
+LEG 2  B0 0.69292 · state 0.69178 (+0.00114) · +tasfiye 0.69101 (+0.00191)
+       ARTIŞ +0.00077 · EŞLEŞTİRİLMİŞ, 574 örtüşmeyen blok: SE 0.00061 · z = +1.25  DÜŞTÜ
+       AUC TERS YÖNE: 0.530 -> 0.525
+```
+**LEG1 GEÇTİ + LEG2 DÜŞTÜ ⟹ CÜMLE DOĞRULANDI VE KESİNLEŞTİRİLDİ.**
+
+### 3. HATA PAYI OLMADAN OKUMADIM
+`+0.00077` ilk çıktıda *"artık var"* diye okunacaktı. İki model **aynı test noktalarında**
+puanlanıyor ⟹ dürüst istatistik **eşleştirilmiş** fark, `SE`'si **örtüşmeyen bloklar**
+üzerinden (`A-S80`: naif `SE` `9–10×` şişik). `z = +1.25`.
+
+### 4. SINIR
+**Tek bir `S` üzerinde koşullu bağımsızlık** — `6` fiyat-türevli özellik; daha zengin bir state
+her iki bacağı da değiştirebilir. **Güç:** `z=2` için gereken artış `≈ +0.00122`, oysa
+**state'in tüm katkısı `+0.00114`** ⟹ test *"küçük artık yok"* diyemez, ancak *"artık state'in
+kendi sinyalinden büyük değil"* diyebilir.
+
+```verdict
+A_S88  OPERATOR_SENTENCE_TURNED_INTO_A_DECIDABLE_PROPOSITION_AND_DECIDED
+       CORPUS_PRESCRIBES_HERNAN_ROBINS_CH_6_3_CONDITIONAL_INDEPENDENCE_Y_INDEP_L_GIVEN_S
+       SYMPTOM_REQUIRES_TWO_LEGS_PREDICTABILITY_AND_NO_RESIDUAL_AND_THEY_CAN_FAIL_SEPARATELY
+       GATE_IS_OUT_OF_SAMPLE_LOG_LOSS_VS_B0_NOT_AUC_PER_THIS_ESTATES_OWN_RULE
+       LEG_1_PASS_THE_PRICE_ONLY_STATE_FORECASTS_THE_LIQUIDATION_0_33329_VS_B0_0_37605
+       GAIN_PLUS_0_04277_AUC_0_708_WITH_NO_LIQUIDATION_HISTORY_IN_THE_STATE
+       CLUSTERING_CONTRIBUTES_ONLY_0_00187_OF_0_04464_SO_96_PERCENT_IS_MARKET_STATE
+       CO_OCCURRENCE_IS_NOT_FORECASTABILITY_AND_THIS_IS_THE_FORECASTABILITY
+       LEG_2_FAIL_THE_INCREMENT_IS_PLUS_0_00077_PAIRED_SE_0_00061_z_1_25
+       AUC_MOVED_THE_WRONG_WAY_0_530_TO_0_525_WHEN_THE_FEATURE_WAS_ADDED
+       THE_OPERATORS_SENTENCE_IS_CONFIRMED_AND_MADE_PRECISE
+       THREE_INDEPENDENT_ROUTES_NOW_AGREE_A_S84_A_S87_AND_S88
+       LIMIT_THIS_IS_CONDITIONAL_INDEPENDENCE_GIVEN_ONE_S_NOT_A_GENERAL_CLAIM
+       POWER_LIMIT_THE_MDE_0_00122_EXCEEDS_THE_STATES_OWN_TOTAL_CONTRIBUTION_0_00114
+       EVERYTHING_HERE_IS_SMALL_AND_NONE_OF_IT_IS_TRADEABLE
+```
+
+**Çekinceler:** `LEG 2` hedefi **yön** (büyüklük/kuyruk farklı olabilir) · lojistik regresyon
+**doğrusal**, etkileşim yok (`PVE-02`: toplamsal kontrol bir ETKİLEŞİMİ dışlayamaz) · tek
+bölme, çapraz doğrulama yok · `7` gün, tek sembol, **yanmış örneklem** · `LEG 2`'nin tamamı
+`0.002` nat · **push YOK.**
+
+## §578 [C-T66] KENDİ BAYRAĞIMI KAPATTIM: **DOĞRU KUSURU, YANLIŞ MEKANİZMAYLA** İŞARET ETMİŞİM — z YARIYA DÜŞÜYOR AMA BULGU AYAKTA; VE FARKLANMIŞ TEST **BOŞ DEĞİL, BİLGİSİZ** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c66_close_the_trend_flag_v1.py` ·
+**Örneklem:** `data/microstructure_02.db :: agg_trades + spot_prices + mark_prices`, **tam
+örtüşme**, **34.8 gün**, 60 s bar → **106 yerleşim** · **Guardrail:** `brain/execution/risk/.env`
+temiz · push YOK.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — ve **yalnız ikinci söz dağarcığından**
+
+| | isabet |
+|---|--:|
+| **AD:** `spurious regression` · `spurious correlation` | **0** |
+| **NESNE:** `unit root` | **13** (CHAN, HASBROUCK, KISSELL) |
+| `cointegration` · `non-stationary` · `trending` · `random walk` | 67 · 13 · 17 · 109 |
+
+Kontroller: pozitif `competing risks` 71 / `type II error` 10 bulundu; negatif
+`spurious marmalade` / `zqx frobnicator` sıfır.
+
+> **HASBROUCK** — *"Fiyat durağan mı? Soru aslında **kötü kurulmuş**… **'Süreç bir BİRİM KÖK
+> içeriyor mu?'** diye sormak daha kesin."*
+> **KISSELL 13.6** — *"Standart eşbütünleşme analizi: **1. Birim kökleri test et**: genellikle
+> q mertebeli **ADF** testiyle… q gecikmeleri, artıklarda sapma yaratabilecek otokorelasyonu
+> gidermek için."* · *"Eşbütünleşik iki değişken birbirinden uzağa trend yapmaz."*
+
+**Yöntemin kendi ilan ettiği ÖN KOŞULU da aldım ve VARSAYMADIM, ÖLÇTÜM.** Hasbrouck: *"birinci
+farktan sonra kovaryans-durağan"*. Farklanmış ADF t: basis **−10.98 / −9.18 / −9.14**, funding
+**−9.72 / −9.16 / −10.92** ⟹ **üçünde de TUTUYOR.**
+
+### 2. Sonuçtan önce yazılmış güç ifadesi
+
+**N=106'da ADF güçsüzdür ⟹ bir *reddedememe* birim kök KANITI DEĞİLDİR ve öyle okumuyorum.**
+
+### 3. ADF düzeyler — ve korktuğum mekanizma **geçerli değil**
+
+| (krit %5 = −2.89) | basis | funding |
+|---|--:|--:|
+| BTC | **−3.60** ✓ | **−5.60** ✓ |
+| ETH | **−4.16** ✓ | **−4.10** ✓ |
+| SOL | −2.55 *(karar yok)* | **−4.08** ✓ |
+
+**Spurious regression BİRİM KÖK GEREKTİRİR; BTC ve ETH'de birim kök yok.** ⟹ C-T65'in korktuğu
+mekanizma **uygulanmıyor**. SOL'un −2.55'i tek *reddedememe* ve **kendi ön-beyanımla kararsız
+kalıyor, kanıta dönüşmüyor.**
+
+### 4. Bayrak — trend-KORUYAN dairesel blok kaydırma null'ıyla
+
+*(gözlenen ve null **aynı fonksiyon**: `corr(x,y)`, yalnız y'ye uygulanan kayma farklı)*
+
+| | corr | **z (trend-koruyan)** | C-T64 z (permütasyon) |
+|---|--:|--:|--:|
+| BTC | 0.3861 | **2.35** | 4.74 |
+| ETH | 0.5482 | **2.75** | 5.45 |
+| SOL | 0.6036 | **2.45** | 6.02 |
+
+⟹ **C-T65'in bayrağı null hakkında HAKLI, sonuç hakkında YANLIŞTI:** permütasyon null'ı z'de
+**~2 kat fazla liberal**, ve ilişki **yine de ayakta**.
+
+### 5. Farklanmış test — **boş görünüyor ama boş değil, BİLGİSİZ**
+
+corr **−0.1254 / −0.1329 / −0.0461**, z **−1.13 / −1.00 / −0.31**.
+
+**Enjeksiyon tabanı (aynı tasarım):** MDE **β = 0.5** üçünde de; β=0.3'te z yalnız 1.56/1.30/1.98.
+⟹ **Farklanmış tasarım ~0.45'in altındaki bir korelasyonu GÖREMEZ.**
+**Taban olmasaydı *"ilişki farklarda ölüyor"*u bulgu olarak yayımlayacaktım.**
+Ayrıca düzey ile fark **ayrı nesneler** — Kissell'in eşbütünleşmesi **düzeylerde** durağan bir
+kombinasyon iddiasıdır.
+
+### 6. Ne değişti, ne değişmedi — ve BİLEREK açtığım yeni bayrak
+
+**C-T64 GERİ ÇEKİLMİYOR, KÜÇÜLTÜLÜYOR:** manşet z **2.35 / 2.75 / 2.45**, 4.74/5.45/6.02 değil.
+İşaret, semboller ve yön değişmedi; **güç kabaca yarıya indi.** Büyük sayıları alıntılayan varsa
+bunları alıntılamalı.
+
+**BİLEREK AÇTIĞIM BAYRAK, üstünü örtmek yerine:** `|z|≥2` kapısının ampirik α'sını
+**FARKLANMIŞ** tasarımda ölçtüm (0.046 / 0.046 / 0.030), **hayatta kalan sonucun yaşadığı DÜZEY
+tasarımında ölçmedim.** Düzeyler farklardan çok daha otokorelasyonlu ⟹ dairesel-kaydırma null'ında
+etkin bağımsız kaydırma sayısı daha az ⟹ **düzey kapısı muhafazakârdan çok LİBERAL olmaya
+yatkın.** Endişenin **yönü bilindiği** için: **2.35 / 2.75 / 2.45 birer ÜST SINIRDIR.**
+Sıradaki tur kapatılacak — C-T65'in bana yüklediği ve bu turda ödediğim yükümlülüğün aynısı.
+
+```verdict
+C_T66_THE_FLAG_CLOSES_C_T64_SURVIVES_REDUCED_NOT_WITHDRAWN
+C_T65S_FLAG_WAS_RIGHT_ABOUT_THE_NULL_AND_WRONG_ABOUT_THE_MECHANISM
+CORPUS_PREDICTS_ONLY_THROUGH_THE_SECOND_VOCABULARY_THE_NAME_RETURNS_ZERO
+SPURIOUS_REGRESSION_AND_SPURIOUS_CORRELATION_ARE_BOTH_ZERO_ON_THE_SHELF
+UNIT_ROOT_THIRTEEN_COINTEGRATION_SIXTY_SEVEN_NON_STATIONARY_THIRTEEN
+HASBROUCK_THE_QUESTION_IS_ILL_PHRASED_ASK_WHETHER_IT_CONTAINS_A_UNIT_ROOT
+KISSELL_13_6_STEP_ONE_IS_AN_ADF_TEST_OF_ORDER_Q
+THE_METHODS_OWN_PRECONDITION_TAKEN_WITH_IT_AND_MEASURED_NOT_ASSUMED
+COVARIANCE_STATIONARY_AFTER_FIRST_DIFFERENCING_HOLDS_ON_ALL_THREE_ADF_MINUS_9_TO_MINUS_11
+POWER_STATED_BEFORE_THE_RESULT_ADF_AT_N_106_IS_WEAK_A_FAIL_TO_REJECT_IS_NOT_EVIDENCE
+ADF_LEVELS_BASIS_MINUS_3_60_MINUS_4_16_MINUS_2_55_FUNDING_MINUS_5_60_MINUS_4_10_MINUS_4_08
+BTC_AND_ETH_REJECT_THE_UNIT_ROOT_SO_SPURIOUS_REGRESSION_CANNOT_BE_THE_MECHANISM
+SOLS_MINUS_2_55_STAYS_UNDECIDED_BY_MY_OWN_PRE_STATEMENT_AND_DOES_NOT_BECOME_EVIDENCE
+TREND_PRESERVING_CIRCULAR_BLOCK_NULL_OBSERVED_AND_NULL_ARE_THE_SAME_FUNCTION
+Z_FALLS_FROM_4_74_5_45_6_02_TO_2_35_2_75_2_45
+THE_PERMUTATION_NULL_WAS_TOO_LIBERAL_BY_ROUGHLY_A_FACTOR_OF_TWO_IN_Z
+THE_RELATION_SURVIVES_ANYWAY_CORR_0_3861_0_5482_0_6036
+THE_DIFFERENCED_TEST_IS_UNINFORMATIVE_NOT_NEGATIVE
+MDE_BETA_ZERO_POINT_FIVE_ON_ALL_THREE_IT_CANNOT_SEE_A_CORRELATION_BELOW_ABOUT_0_45
+WITHOUT_THE_FLOOR_I_WOULD_HAVE_PUBLISHED_THE_RELATION_DIES_IN_DIFFERENCES
+A_NULL_WITHOUT_A_FLOOR_IS_NOT_A_FINDING_IT_IS_AN_ABSENCE_WITH_A_NUMBER_ATTACHED
+LEVELS_AND_DIFFERENCES_ARE_DIFFERENT_OBJECTS_COINTEGRATION_IS_A_LEVELS_CLAIM
+C_T64_IS_REDUCED_NOT_WITHDRAWN_QUOTE_2_35_2_75_2_45_NOT_THE_LARGER_NUMBERS
+NEW_FLAG_OPENED_DELIBERATELY_THE_LEVELS_GATE_ALPHA_IS_UNMEASURED
+ALPHA_WAS_MEASURED_ON_THE_DIFFERENCED_DESIGN_0_046_0_046_0_030_NOT_ON_LEVELS
+LEVELS_ARE_MORE_AUTOCORRELATED_SO_THAT_GATE_IS_MORE_LIKELY_LIBERAL_THAN_CONSERVATIVE
+THEREFORE_2_35_2_75_2_45_ARE_UPPER_BOUNDS_AND_SAID_SO
+MY_NULLS_HAVE_BEEN_THE_WEAK_LINK_IN_THIS_ARC_NOT_MY_ESTIMATORS
+A_S86S_REASON_VERIFIED_MARK_PRICES_APPEARS_IN_NO_LANE_A_PIPELINE_TOOL
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_157_TO_158_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+
+---
+
+## §518 [A-S89] LANE A — `27` GÜNDE `892` BÖLÜM; `3.9×` ÖRNEKLEMDE **YÖNLÜ ALFA YOK VE İŞARET ALEYHTE** (`z = −2.20`, taban `B0`'ı geçmiyor); `LEG 1` GÜÇLENEREK REPLİKE (`AUC 0.764`) (2026-08-27, Opus 5 [1M])
+
+`tools/s89_how_often_and_does_it_pay.py` · `S89_HOW_OFTEN_V1.{md,json}`. **Operatör talebi:**
+*"kaç kere tekrar ediyor, oradan bir şey çıkıyor mu · directional alpha için külliyat ne diyor"*.
+
+### 1. KÜLLİYAT: **ÖNGÖRÜYOR — BANA KARŞI**
+`ABERGEL_LOB` L6441 *"gelecek getiriler defterin geçmiş dinamiği ve durumundan **bağımsız
+değildir**"* · `HARRIS_TE` L1564 *"neden işlem yaptığını anlayan tacir daha etkin işlem yapar"*
+⟹ kenar, **karşı tarafın neden işlem yaptığını bilmekten** gelir ve **zorunlu tasfiye bunu
+bildiğin TEK akıştır**. Külliyat kenarın **olması gerektiğini** söylüyor.
+*(`"martingale"` `913` hit — **ayırt edici değil**, atıldı.)*
+
+### 2. TEKRAR SAYISI
+```
+27.0 gün · ham 18 936 · ayrı DAKİKA 6 820 · 42-bar BÖLÜM 892 · GÜN 27
+bölüm başına 21.2 olay · günde 33.0 bölüm
+892, A-S80'in 890'ını FARKLI kod yolundan bağımsız doğruluyor
+```
+**Neredeyse yanlış yazacaktım:** *"bütün hat 7 günde"* — **`A-S77`/`A-S80` zaten `27` günde**
+koşmuş; `7` günlük olan saniyelik iş + `A-S86/87/88`.
+
+### 3. İKİ BACAK, `3.9×` ÖRNEKLEMDE
+```
+LEG 1  B0 0.48342 · state 0.40292 · +0.08050 · AUC 0.764  GEÇTİ   (7 günde +0.04277 / 0.708)
+LEG 2  B0 0.69332 · state 0.69940 (-0.00608)  <- TABAN B0'I GEÇMİYOR
+       +tasfiye 0.70177 · ARTIŞ -0.00237 · SE 0.00108 (2 330 blok) · z = -2.20
+       AUC 0.482 -> 0.483 (ikisi de 0.5 ALTINDA)   (7 günde +0.00077, z +1.25)
+```
+
+### 4. CEVAP — ve kodum önce YANLIŞ okudu
+`|z| ≥ 2` kapısı `z = −2.20`'ye *"artık var"* dedi. **`|z|` kapısı işareti görmez.** İki şart
+gerek: artış **pozitif** olmalı **ve** taban model **`B0`'ı geçmeli**.
+⟹ **YÖNLÜ ALFA YOK, VE İŞARET ALEYHTE.** Tekrar sayısı cevap değil: `892` bölüm ve `18 936`
+olay yönlü kenar üretmiyor; açıklık `4×` oldu, yön kolunda **hiçbir şey doğmadı**.
+
+### 5. GERİLİM NEREDE DURUYOR
+**(a)** state, tasfiyenin ekleyeceğini **zaten içeriyor** (`LEG 1` `AUC 0.764` ⟹ tasfiye
+state'ten öngörülebilir, yani **fazlalık**) · **(b)** kenar bu tasarımın **taşımadığı** bir
+değişkende — `ABERGEL` **DEFTER DURUMU** diyor, bende defter yok. **İkisi bu tasarımla
+ayrıştırılamaz**; `(b)` sınanabilir (`DL-003/4` gözlenen kotasyon+kuyruk taşıyor).
+
+```verdict
+A_S89  CORPUS_PREDICTS_AN_EDGE_SHOULD_BE_HERE_AND_THE_MEASUREMENT_SAYS_IT_IS_NOT
+       ABERGEL_L6441_FUTURE_RETURNS_NOT_INDEPENDENT_OF_PAST_BOOK_STATE
+       HARRIS_L1564_THE_EDGE_IS_KNOWING_WHY_THE_COUNTERPARTY_TRADES
+       A_FORCED_LIQUIDATION_IS_THE_ONE_FLOW_WHERE_THAT_IS_KNOWN_EXACTLY
+       MARTINGALE_RETURNED_913_HITS_NOT_DISCRIMINATING_AND_WAS_DISCARDED
+       THE_SHAPE_REPEATS_892_TIMES_IN_27_DAYS_AT_THE_ESTATES_OWN_UNIT
+       18936_RAW_LIQUIDATIONS_COLLAPSE_TO_6820_MINUTES_AND_892_EPISODES
+       892_INDEPENDENTLY_REPRODUCES_A_S80S_890_THROUGH_A_DIFFERENT_CODE_PATH
+       I_NEARLY_WROTE_THE_WHOLE_LANE_RAN_ON_SEVEN_DAYS_AND_A_S77_A_S80_DID_NOT
+       LEG_1_REPLICATES_AND_STRENGTHENS_AT_3_9x_SAMPLE_GAIN_0_0805_AUC_0_764
+       LEG_2_THE_BASE_STATE_MODEL_DOES_NOT_BEAT_B0_AT_FULL_SAMPLE_MINUS_0_00608
+       THE_LIQUIDATION_FEATURE_SIGNIFICANTLY_DEGRADES_THE_FORECAST_z_MINUS_2_20
+       NO_DIRECTIONAL_ALPHA_AND_THE_SIGN_IS_AGAINST_IT_NOT_MERELY_ABSENT
+       MY_FIRST_GATE_WAS_ABS_z_AND_IT_CALLED_MINUS_2_20_A_RESIDUAL
+       AN_INCREMENT_GATE_NEEDS_THE_SIGN_AND_NEEDS_THE_BASE_MODEL_TO_BEAT_B0
+       MORE_REPETITION_IS_NOT_THE_ANSWER_4x_THE_SPAN_PRODUCED_NOTHING_DIRECTIONAL
+       TWO_EXPLANATIONS_REMAIN_AND_ARE_NOT_SEPARABLE_BY_THIS_DESIGN
+       ABERGEL_SPEAKS_OF_BOOK_STATE_AND_THIS_DESIGN_CARRIES_NO_BOOK
+```
+
+**ÇEKİNCE, ve ciddi:** tam açıklıkta `≥%95` kapsamlı sembol `36` → **`14`** düşüyor ⟹
+`A-S88` (`7` gün, `36` sembol) ile `S89` (`27` gün, `14` sembol) **iki şeyi aynı anda**
+değiştiriyor. `LEG 2` bozulması **yalnız örnekleme atfedilemez**. **Tur-içi sonuç geçerli,
+turlar-arası atıf değil.** Ayrıca: doğrusal model, tek bölme, tek sembol, **yanmış örneklem**,
+**push YOK.**
+
+
+---
+
+## §519 [A-S90] LANE A — ORDER-BOOK STATE'İN ALTINDA **BİR KUYRUK YARIŞI** VAR (`BOUCHAUD` §7.1); ESTATE ONU **KALICI KAPATMIŞ** (`%65.6` yön, ücret `172×` oracle); VE `--who` `SYSTEM_STATE`'İN **`%54`'ÜNÜ GÖRMÜYOR** (2026-08-27, Opus 5 [1M])
+
+`S90_ORDER_BOOK_STATE_V1.md`. **Ölçüm YOK** — kaynak okuma + bir araç ölçümü. Operatör
+sorusu: *"order-book state ne diyor, altında yatanlar nedir"*; `A-S89`'un `(b)` dalı.
+
+### 1. ARAÇ KUSURU — VE BU TUR TAM ORADAN VURDU
+`--who` üç terime de estate'te **`0`** dedi (`order book imbalance`, `queue imbalance`,
+`book state`); üçü de **yanlış**. Elle arama `SYSTEM_STATE` satır `20767`/`24777`/`25071`'de
+kapsamlı iş buldu. Sebep ölçüldü:
+```
+SECT = r"^## §(\d+)\s*(.*)$"   ->  yalnız "## §" başlıkları
+"## §" 304 (ilk satır 33 419) · "**§" 374 (ilk satır 9 030)
+=> dosyanın %54'ü (1..33 418) --who'ya GÖRÜNMEZ
+```
+⟹ **`--who` ile yayımlanmış her *"estate'te kimse dokunmamış"* hükmü dosyanın `%46`'sı
+hakkındadır.** Alet **lane D'nin** — bildirildi, dokunulmadı.
+
+### 2. ALTINDA YATAN: BİR YARIŞ
+`BOUCHAUD_TQP` §7.1 — `I := V_b/(V_b+V_a)`; Şekil 7.2 *"**ask kuyruğunun bid'den önce tükenme
+olasılığı**"*, kesikli eğri **iki bağımsız rastgele yürüyüş**; L5635 *"kuyruk dengesizliği ile
+bir sonraki fiyat hareketinin yönü arasında **güçlü, monoton korelasyon**"*.
+**Mekanik bir kuyruk yarışı, bilgi değil.**
+`ABERGEL_LOB` ayrı bir nesne veriyor: `Liq = Σ_{i=1..5} w_i b_i P_i`, `ln(Liq_b/Liq_a)`,
+*"order book'un **statik durumunu** özetler"* — **`5` seviye, uzaklık-ağırlıklı, `L1` DEĞİL** —
+ve momentum kanalını adlandırıyor (*"katılımcılar ikna olup aynı yönde işlem yapar"*).
+
+### 3. ESTATE ZATEN KAPATMIŞ
+```
+N 1 253 638 · yön %65.6 · ORACLE GROSS +0.0581 bps · NET -9.9419 @10bps · FEE 172× ORACLE
+spread 0.1252, yönlü kazanç spread'in yarısından az · başabaş doğruluk %84.8 · 16/0 gün pozitif
+STANDALONE_AGGRESSIVE_TWO_LEG_FAMILY_PERMANENTLY_CLOSED · ALTI KURTARMA ROTASI YASAK
+ECONOMIC_FEASIBILITY_GATE_V1 BIBLE SEVİYESİ · FEE_HUNTING_BANNED
+```
+`ABERGEL`'in `5`-seviye nesnesi **diskte sınanamaz**: yalnız `book_ticker` (`L1`) ve
+`s64_l1_qi.db`; estate'in notu `...CANCELLATIONS_AHEAD_NONE_STORED`.
+
+### 4. `A-S89`'UN GERİLİMİ ÇÖZÜLDÜ
+**Gerilim yoktu; iki yarı ayrı ayrı doğru.** Öngörü yarısı **doğru** (`%65.6`; ve benim
+`LEG 1` `AUC 0.764`'üm aynı şeyi başka yüzeyde buluyor). Paraya çevirme yarısı **yanlış**
+(`172×`). Estate'in kendi ifadesi: **`PREDICTION_EXISTS_STANDALONE_MONETISATION_DOES_NOT`.**
+Külliyat *"öngörülebilirlik var"* diyor; *"paraya çevrilir"* **demiyor** — onu ona ben
+yüklemişim.
+
+```verdict
+A_S90  WHO_RETURNED_THREE_FALSE_ZEROS_AND_I_DID_NOT_INHERIT_THEM
+       SECT_MATCHES_ONLY_HASH_HASH_HEADERS_AND_54_PERCENT_OF_SYSTEM_STATE_IS_INVISIBLE
+       EVERY_NONE_IN_THE_ESTATE_VERDICT_EVER_PUBLISHED_VIA_WHO_COVERS_ONLY_46_PERCENT
+       THE_TOOL_IS_LANE_DS_REPORTED_NOT_TOUCHED
+       WHAT_UNDERLIES_BOOK_STATE_IS_A_QUEUE_RACE_NOT_INFORMATION
+       BOUCHAUD_7_1_FIG_7_2_IS_P_ASK_QUEUE_DEPLETES_FIRST_AS_A_FUNCTION_OF_I
+       HIS_OWN_BENCHMARK_IS_TWO_INDEPENDENT_RANDOM_WALKS
+       ABERGELS_IMBALANCE_IS_FIVE_LEVEL_DISTANCE_WEIGHTED_AND_IS_NOT_THE_L1_OBJECT
+       THE_ESTATE_ALREADY_MEASURED_THE_L1_VERSION_AT_N_1253638
+       DIRECTION_WORKS_65_6_PERCENT_AND_MONETISATION_IS_172x_SHORT
+       BREAKEVEN_ACCURACY_IS_84_8_PERCENT_AND_ZERO_OF_SIXTEEN_DAYS_WERE_POSITIVE
+       THE_FAMILY_IS_PERMANENTLY_CLOSED_WITH_SIX_RESCUE_ROUTES_BANNED
+       ABERGELS_FIVE_LEVEL_OBJECT_IS_NOT_TESTABLE_ON_THIS_DISK_ONLY_L1_IS_STORED
+       A_S89S_TENSION_DISSOLVES_BOTH_HALVES_ARE_SEPARATELY_TRUE
+       PREDICTION_EXISTS_STANDALONE_MONETISATION_DOES_NOT
+       THE_CORPUS_NEVER_CLAIMED_MONETISABILITY_I_ATTRIBUTED_THAT_TO_IT
+       NO_NEW_MEASUREMENT_WAS_RUN_AND_RUNNING_ONE_WOULD_HAVE_REOPENED_A_CLOSED_FAMILY
+```
+
+**Çekinceler:** `%65.6`/`172×`/`%84.8` **estate'in kendi kayıtlarından**, bu turda **yeniden
+türetilmedi** · `--who` ölçümü dosyanın **bugünkü** hâline ait · `ABERGEL` **EUROSTOXX 50
+hisseleri**, hücrem **BTC perp** — rejim aktarımı gösterilmedi · **yeni ölçüm yok** ·
+**push YOK.**
+
+
+---
+
+## §520 [A-S91] LANE A — `A-S87`'NİN BAYRAĞI KAPANDI: KÜLLİYAT DÜZELTMENİN İŞARETİNİ ÖNGÖRDÜ VE TUTTU; `A-S86`'NIN SONUCU AYAKTA AMA **DAYANAĞI ŞANSTI** (uniform `13/20` kez `2`'yi geçiyor, saat-eşleşmeli `0/20`) (2026-08-28, Opus 5 [1M])
+
+`tools/s91_close_the_flag.py` · `S91_CLOSE_THE_FLAG_V1.{md,json}`. Posta yok; **V2 §5 gereği
+kendi bayrağım kapatıldı** (`A-S87`'de bırakıldı, `A-S90`'da tekrarlandı).
+
+### 1. KÜLLİYAT: **ÖNGÖRÜYOR** — işaretli
+`ABERGEL_LOB` **2.7 Intraday Seasonality** (*"faaliyet gün boyunca **sabit değildir**"*,
+**U-şekilli** gönderim eğrisi) + `ECONOPHYS_ODM`'in **dört EPPS atıfı** (*ölçülen çapraz
+korelasyon örnekleme aralığı küçüldükçe **düşer**, sebebi **eşzamansız işlem***) ⟹
+**işaretli öngörü:** yoğun saatlerde ortak pay yüksek; tasfiyeler `8.5×` yoğun saatte ⟹
+`A-S86`'nın düzgün kontrolü **eksik ölçmüş**, `+0.1272` **yukarı yanlı**, saat-eşleşmesi
+**küçültmeli**.
+
+### 2. MEKANİZMA KONTROLÜ — EPPS YÖNÜ TUTUYOR
+```
+olaysız barlar: en düşük 10h %5.7 · en yüksek 09h %29.6
+en yoğun 6 saat %20.1  vs  en sakin 6 saat %15.3  ->  1.31×
+```
+
+### 3. SONUÇ, VE `A-S86B` YENİDEN ÜRETİLEMEDİ
+```
+UNIFORM        +0.1681  SE 0.0854  z +1.97      A-S86B yayımladı +0.1272 / z +1.48
+SAAT-EŞLEŞMELİ +0.1099  SE 0.0854  z +1.29      tek fark: KONTROL ÇEKİLİŞİ
+20 TOHUM:  UNIFORM ort z +2.13 sd 0.32 [+1.57..+3.00]  2'yi geçen 13/20
+           SAAT-EŞLEŞMELİ ort +0.88 sd 0.25 [+0.44..+1.23]  2'yi geçen 0/20
+```
+
+### 4. TABLO TERSİNE DÖNÜYOR
+`A-S86`'nın **sonucu ayakta**, **yayımlanan dayanağı ŞANSTI**: `+1.48`, ortalaması `+2.13`
+olan bir dağılımdan **düşük bir çekiliş**; o null'la `20`'nin `13`'ünde `2` geçilirdi.
+**Sonucu taşıyan şey zaman-hizalı null** (`0/20`). Ve **külliyat bunun işaretini koşudan önce
+söyledi.**
+
+```verdict
+A_S91  V2_CLOSING_RULE_APPLIED_THE_FLAG_A_S87_LEFT_AND_A_S90_REPEATED_IS_CLOSED
+       CORPUS_PREDICTS_AND_IT_PREDICTED_THE_SIGN_BEFORE_THE_RUN
+       ABERGEL_2_7_INTRADAY_SEASONALITY_AND_FOUR_EPPS_CITATIONS_IN_ECONOPHYS
+       EPPS_DIRECTION_HOLDS_BUSY_HOURS_20_1_PERCENT_COMMON_QUIET_15_3_RATIO_1_31
+       SCOPE_ONE_CHANGE_AT_A_TIME_SAME_7_DAY_CELL_SAME_36_SYMBOLS_ONLY_THE_CONTROL_MOVED
+       BOTH_NULLS_SCORED_OVER_THE_SAME_TEN_DECILES_PER_A_S87
+       A_S86B_PUBLISHED_NUMBER_DID_NOT_REPRODUCE_0_1681_VS_0_1272_z_1_97_VS_1_48
+       THE_ONLY_DIFFERENCE_IS_THE_CONTROL_DRAW_WHICH_IS_A_S81_RECURRING
+       z_REPORTED_AS_A_DISTRIBUTION_OVER_20_CONTROL_SEEDS_NOT_A_POINT
+       UNIFORM_MEAN_z_2_13_SD_0_32_CLEARS_TWO_IN_13_OF_20_DRAWS
+       HOUR_MATCHED_MEAN_z_0_88_SD_0_25_CLEARS_TWO_IN_0_OF_20_DRAWS
+       A_S86S_CONCLUSION_STANDS_BUT_ITS_PUBLISHED_WARRANT_WAS_LUCK
+       THE_PUBLISHED_UNIFORM_z_1_48_IS_WITHDRAWN_AS_THE_WARRANT
+       WHAT_ACTUALLY_SUPPORTS_THE_CONCLUSION_IS_THE_TIME_ALIGNED_NULL
+       A_ONE_DRAW_z_IS_NOT_A_RESULT_EVEN_WHEN_ITS_CONCLUSION_IS_RIGHT
+```
+
+**Çekinceler:** `β` `S86`'dan sabit alındı (`SE 0.0162` taşınmadı) · eşleşme **saat-of-day**,
+gün/rejim değil · `20` tohum kendi MC hatasını taşır · `NCTL_MULT=30` tek değer · `7` gün,
+tek sembol · Epps kontrolü **betimsel**, nedensel değil · **yanmış örneklem** · **push YOK.**
+
+## §578 [D-E38] D-E37'NİN **OKUMASI** GERİ ÇEKİLDİ: bir kolun içindeki korelasyon cause-specific hazard değildir — ve olgu **erken**, τ'da siliniyor (2026-08-28, Opus 5 [1M])
+
+### GELEN ALINTILAR DEVRALINMADI, DOĞRULANDI
+C-T65'in iki alıntısı da rafta **birebir**: H&R *"the extension to time-varying treatments
+requires that the model specifies as many equations as time points in the data"* (2 hit) ve
+ABG 8.6.1 *"in order to make statistical analyses on data, one must specify certain structured
+statistical models, and we here concentrate on Cox models and additive models"* (1 hit).
+**H&R burada ISIRMIYOR** — zamanla değişen TEDAVİ için g-yöntemlerine bir talep, bu hatta tedavi
+yok. **ABG sert ısırıyor.**
+
+### KENDİ SON TURUMDA AÇTIĞI ŞEY
+D-E37 *"within EDGE_GONE, n=493, rho −0.3358"* deyip bunu *"seçilim EDGE_GONE'dan işliyor"* diye
+okudu. O korelasyon, **sonunda EDGE_GONE'dan ölen** spell'lerin **İÇİNDE** hesaplanıyor — yani alt
+küme, açıklanmaya çalışılan şeyin kendisiyle, **gerçekleşen nedenle** seçiliyor.
+ABG'nin nesnesi başka ve **kendi risk kümesini ilan ediyor**: `α₀ₕ(t)`, *"birey t'den hemen önce
+HÂLÂ HAYATTAYKEN"* geçerli oran, yoğunluk `α₀ₕ(t)·Y₀(t)`.
+**OKUMA geri çekildi; sayının kendisi ne ise o olarak doğru hesaplandı.**
+
+### ESTIMAND, ESTIMATOR'DAN ÖNCE
+EDGE_GONE'un kümülatif cause-specific hazard'ı, **yüksek σ eksi düşük σ**; birim
+**risk altındaki spell-aralığı**, o nedenden ölen spell değil. Her spell u=0'da girer ve
+**nedeni ne olursa olsun** kendi geçişinde çıkar.
+
+### A-S87'NİN KURALI UYGULANDI VE GEÇTİ
+İki katman **TEK ortak kutu kümesinde**, her kutuda **risk sayısı basılı**.
+Sıfır-riskli katman içeren kutu: **0**. Risk 295→31 (hi) ve 277→35 (lo) — hiçbir kutuyu
+tek taraf taşımıyor.
+
+### SONUÇ — VE HİKÂYENİN TAMAMI UÇ NOKTA
+
+| uç nokta | hi | lo | fark | z | p |
+|---|--:|--:|--:|--:|--:|
+| **τ = 60 dk** | 1.8659 | 1.8292 | +0.0367 | +0.18 | **0.858** |
+| **μ_τ kutusu** | — | — | **+0.2689** | **+3.09** | **0.0020** · Bonferroni(2) 0.0040 |
+
+Yol boyunca hi katmanı **her erken kutuda üstte** — 2.5 dk'da 0.3322 vs 0.1480, 12.5 dk'da
+0.9057 vs 0.5535 — ve **τ'da yakınsıyorlar**. Yani olgu **gerçek ve ERKEN**; τ'daki kümülatif
+özet onu **siliyor**, çünkü düşük-σ spell'ler de sonunda oraya varıyor.
+**D-E37 nedene koşullayarak FAZLA iddia etti; yalnız τ ucunu raporlayan naif bir düzeltme ise
+hiçe indirirdi. İkisi de yanlış, zıt yönlerde, aynı veriden.**
+
+### İKİNCİ UÇ NOKTA ÜZERİNE DÜRÜST ÇEKİNCE
+`μ_τ = 18.1041` dk **D-E10'da çoktan donmuştu** ve **hiçbir tarama yapılmadı** — uç nokta bir şeyi
+azamileştirmek için seçilmedi. **Ama ikinci bir uca bakma KARARI yolu gördükten sonra alındı**,
+dolayısıyla **Bonferroni(2) asgari düzeltmedir** (p 0.0040) ve bu sonuç **onaylayıcı değil,
+replikasyon isteyen** bir sonuç olarak tutulmalıdır.
+
+**Bilinen-pozitif merdiveni:** EDGE_GONE olaylarını hi katmanına kaydırınca saptama
+**%0 / %0 / %30 / %100** (güç 0 / 0.1 / 0.2 / 0.4). τ testi **kör değil** ama **küçük kaymalara
+duyarsız** — yalnız erken var olan bir farkı kaçırmasıyla tutarlı.
+
+### KENDİ ÇIKARICIM — VARSAYILMADI, ÖLÇÜLDÜ
+C-T65 literal eşleştiriciler için **%6.07** cümle-düzeyi maruziyet ölçmüş.
+`d_e3_corpus_question_extract_v1.py` onları kullanıyor. Dokuz terimi üzerinde ölçüldü:
+**783 literal / 819 esnek = %4.4 kaçık**, en kötüsü `time zero` %8.5.
+**Hiçbir terim sıfıra düşmüyor** ⇒ D-E3'ün hiçbir yokluk iddiası dönmüyor. Yayımlanmış araç
+**sessizce yeniden koşulmadı**, yazıldığı gibi ve tarihiyle bırakıldı.
+
+```verdict
+D_E37_WITHIN_ARM_RHO_CONDITIONED_ON_THE_REALISED_CAUSE_ITS_READING_IS_WITHDRAWN
+THE_NUMBER_STANDS_AS_COMPUTED_WHAT_IT_LICENSES_DOES_NOT
+ABG_8_6_1_AND_HERNAN_ROBINS_QUOTES_VERIFIED_VERBATIM_HANDED_OVER_BY_C_T65
+HERNAN_ROBINS_DOES_NOT_BITE_HERE_IT_DEMANDS_A_TREATMENT_THIS_LANE_DOES_NOT_HAVE
+AT_TAU_HI_1_8659_LO_1_8292_DIFF_PLUS_0_0367_z_PLUS_0_18_p_0_858
+AT_MU_TAU_DIFF_PLUS_0_2689_z_PLUS_3_09_p_0_0020_BONFERRONI_2_IS_0_0040
+THE_PHENOMENON_IS_REAL_AND_EARLY_AND_THE_TAU_ENDPOINT_ERASES_IT
+BOTH_MY_OLD_READING_AND_THE_NAIVE_TAU_ONLY_FIX_WERE_WRONG_IN_OPPOSITE_DIRECTIONS
+MU_TAU_WAS_FROZEN_IN_D_E10_AND_NO_SWEEP_WAS_RUN
+BUT_THE_DECISION_TO_LOOK_AT_A_SECOND_ENDPOINT_CAME_AFTER_SEEING_THE_PATH
+SO_IT_NEEDS_REPLICATION_AND_IS_NOT_CONFIRMATORY
+A_S87_RULE_PASSED_ONE_COMMON_BIN_SET_ZERO_UNSUPPORTED_BINS_AT_RISK_PRINTED
+KNOWN_POSITIVE_LADDER_0_0_30_100_PERCENT_THE_TAU_TEST_IS_INSENSITIVE_NOT_BLIND
+MY_D_E3_EXTRACTOR_EXPOSURE_MEASURED_4_4_PERCENT_783_OF_819_NO_ABSENCE_CLAIM_FLIPS
+```
