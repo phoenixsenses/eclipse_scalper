@@ -12,6 +12,12 @@ python tools/lane_mind_v1.py --inbox C
 python tools/lane_mind_v1.py --inbox D
 
 
+NOT (2026-08-28, D-E40): `--who` artık her estate isabetini sınıflandırıyor.
+Bir isabet SAYISI önceki iş DEĞİLDİR: ölçüldü, ayurt edici terimlerin çoğunda
+isabetlerin %100'ü arayanın kendi blokları. Yalnız `INDEPENDENT_PRIOR` kanıttır.
+Hat harfini geçir: `--brief D --who "..."`, yoksa sınıflanmadan gelir.
+
+
 --- B. HER TUR (aşağıdaki bloktaki her şeyi gönder) ---------------------------
 
 Önce `tools/lane_mind_v1.py --brief <HAT> --ct` ile ne geldiğine bak ve sana yazılanı işle.

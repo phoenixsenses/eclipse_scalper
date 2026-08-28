@@ -340,8 +340,70 @@ def owed(bl):
             "inbox": inbox}
 
 
-def who(terms, bl, sec):
-    """Has anyone touched this before?  The S101-duplication preventer."""
+def _lane_of(sid):
+    """Lane letter from a stable id like `D-E39` or `C-KULLIYAT-T65`; None when unstamped."""
+    m = re.match(r"^([ABCD])-", str(sid or ""))
+    return m.group(1) if m else None
+
+
+def _provenance(lane, hits):
+    """A HIT IS NOT PRIOR WORK.  Classify every estate hit by WHO wrote it and WHEN.
+
+    `--who > 0` was being read as "someone measured this before", and it is not.  C-T68 measured
+    that 67-91% of hits on a distinctive term are the SEARCHER'S OWN blocks; on lane D's own terms
+    it is worse -- 100% on six of eight (`restricted mean`, `cause-specific hazard`,
+    `inverse gaussian`, `local dependence`, `never_alive`, `edge_gone`).  A tool that answers
+    "has anyone measured this?" by showing you your own work is answering a different question.
+
+    C-T67 named the other half: a record that quotes its own controls eventually contaminates
+    them.  In four lanes that read each other, a hit written AFTER this lane first raised a term
+    may be an ECHO of it rather than independent prior art, and counting it as prior art is
+    circular.
+
+    Four classes, and only one of them is evidence:
+      SELF                this lane's own writing.  Not independent.  Not evidence of prior work.
+      INDEPENDENT_PRIOR   another writer, and written BEFORE this lane first mentioned the term.
+      ECHO_RISK           another writer, but written AFTER this lane first mentioned it.  It may
+                          be a genuine independent result or a response to this lane; the record
+                          cannot tell them apart, so it is reported as a risk, not as evidence.
+      CORPUS              the shelf.  A separate leg entirely, never mixed into these counts.
+
+    The cut is the FIRST LINE at which this lane mentions the term, taken from the record itself.
+    It is an approximation with a stated direction: it can only OVER-count ECHO_RISK, never
+    under-count it, because anything before that line is unambiguously prior.
+    """
+    # THE CUT IS PER FILE.  The first version took one minimum line across ALL hits, but
+    # SYSTEM_STATE and the shared log are DIFFERENT FILES whose line numbers share no axis -- a
+    # section at SYSTEM_STATE line 33,000 was being compared against a block at shared-log line
+    # 500.  Caught immediately on a known case: `frailty` returned ZERO independent prior work
+    # when section 437 / S101 predates this lane entirely and is the very duplication D-E1
+    # committed.  One cut per file, and the known case is asserted below.
+    def fam(h):
+        return "SYSTEM_STATE" if str(h.get("where", "")).startswith("SYSTEM_STATE") else "LOG"
+
+    cuts = {}
+    for h in hits:
+        if h.get("writer_lane") == lane:
+            f = fam(h)
+            cuts[f] = min(cuts.get(f, h["line"]), h["line"])
+    for h in hits:
+        f = fam(h)
+        if h.get("writer_lane") == lane:
+            h["provenance"] = "SELF"
+        elif f not in cuts or h["line"] < cuts[f]:
+            h["provenance"] = "INDEPENDENT_PRIOR"
+        else:
+            h["provenance"] = "ECHO_RISK"
+    return hits, cuts
+
+
+def who(terms, bl, sec, lane=None):
+    """Has anyone touched this before?  The S101-duplication preventer.
+
+    `lane` enables provenance classification -- see `_provenance`.  Without it every hit is
+    returned unclassified, which is what the first year of this tool did and what made a raw hit
+    count read as prior work.
+    """
     pats = [re.compile(re.escape(t), re.I) for t in terms]
 
     def hit(s):
@@ -353,12 +415,14 @@ def who(terms, bl, sec):
         if hit(hay):
             res.append({"where": "SYSTEM_STATE", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
+                        "writer_lane": _lane_of(s["stable_id"]),
                         "date": s["date"], "text": s["title"][:150]})
             continue
         tok = next((t for t in s["tokens"] if hit(t)), None)
         if tok:
             res.append({"where": "SYSTEM_STATE:token", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
+                        "writer_lane": _lane_of(s["stable_id"]),
                         "date": s["date"], "text": tok})
             continue
         # THE BODY MUST BE SEARCHED TOO.  The first version of this function looked
@@ -370,6 +434,7 @@ def who(terms, bl, sec):
             ln = next((l for l in s["body"].splitlines() if hit(l)), "")
             res.append({"where": "SYSTEM_STATE:body", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
+                        "writer_lane": _lane_of(s["stable_id"]),
                         "date": s["date"],
                         "text": (s["title"][:60] + "  ~  " + re.sub(r"\s+", " ", ln).strip())[:170]})
     for b in bl:
@@ -379,8 +444,10 @@ def who(terms, bl, sec):
                 snip = re.sub(r"\s+", " ", v)
                 res.append({"where": "SHARED_LOG:%s" % k, "ref": b["stable_id"],
                             "stable_id": b["stable_id"], "line": b["line"],
-                            "date": b["date"], "text": snip[:150]})
+                            "writer_lane": b["lane"], "date": b["date"], "text": snip[:150]})
                 break
+    if lane:
+        res, _cut = _provenance(lane.upper(), res)
     return res
 
 
@@ -714,7 +781,11 @@ def main():
     if a.brief:
         out["brief"] = brief(a.brief.upper(), bl)
     if a.who:
-        out["who"] = who(a.who, bl, sections())
+        # provenance needs to know WHOSE lane is asking; --brief supplies it, and
+        # without it every hit comes back unclassified, which is the old behaviour.
+        _asker = (a.brief or a.inbox or a.promises or "")[:1].upper() or None
+        out["who"] = who(a.who, bl, sections(), lane=_asker)
+        out["who_asker_lane"] = _asker
         if not a.no_corpus:
             cw = who_corpus(a.who)
             # THE HIGHEST-VALUE OBJECT IN THE SYSTEM: a corpus source that speaks to your terms
@@ -830,6 +901,21 @@ def main():
                         print("        -> %s" % ln.strip()[:150])
     if "who" in out:
         print("\nWHO HAS TOUCHED THIS BEFORE  (%d hits)" % len(out["who"]))
+        prov = {}
+        for _h in out.get("who", []):
+            prov[_h.get("provenance","UNCLASSIFIED")] = prov.get(_h.get("provenance","UNCLASSIFIED"), 0) + 1
+        if prov:
+            _ip = prov.get("INDEPENDENT_PRIOR", 0)
+            print("  INDEPENDENT PRIOR WORK: %d      (self %d, echo-risk %d)"
+                  % (_ip, prov.get("SELF", 0), prov.get("ECHO_RISK", 0)))
+            if _ip == 0:
+                print("  >> NO INDEPENDENT PRIOR WORK.  a hit count is not prior work: on lane D terms")
+                print("     six of eight distinctive terms were 100% the searcher's own blocks (C-T68")
+                print("     measured 67-91%).  SELF is not evidence and ECHO_RISK may be a response")
+                print("     to this lane rather than independent of it.")
+            if prov.get("ECHO_RISK"):
+                print("     ECHO_RISK = another writer, but AFTER this lane first raised the term.")
+                print("     The record cannot separate an independent result from a reply (C-T67).")
         for h in out["who"]:
             print("  %-22s %-8s %-8s line %-7s %s"
                   % (h["where"], h["ref"], h["stable_id"] or "-", h["line"], h["text"]))

@@ -47,6 +47,27 @@ python tools/lane_mind_v1.py --check        format invariants of the record
                                             add --json for machine output
 ```
 
+**`--who > 0` IS NOT PRIOR WORK — added 2026-08-28 (D-E40), and it is the single most
+important thing to know about this tool.** A hit count answers "does this string appear", not
+"has anyone measured this". Measured on lane D's own distinctive terms, **six of eight were
+100% the searcher's own blocks**; C-T68 measured 67–91% across another lane. So `--who` now
+classifies every estate hit and reports the only number that is evidence:
+
+| class | meaning | is it evidence of prior work? |
+|---|---|---|
+| `SELF` | this lane's own writing | **no** |
+| `INDEPENDENT_PRIOR` | another writer, **before** this lane first raised the term | **yes** |
+| `ECHO_RISK` | another writer, **after** this lane first raised it | **cannot tell** — C-T67: a record that quotes its own controls contaminates them |
+| `CORPUS` | the shelf | separate leg, never mixed in |
+
+The cut is the first line at which the asking lane mentions the term, taken **per file** —
+SYSTEM_STATE and the shared log have no common line axis, and comparing them on one was a real
+defect caught by a known case (`frailty` returned zero independent prior work when §437/S101
+predates lane D entirely). The approximation errs in one direction only: it can over-count
+`ECHO_RISK`, never under-count it.
+
+**Pass your lane letter** — `--brief D --who "..."` — or the hits come back unclassified.
+
 **Each one exists because of a failure measured that day, not because it seemed useful.**
 
 | command | the failure it answers |

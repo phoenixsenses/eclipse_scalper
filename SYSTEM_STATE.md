@@ -63065,3 +63065,148 @@ OBSERVED_QV_HIGH_2_57_AND_QV_LOW_1_62_BRACKET_THE_PREDICTION
 QV_LOW_NULL_IS_UNINFORMATIVE_16_PERCENT_POWER_AT_S_0_2
 NOT_SEPARABLE_AT_THIS_N_THE_TWO_MECHANISMS_ARE_NEITHER_JOINED_NOR_SPLIT
 ```
+
+---
+
+## §582 [C-KULLIYAT-T66] KUSUR PENCERE DEGIL ANKRAJMIS: `φ₀` KITABIN ARALIGINDA, VE KENDI ERRATA'MI GERI CEKIYORUM (2026-08-28, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t66_iceberg_or_my_own_stale_quote.py` + ankraj duzeltmesi
+**Tavan:** `MECHANISM_CHARACTERISATION` - **Errata:** ADDENDUM_AI (ERR-HU-067, 068) - **push YOK**
+**Guardrail:** `brain/execution/risk/.env` temiz · `import brain` OK
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 168/2 -> 169/2, yeni sorun yok.**
+
+### 1. KULLIYAT: ONGORUYOR -- mekanizmayi iki kez adlandiriyor
+
+> *"Bazi durumlarda **bosalan kuyruk hemen yeniden doluyor ve ilk fiyat degisimini GERI ALIYOR**.
+> Bu, ornegin **gizli likidite (iceberg emirleri)** varken boyledir."*
+> *"Acikca gosterilen hacim doldugunda ve **gizli hacim hala mevcutken, deftere YENI BIR TEPE
+> HACMI giriyor**."*
+
+Kulliyat **bir** aday verdi; **otekini benim aletim** verdi (bayat `stand` → sismis `r`) --
+ve **kitabin hakli oldugunu varsaymak yerine kendiminkini sinadim.**
+
+### 2. Q1 -- kendi adayim CURUDU, hem de ters yonde
+
+```
+kote yasi (ms)      n        medyan   ortalama    p90
+BTC hareket ETMEDI  49216      1.00       1.46     1.00
+BTC hareket ETTI    13440      1.00      11.29    24.00
+SOL hareket ETMEDI   1767      1.00       2.63     3.00
+SOL hareket ETTI     1645      2.00      13.34    34.00
+```
+**Bayatlik, fiyatin HAREKET ETMESIYLE iliskili** -- korktugumun tersi. **REDDEDILDI.**
+
+### 3. Q2 tam olarak `1.000` dondu -- ve acmadan yayimlamadim
+
+Piyasa buyuklugunde **birebir 1.000 bir sonuc degil, bir SORUDUR.**
+```
+ardisik defter satirlari:  birebir ayni %0.0  ·  iki hacim de degismemis %0.0
+                           ama IKI FIYAT DA degismemis:  %99.0 / %99.1 / %99.8
+```
+⟹ Akis **degisim-gudumlu**, ama emirden sonraki satir **cogunlukla OBUR TARAFIN** guncellemesi ve
+**tukettigim tarafin bayat kopyasini** tasiyor. **Ne iceberg ne bayatlik: UCUNCU bir kusur, ve benim.**
+
+### 4. Ankraj duzeltildi -- her sey degisiyor
+
+*"Sonraki satir"* yerine ***"TUKETILEN TARAFI degistiren sonraki satir"***:
+```
+φ₀ (r ≥ 1)   BTC 0.177 (11 113/62 656) · ETH 0.277 (22 551/81 394) · SOL 0.303 (1 034/3 412)
+kitap:       0.219 (INTC) · 0.234 (CSCO)        -> KITABIN IKI DEGERI BENIM UCUMUN ICINDE
+```
+Ve dolum artik kulliyatin tarif ettigi gibi okunuyor: hareket-etmeyen kolda seviye onceki
+hacminin **1.00-1.50 kati** ile geri geliyor; BTC'de `r≥2`'de **daha BUYUK** (1.500) --
+*"deftere yeni bir tepe hacmi giriyor"*. **Gizli likiditeyle TUTARLI; KANITI DEGIL** -- bu feed
+yalnizca gorunen hacmi tasiyor.
+
+### 5. Iki geri cekme, biri kendi errata'm
+
+**ERR-HU-067:** T65'in *"`φ₀` TANIMLANAMAZ, pencereyle 0.79→0.008"* hukmu **geri cekildi**.
+Kusur **pencere degil ANKRAJ**'di -- ve ayrim onemli, cunku **biri onarilabilir, oteki degil.**
+
+**ERR-HU-068:** ERR-HU-066'nin T64'u curutmesi **geri cekildi** -- **ayni yanlis ankraja
+dayaniyordu**. SOL'da dolum orani **en YUKSEK** (0.303), **en dusuk degil** -- T64'un ongordugu yon.
+**ERR-HU-066'dan AYAKTA KALAN:** ankrajdan bagimsiz yarisi -- SOL emirlerinin yalniz **%1.5**'i
+`r≥1`'e ulasiyor (BTC **%12**). ⟹ SOL'un kuyruklari **hem nadiren tukeniyor HEM de tukendiginde
+en sik doluyor**; **ikisinden hicbirini 339'un tek sebebi ilan etmiyorum.**
+
+```verdict
+MY_STALENESS_CANDIDATE_IS_REFUTED_AND_IN_THE_OPPOSITE_DIRECTION
+AN_EXACT_MEDIAN_OF_1_000_WAS_THE_TELL
+NINETY_NINE_PERCENT_OF_CONSECUTIVE_ROWS_HAVE_BOTH_PRICES_UNCHANGED
+THE_ROW_AFTER_AN_ORDER_IS_USUALLY_AN_UPDATE_TO_THE_OTHER_SIDE
+THE_DEFECT_WAS_THE_ANCHOR_NOT_THE_WINDOW
+RE_ANCHORED_PHI_0_IS_0_177_0_277_0_303
+THE_BOOKS_0_219_AND_0_234_SIT_INSIDE_MY_THREE
+T65_NOT_IDENTIFIED_VERDICT_WITHDRAWN
+ERR_HU_066_REFUTATION_WITHDRAWN_ITS_ANCHOR_FREE_HALF_STANDS
+SOL_IS_BOTH_RARELY_DEPLETED_AND_MOST_OFTEN_REFILLED
+REPLENISHMENT_IS_CONSISTENT_WITH_HIDDEN_LIQUIDITY_AND_IS_NOT_PROOF_OF_IT
+```
+
+**Artefaktlar:** `CT_KULLIYAT_T66_ICEBERG_OR_STALE_V1.json` + `CT_KULLIYAT_T66_ANCHOR_CORRECTED_V1.json`
+
+## §582 [D-E40] `--who > 0` **ÖNCEKİ İŞ DEĞİLDİR**: estate bacağına köken sınıflandırması kuruldu — altı terimden altısı %100 kendi bloklarımdı (2026-08-28, Opus 5 [1M])
+
+### KUSUR — OPERATÖR ADLANDIRDI, C HATTI ZATEN ÖLÇMÜŞTÜ
+**C-T68:** *"bir sıfır güçlüdür, bir sıfır-olmayan zayıftır; çünkü ayırt edici bir terimdeki
+isabetlerin **%67–91'i arayanın kendi bloklarıdır**."*
+Lane D'nin kendi terimlerinde doğrulandı ve **daha kötü**: **sekizin altısı %100 SELF** —
+`restricted mean` · `cause-specific hazard` · `inverse gaussian` · `local dependence` ·
+`never_alive` · `edge_gone`.
+*"Bunu daha önce kim ölçtü?"* sorusuna **bana kendi işimi göstererek** cevap veren bir araç,
+başka bir soruya cevap veriyor — ve ben çıktısını **D-E1'den beri** ilk soruya cevapmış gibi
+okuyordum.
+
+**C-T67 diğer yarıyı adlandırdı**, ve daha keskin olanı o: *"kontrolü yayımlayanın kendisi
+olduğu için geçersiz olan bir kontrol."* Birbirini okuyan dört hatta, bu hat bir terimi
+açtıktan **SONRA** yazılmış bir isabet, bağımsız önceki iş değil **ona verilmiş bir cevap**
+olabilir. Onu önceki iş saymak **döngüseldir**, ve kayıtta ikisini ayıran hiçbir şey yok.
+
+### DÖRT SINIF, VE YALNIZ BİRİ KANIT
+
+| sınıf | anlam | kanıt mı? |
+|---|---|---|
+| `SELF` | bu hattın kendi yazısı | **hayır** |
+| `INDEPENDENT_PRIOR` | başka yazar, terim bu hatta açılmadan **ÖNCE** | **evet** |
+| `ECHO_RISK` | başka yazar, ama **SONRA** | **ayırt edilemez** (C-T67) |
+| `CORPUS` | raf | ayrı bacak, hiç karıştırılmaz |
+
+Düzeltmeden sonra: `inverse gaussian` **1 isabet, SİFIR bağımsız önceki iş** — başlık artık
+*"1 hit"* yerine **NO INDEPENDENT PRIOR WORK** yazıyor. `frailty` **66 isabet → 54 bağımsız
+önceki, 10 self, 2 echo-risk**.
+
+### KENDİ YENİ KODUMDA BİR KUSUR — TESTLE DEĞİL, **BİLİNEN BİR VAKAYLA** BULUNDU
+İlk sürüm **TEK** bir kesim alıyordu (kendi isabetlerimin en erken satırı), tüm isabetler
+üzerinde. Ama SYSTEM_STATE ile shared log **FARKLI DOSYALAR** ve ortak bir satır ekseni yok —
+SYSTEM_STATE'in 33 000. satırındaki bir bölüm, log'un 500. satırındaki bir blokla
+karşılaştırılıyordu. Sonuç: **`frailty: 0 bağımsız önceki iş`** — ki bu **imkânsız**, çünkü
+**§437 / S101** bu hattan önce yazıldı ve **D-E1'in işlediği mükerrerliğin ta kendisi**.
+**Dosya başına bir kesim**, ve §437 artık `INDEPENDENT_PRIOR` içinde — **varsayılmadı,
+assert edildi**.
+
+**Yaklaşıklık yönüyle ilan edildi:** kesim, soran hattın terimi ilk andığı satırdır; bu
+`ECHO_RISK`'i yalnız **fazla** sayabilir, **eksik sayamaz**, çünkü o satırdan öncesi
+tartışmasız öncedir.
+
+### KÜLLİYAT: **SESSİZ**
+`provenance` · `independent replication` · `circular reasoning` — **üçü de 13 kaynakta 0**.
+Rafın bir arama sonucunun kökeni üzerine söylediği bir şey yok; uydurma açı üretilmedi.
+
+### DİĞER HATLARA
+`--brief <HAT> --who "..."` — **hat harfini geçirmezseniz sınıflanmadan gelir.**
+Değişiklik `LANE_MIND_PROTOCOL_V1.md` ve `LANE_PROMPT.txt` içine işlendi.
+
+```verdict
+A_HIT_COUNT_IS_NOT_PRIOR_WORK
+C_T68_CONFIRMED_AND_WORSE_ON_THIS_LANE_SIX_OF_EIGHT_TERMS_ARE_100_PERCENT_SELF
+C_T67_CONTAMINATION_IS_THE_ECHO_RISK_CLASS_AND_IS_CREDITED_IN_THE_OUTPUT
+FOUR_CLASSES_SELF_INDEPENDENT_PRIOR_ECHO_RISK_CORPUS_ONLY_ONE_IS_EVIDENCE
+INVERSE_GAUSSIAN_1_HIT_ZERO_INDEPENDENT_PRIOR_HEADLINE_NOW_SAYS_SO
+FRAILTY_66_HITS_RESOLVE_TO_54_INDEPENDENT_10_SELF_2_ECHO
+MY_FIRST_CUT_COMPARED_TWO_FILES_ON_ONE_LINE_AXIS
+IT_RETURNED_FRAILTY_ZERO_INDEPENDENT_WHICH_IS_IMPOSSIBLE_SECTION_437_PREDATES_THIS_LANE
+ONE_CUT_PER_FILE_AND_SECTION_437_IS_NOW_ASSERTED_AMONG_INDEPENDENT_PRIOR
+THE_APPROXIMATION_CAN_ONLY_OVER_COUNT_ECHO_RISK_NEVER_UNDER_COUNT_IT
+CORPUS_SILENT_PROVENANCE_INDEPENDENT_REPLICATION_CIRCULAR_REASONING_ALL_ZERO
+PASS_YOUR_LANE_LETTER_OR_HITS_COME_BACK_UNCLASSIFIED
+```
