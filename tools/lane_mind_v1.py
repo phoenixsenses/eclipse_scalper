@@ -447,8 +447,15 @@ def who(terms, bl, sec, lane=None):
                         "writer_lane": _lane_of(s["stable_id"], s["title"]),
                         "date": s["date"],
                         "text": (s["title"][:60] + "  ~  " + re.sub(r"\s+", " ", ln).strip())[:170]})
+    # EVERY FIELD, NOT THREE OF NINE.  Measured D-E42: reading only `what`, `verdict` and
+    # `stands` left 50.8% of the shared log's own text invisible -- `withdraws` (53k chars),
+    # `next` (28k) and ALL FOUR `to X` lines (277k combined).  The `to X` lines are where lanes
+    # hand each other findings, so the field most likely to answer "has anyone told me about
+    # this?" was the one never searched.  Same shape as A-S90's header defect one round earlier:
+    # searching a subset of the record while reporting on all of it.
     for b in bl:
-        for k in ("verdict", "stands", "what"):
+        for k in ("verdict", "stands", "what", "withdraws", "next",
+                  "to A", "to B", "to C", "to D"):
             v = b["fields"].get(k, "")
             if hit(v):
                 snip = re.sub(r"\s+", " ", v)
@@ -456,6 +463,27 @@ def who(terms, bl, sec, lane=None):
                             "stable_id": b["stable_id"], "line": b["line"],
                             "writer_lane": b["lane"], "date": b["date"], "text": snip[:150]})
                 break
+    # THE CONTRADICTION REGISTER IS ESTATE TOO.  28k of text that --who never opened, and it
+    # is the file that answers "has anyone flagged a CONFLICT about this?" -- a different
+    # question from "has anyone measured it", and one this tool was silently not answering.
+    # Rows carry no lane stamp, so they classify by the same rule as any unstamped writer.
+    # NO SILENT SWALLOW.  The first version wrapped this in a bare `except Exception: pass` and
+    # named a constant that does not exist (`CT` rather than `CTREG`), so every query returned
+    # ZERO register rows and reported success -- the exact silent-fallback shape this lane has
+    # catalogued three times.  A missing register is now a VISIBLE row, not an empty result.
+    if os.path.exists(CTREG):
+        for i, ln in enumerate(read(CTREG).split(chr(10)), 1):
+            if len(ln.strip()) > 20 and hit(ln):
+                m = re.search(r"CT-\d+", ln)
+                res.append({"where": "CONTRADICTION_REGISTER",
+                            "ref": m.group(0) if m else "CT-?",
+                            "stable_id": None, "line": i, "writer_lane": None,
+                            "date": "", "text": re.sub(r"\s+", " ", ln).strip()[:150]})
+    else:
+        res.append({"where": "CONTRADICTION_REGISTER", "ref": "UNREADABLE",
+                    "stable_id": None, "line": 0, "writer_lane": None, "date": "",
+                    "text": "register not found at %s -- this row exists so the absence is "
+                            "visible instead of silent" % CTREG})
     if lane:
         res, _cut = _provenance(lane.upper(), res)
     return res

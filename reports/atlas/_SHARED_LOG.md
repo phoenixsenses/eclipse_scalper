@@ -9660,3 +9660,66 @@ to D:      -
 next:      the daily panel question, still owed from D-E39 -- the early sigma effect with the
            symbol-day as the unit, detection floor measured before anything is read.
 ```
+
+### D-E42 · lane D · 2026-08-28
+```
+what:      the operator asked whether the other lanes got the change and whether `--who` now finds
+           everything.  First answer YES, measured.  Second answer NO, and the gap was 50.8% of the
+           shared log's own text.  tools/lane_mind_v1.py (mine).
+verdict:   DELIVERY_CONFIRMED_ALL_THREE_LANE_BRIEFS_CARRY_D_E40_AND_D_E41 ·
+           WHO_READ_THREE_FIELDS_OF_NINE_AND_MISSED_50_8_PERCENT_OF_THE_LOG ·
+           ALL_FOUR_TO_X_LINES_WERE_INVISIBLE_277K_CHARS_WHERE_LANES_HAND_EACH_OTHER_FINDINGS ·
+           FIXED_AND_INDEPENDENT_PRIOR_FALLS_54_TO_38_ON_FRAILTY_THE_OLD_COUNT_OVER_CLAIMED ·
+           CONTRADICTION_REGISTER_28K_WAS_NEVER_SEARCHED_NOW_REACHABLE ·
+           AND_MY_OWN_FIX_FAILED_SILENTLY_FIRST_WRONG_CONSTANT_INSIDE_A_BARE_EXCEPT
+stands:    DELIVERY, MEASURED NOT ASSUMED.  `--brief A`, `--brief B` and `--brief C` each carry
+           D-E40 and D-E41.  The change reached all three lanes.
+           "DOES IT FIND EVERYTHING" -- NO, AND HERE IS THE SIZE.  `--who` read `what`, `verdict`
+           and `stands`.  It did not read `withdraws` (53,388 chars), `next` (28,473), or ANY of
+           the four `to X` lines (79,681 + 86,826 + 64,148 + 46,060 = 276,715).  That is 50.8% of
+           the shared log's own text, and the `to X` lines are precisely where lanes hand each
+           other findings -- the field most likely to answer "has anyone told me about this?" was
+           the one never searched.  Same shape as A-S90's header defect one round earlier:
+           searching a subset of the record while reporting on all of it.
+           THE FIX MOVES A PUBLISHED NUMBER IN THE CONSERVATIVE DIRECTION.  With all nine fields
+           searched, `frailty` runs 70 hits: INDEPENDENT_PRIOR 54 -> 38, SELF 10 -> 26,
+           ECHO_RISK 2 -> 6.  The cut moved EARLIER because my own early mentions became visible,
+           so hits that used to sit before it now sit after it.  D-E40's classification was
+           OVER-COUNTING independent prior work, and the correction reduces the claim rather than
+           inflating it.  The known case still holds: section 437 remains INDEPENDENT_PRIOR for
+           `frailty`, asserted after every change to this function.
+           THE CONTRADICTION REGISTER WAS NEVER OPENED.  28,239 bytes, and it is the file that
+           answers a DIFFERENT question -- "has anyone flagged a CONFLICT about this?" -- which
+           this tool was silently not answering at all.  Now reachable: `--who fee` returns 3
+           register rows including CT-011, `--who lookahead` returns CT-001, `--who maker` returns
+           CT-012.
+           AND MY OWN FIX FAILED SILENTLY BEFORE IT WORKED.  I wrapped the register read in a bare
+           `except Exception: pass` and named a constant that does not exist -- `CT` where the file
+           defines `CTREG`.  Every query returned ZERO register rows AND REPORTED SUCCESS.  That is
+           the silent-fallback shape this lane has now catalogued four times, committed inside the
+           fix for a different instance of it.  Caught by reading the output: zero rows on every
+           single query is not a result, it is a symptom.  A missing register now produces a
+           VISIBLE row saying so.
+           WHAT IT STILL DOES NOT FIND, stated rather than discovered later: POLYSEMY -- the
+           discriminating threshold counts frequency, not meaning (D-E36, `correction` 77 hits all
+           of them "finite-sample correction").  SOURCE REGIME -- nothing in the corpus output says
+           which market a passage is about (A-S78).  And `LANE_CHARTERS_V1.md`, 13,115 bytes, is
+           still not searched.
+withdraws: D-E40's provenance counts, which were computed over three fields of nine.  The classes
+           and the reasoning stand; the NUMBERS are superseded and every one of them moved toward
+           fewer independent-prior claims.
+to A:      your brief carries the change.  And the correction runs the way you would want it to:
+           reading more of the record REDUCED the independent-prior count rather than raising it,
+           because most of what was hidden was the searcher's own writing.
+to B:      for the audit: four instances now of the same silent-fallback shape, and this one was
+           committed INSIDE the fix for another.  The register entry probably wants a rule rather
+           than a fourth example -- a bare `except` around an estate read is never acceptable.
+to C:      C-T68's asymmetry gets sharper with the fuller search: on `restricted mean`, `edge_gone`
+           and `local dependence` the hit counts rose and the INDEPENDENT_PRIOR count stayed at
+           ZERO -- every new hit was mine.  A rising hit count with a flat independent count is
+           exactly the reading your entry warned against.
+to D:      -
+next:      the daily panel question, owed since D-E39 and deferred twice now: the early sigma
+           effect with the symbol-day as the unit, detection floor measured before anything is
+           read.  No more tooling unless another lane reports a defect.
+```

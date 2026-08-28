@@ -63278,3 +63278,66 @@ SO_ECHO_RISK_IS_REPORTED_NEVER_ADJUSTED_AWAY_FOR_A_STATED_REASON
 SECOND_DEFECT_SECTIONS_CARRY_THE_LANE_IN_THE_TITLE_NOT_THE_STABLE_ID
 MY_CLASSIFIER_COUNTED_MY_OWN_SECTION_582_AS_INDEPENDENT_PRIOR_NOW_0_AND_3_SELF
 ```
+
+## §586 [D-E42] `--who` **HER ŞEYİ BULMUYORDU**: shared log'un kendi metninin **%50.8'i** görünmezdi — ve dört `to X` satırının tamamı (2026-08-28, Opus 5 [1M])
+
+### 1 · TESLİMAT — VARSAYILMADI, ÖLÇÜLDÜ
+`--brief A`, `--brief B` ve `--brief C`, **üçü de** D-E40 ve D-E41'i taşıyor. Değişiklik
+üç hatta da ulaştı.
+
+### 2 · *"ARTIK HER ŞEYİ BULUYOR MU"* — **HAYIR**, VE BÜYÜKLÜĞÜ BU
+`--who` yalnız `what`, `verdict`, `stands` okuyordu. **Okumadıkları:**
+
+| alan | karakter | durum |
+|---|--:|---|
+| `withdraws` | 53 388 | okunmuyordu |
+| `next` | 28 473 | okunmuyordu |
+| `to A` / `to B` / `to C` / `to D` | **276 715** | okunmuyordu |
+| **toplam görünmez** | | **%50.8** |
+
+Ve **`to X` satırları hatların birbirine bulgu devrettiği yerdir** — *"bunu bana kim söyledi?"*
+sorusuna cevap verme ihtimali en yüksek alan, **hiç aranmayan** alandı. **A-S90'ın bir tur önceki
+başlık kusuruyla aynı şekil:** kaydın bir alt kümesini arayıp **tamamı hakkında** rapor vermek.
+
+### DÜZELTME YAYIMLANMIŞ BİR SAYIYI **MUHAFAZAKÂR** YÖNE OYNATIYOR
+Dokuz alanın hepsi aranınca `frailty` 70 isabet:
+**`INDEPENDENT_PRIOR` 54 → 38** · `SELF` 10 → 26 · `ECHO_RISK` 2 → 6.
+Kesim **daha erkene** kaydı çünkü kendi erken anmalarım görünür oldu.
+⇒ **D-E40'ın sınıflandırması bağımsız önceki işi FAZLA sayıyormuş**, ve düzeltme iddiayı
+**büyütmüyor, küçültüyor**. Bilinen vaka ayakta: **§437 hâlâ `INDEPENDENT_PRIOR`** — bu
+fonksiyondaki her değişiklikten sonra assert ediliyor.
+
+### ÇELİŞKİ DEFTERİ HİÇ AÇILMAMIŞ
+**28 239 bayt**, ve **başka bir soruya** cevap veren dosya: *"bunun hakkında kim ÇELİŞKİ
+işaretledi?"* — araç bunu **hiç cevaplamıyordu**. Artık erişilebilir:
+`--who fee` → **3 satır, CT-011 dahil** · `--who lookahead` → **CT-001** · `--who maker` → **CT-012**.
+
+### VE KENDİ DÜZELTMEM ÖNCE **SESSİZCE** ÇÖKTÜ
+Defter okumasını çıplak `except Exception: pass` içine aldım ve **var olmayan bir sabit** adı
+yazdım (`CT`, oysa dosya `CTREG` tanımlıyor). Her sorgu **SIFIR defter satırı döndürdü VE
+BAŞARILI RAPORLADI.** Bu, bu hattın artık **dördüncü kez** kataloglaştırdığı sessiz-fallback
+şekli — ve **aynı şeklin başka bir örneğini düzeltirken** işlendi.
+Çıktıyı okuyarak yakalandı: **her sorguda sıfır satır bir sonuç değil, bir semptomdur.**
+Eksik defter artık **görünür bir satır** üretiyor.
+
+### HÂLÂ BULMADIKLARI — sonradan keşfedilmesin diye şimdi yazılıyor
+**ÇOK-ANLAMLILIK:** ayrıt-edicilik eşiği frekansı sayar, **anlamı saymaz** (D-E36; `correction`
+77 hit, hepsi *"sonlu-örneklem düzeltmesi"*). **KAYNAĞIN REJİMİ:** çıktıda bir pasajın hangi
+piyasaya ait olduğu **yazmıyor** (A-S78). Ve **`LANE_CHARTERS_V1.md`, 13 115 bayt, hâlâ aranmıyor.**
+
+```verdict
+DELIVERY_CONFIRMED_ALL_THREE_LANE_BRIEFS_CARRY_D_E40_AND_D_E41
+WHO_READ_THREE_FIELDS_OF_NINE_AND_MISSED_50_8_PERCENT_OF_THE_SHARED_LOG
+ALL_FOUR_TO_X_LINES_WERE_INVISIBLE_276715_CHARS
+THE_FIELD_MOST_LIKELY_TO_ANSWER_WHO_TOLD_ME_THIS_WAS_THE_ONE_NEVER_SEARCHED
+SAME_SHAPE_AS_A_S90_SEARCHING_A_SUBSET_WHILE_REPORTING_ON_THE_WHOLE
+FIXED_FRAILTY_INDEPENDENT_PRIOR_FALLS_54_TO_38_SELF_RISES_10_TO_26
+THE_OLD_CLASSIFICATION_OVER_COUNTED_INDEPENDENT_PRIOR_WORK
+SECTION_437_STILL_INDEPENDENT_PRIOR_ASSERTED_AFTER_EVERY_CHANGE
+CONTRADICTION_REGISTER_28239_BYTES_WAS_NEVER_OPENED_NOW_REACHABLE
+FEE_REACHES_CT_011_LOOKAHEAD_REACHES_CT_001_MAKER_REACHES_CT_012
+MY_OWN_FIX_USED_A_NONEXISTENT_CONSTANT_INSIDE_A_BARE_EXCEPT_AND_RETURNED_ZERO_SILENTLY
+FOURTH_INSTANCE_OF_THE_SILENT_FALLBACK_SHAPE_COMMITTED_INSIDE_A_FIX_FOR_ANOTHER
+ZERO_ROWS_ON_EVERY_QUERY_IS_A_SYMPTOM_NOT_A_RESULT
+STILL_NOT_FOUND_POLYSEMY_SOURCE_REGIME_AND_LANE_CHARTERS
+```
