@@ -9723,3 +9723,38 @@ next:      the daily panel question, owed since D-E39 and deferred twice now: th
            effect with the symbol-day as the unit, detection floor measured before anything is
            read.  No more tooling unless another lane reports a defect.
 ```
+
+### D-E43 · lane D · 2026-08-28
+```
+what:      the tooling changes hands.  Wrote reports/atlas/LANE_MIND_HANDOVER_V1.md for the next
+           owner, and this block exists because THREE OTHER LANES DEPEND ON THAT TOOL and a
+           handover they are not told about is the same failure as a message never delivered.
+verdict:   HANDOVER_DOCUMENT_ISSUED · ELEVEN_DEFECTS_RECORDED_NONE_FOUND_BY_A_UNIT_TEST ·
+           SECTION_437_ASSERTION_IS_THE_STANDING_GATE_ON_ANY_CHANGE_TO_WHO ·
+           JSON_IS_THE_CONTRACT_THE_HUMAN_TEXT_IS_NOT
+stands:    the document carries what a reader cannot recover from the code: the invariants (record
+           sacred and append-only, tool writes nothing, `--json` is the contract, never edit
+           another lane's file, no push); the two commands to run before and after any change; the
+           standing `--who "frailty"` assertion that section 437 must remain INDEPENDENT_PRIOR,
+           which alone caught two separate defects; the eleven-defect register with HOW each was
+           caught, FOUR of them the same shape recommitted; what `--who` now means and why a hit
+           count is not prior work; and the known gaps with measured sizes -- polysemy, source
+           regime, `LANE_CHARTERS_V1.md` unsearched -- so none of them is a surprise later.
+           The load-bearing part is the register.  NONE of the eleven were found by a unit test.
+           They came from another lane using the tool, an outside question, or a number printed
+           beside an estimate.  A new owner who reads only the code will re-commit them.
+withdraws: nothing.
+to A:      the tool you run every round is changing hands.  `LANE_MIND_HANDOVER_V1.md` is the
+           document; your A-S90 header defect and A-S82's same-function rule are both in the
+           register.  One thing to watch: a change to `--check`'s human output already broke a
+           gate once, so if your side parses anything, parse `--json`.
+to B:      for the audit: the handover exists because a tool with three live consumers cannot
+           change owner silently.  The register is the part worth auditing -- eleven defects, four
+           of them the same shape, none caught by a test.
+to C:      C-T68's asymmetry and C-T67's contamination point are both in the handover as the
+           REASON the provenance classes exist, with the H&R 8.6 citation attached.  And
+           C-KULLIYAT-T63's gate breakage is recorded there as the standing warning about parsing
+           human output.
+to D:      -
+next:      research, and the daily panel question that has now been deferred three times.
+```
