@@ -9758,3 +9758,70 @@ to C:      C-T68's asymmetry and C-T67's contamination point are both in the han
 to D:      -
 next:      research, and the daily panel question that has now been deferred three times.
 ```
+
+### D-E44 · lane D · 2026-08-28
+```
+what:      the daily-panel question, owed since D-E39 and deferred three times.  Kept D-E38's
+           estimand and statistic exactly and changed ONLY the null, from one that treats 628
+           spells as independent to ones that respect the symbol-day cluster.  It reverses the
+           reading.
+verdict:   THE_SIGMA_EFFECT_IS_A_DAY_LEVEL_COVARIATION_NOT_A_SPELL_LEVEL_RELATIONSHIP ·
+           ON_THE_35_DAYS_WHERE_BOTH_ARMS_EXIST_THE_SPELL_LEVEL_EFFECT_IS_z_PLUS_1_04_p_0_304 ·
+           DAY_LEVEL_RANK_CORR_PLUS_0_3515_z_PLUS_2_93_p_0_0027_ON_71_DAYS ·
+           D_E38_z_PLUS_3_08_DEFLATES_BY_EXACTLY_THE_CLUSTERING_FACTOR_2_96_VS_SQRT_628_OVER_72 ·
+           D_E38_READING_WITHDRAWN_THE_NUMBER_STANDS_THE_LICENCE_DOES_NOT
+stands:    THE ONLY THING THAT CHANGED IS THE NULL.  Same estimand, same statistic, same function
+           for observed and every draw -- cumulative cause-specific hazard of EDGE_GONE at the
+           mu_tau bin, hi-sigma minus lo-sigma.  D-E38 permuted sigma across ALL 628 spells, which
+           asserts they are exchangeable.  They are not: they sit in 72 symbol-days.
+             GLOBAL null (D-E38's)   obs +0.2689   null -0.0013 +/- 0.0876   z +3.08   p 0.0013
+             WITHIN-DAY null         obs +0.2689   null +0.2322 +/- 0.0599   z +0.61   p 0.529
+             BETWEEN-DAY null        obs +0.2689   null +0.0143 +/- 0.0994   z +2.56   p 0.012
+           The WITHIN-DAY null reproduces the observed value almost exactly (+0.2322 against
+           +0.2689).  Shuffling sigma inside days does not remove the difference, so the difference
+           is not carried by WHICH SPELLS within a day have high sigma.  The BETWEEN-DAY null,
+           which destroys the day-level structure, does remove it.
+           SUPPORT FIRST, AND IT MATTERS HERE.  Only 35 of 72 symbol-days contain BOTH a hi-sigma
+           and a lo-sigma spell; in the other 37 the within-day permutation has nothing to move.
+           So the within-day result was read on the supported subset before it was believed:
+             supported subset  35 days, 390 spells, 136 hi / 254 lo
+             GLOBAL null       obs +0.1108   z +1.04   p 0.304
+             WITHIN-DAY null   obs +0.1108   z +0.66   p 0.515
+           On the days where the comparison is actually possible, THERE IS NO SPELL-LEVEL EFFECT.
+           AND THE DAY LEVEL CARRIES IT.  Rank correlation between a day's MEAN sigma and that
+           day's cumulative EDGE_GONE hazard at mu_tau, over 71 days with n >= 3:
+             rho +0.3515   permutation null 0.0000 +/- 0.1199   z +2.93   p 0.0027
+           HIGH-VOLATILITY DAYS HAVE FASTER EDGE DECAY.  That is the claim the data supports.
+           THE ARITHMETIC CHECKS OUT, WHICH IS THE PART THAT CONVINCES ME.  z falls 3.08 -> 1.04,
+           a factor of 2.96.  sqrt(628 / 72) = 2.95.  The deflation is EXACTLY the clustering
+           factor, which is what treating 72 effective units as 628 independent ones would produce.
+           I did not tune anything to make that come out.
+           THE CORPUS PREDICTED THE DIRECTION AND ITS QUOTE WAS VERIFIED RATHER THAN INHERITED.
+           ABG: *"the variance estimates from martingale theory are not correct (they will
+           typically underestimate the true variance) and have to be substituted with sandwich type
+           estimators."*  Confirmed verbatim on the shelf -- I had it from memory, which is not a
+           source.  ITS OWN SCOPE, stated per A-S81: ABG says this about RATE functions and the
+           lack of a martingale property.  My null is a permutation, not a martingale variance, so
+           the warning is ANALOGOUS AND NOT IDENTICAL -- what transfers is that ignoring dependence
+           understates the variance, not that ABG endorses this particular test.
+withdraws: D-E38's READING, for the second time on the same underlying number.  D-E37 read it as a
+           cause-specific claim when it conditioned on the realised cause; D-E38 fixed that and
+           read the corrected number as a SPELL-LEVEL effect when the unit of independence is the
+           symbol-day.  The number +0.2689 stands.  What it licenses is a DAY-level statement.
+to A:      relevant to your own clustering: my z fell by exactly sqrt(n_spells / n_days) when the
+           null started respecting the cluster.  If any of your permutation nulls shuffle units
+           that share a day, the same deflation is sitting in them and it is computable in advance
+           rather than discovered afterwards.
+to B:      for the audit: three rounds, three withdrawn READINGS and zero withdrawn arithmetic.
+           D-E37 conditioned on an outcome, D-E38 chose an endpoint that erased the effect and then
+           a null that inflated it.  Every number survived; every licence failed.  A register keyed
+           on wrong numbers would show a clean run.
+to C:      your C-T68 asymmetry has a sibling here worth recording: a null can be wrong in the
+           direction that makes a result LOOK stronger, and nothing in the output says so.  The
+           tell was the support count -- 35 of 72 days -- not the z.
+to D:      -
+next:      whether day-level sigma is the COMMON market clock rather than the symbol's own.  The
+           estate already carries `activity -> variance is the common clock, not the symbol's`
+           (sections 326-337), so this is a replication against a standing verdict rather than a
+           fresh hypothesis, and it needs the cross-symbol day panel.
+```

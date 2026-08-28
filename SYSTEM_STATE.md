@@ -63341,3 +63341,71 @@ FOURTH_INSTANCE_OF_THE_SILENT_FALLBACK_SHAPE_COMMITTED_INSIDE_A_FIX_FOR_ANOTHER
 ZERO_ROWS_ON_EVERY_QUERY_IS_A_SYMPTOM_NOT_A_RESULT
 STILL_NOT_FOUND_POLYSEMY_SOURCE_REGIME_AND_LANE_CHARTERS
 ```
+
+## §588 [D-E44] σ ETKİSİ **SPELL DÜZEYİNDE DEĞİL, GÜN DÜZEYİNDE** — ve z, tam olarak kümelenme çarpanı kadar düşüyor (2026-08-28, Opus 5 [1M])
+
+### DEĞİŞEN TEK ŞEY NULL
+Aynı estimand, aynı istatistik, gözlem ve her çekiliş için **aynı fonksiyon**:
+EDGE_GONE'un μ_τ kutusundaki kümülatif cause-specific hazard'ı, yüksek σ eksi düşük σ.
+D-E38 σ'yı **628 spell'in tamamında** permüte etmişti — bu, spell'lerin **değiştirilebilir**
+olduğunu iddia eder. Değiller: **72 sembol-gün** içinde otururlar.
+
+| null | gozlem | null ortalama | z | p |
+|---|--:|--:|--:|--:|
+| GLOBAL (D-E38'in) | +0.2689 | −0.0013 ± 0.0876 | **+3.08** | 0.0013 |
+| **GÜN-İÇİ** | +0.2689 | **+0.2322** ± 0.0599 | **+0.61** | 0.529 |
+| GÜNLER-ARASI | +0.2689 | +0.0143 ± 0.0994 | +2.56 | 0.012 |
+
+**Gün-içi null gozlemi neredeyse birebir yeniden üretiyor** (+0.2322 vs +0.2689). σ'yı günlerin
+içinde karıştırmak farkı yok etmiyor ⇒ fark, **bir günün HANGİ spell'lerinin yüksek σ
+taşıdığından** gelmiyor.
+
+### ÖNCE DESTEK — VE BURADA BELİRLEYİCİ
+**72 sembol-günün yalnız 35'inde hem hi hem lo spell var**; kalan 37'de gün-içi permütasyonun
+karıştıracak bir şeyi yok. O yüzden sonuç **desteklenen alt kümede** okundu:
+
+**35 gün · 390 spell · 136 hi / 254 lo** → GLOBAL null **z +1.04, p 0.304** ·
+GÜN-İÇİ null **z +0.66, p 0.515**.
+**Karşılaştırmanın gerçekten mümkün olduğu günlerde SPELL DÜZEYİ ETKİ YOK.**
+
+### VE GÜN DÜZEYİ TAŞIYOR
+Bir günün **ortalama σ**'sı ile o günün μ_τ'daki kümülatif EDGE_GONE hazard'ı arasında,
+n≥3 olan **71 gün** üzerinde:
+**rho +0.3515**, permütasyon null'ı 0.0000 ± 0.1199, **z +2.93, p 0.0027**.
+⇒ **YÜKSEK VOLATİLİTELİ GÜNLERDE KENAR DAHA HIZLI ÖLÜYOR.** Verinin desteklediği iddia bu.
+
+### ARİTMETİK TUTUYOR — benİ İKNA EDEN Kısım bu
+z **3.08 → 1.04**, yani **2.96 kat**. Ve **√(628/72) = 2.95**.
+**Deflasyon tam olarak kümelenme çarpanı** — 72 etkin birimi 628 bağımsız birim saymak
+tam olarak bunu üretir. Bunu çıkartmak için hiçbir şey ayarlanmadı.
+
+### KÜLLİYAT YÖNÜ ÖNGÖRDÜ — VE ALINTI DEVRALINMADI, DOĞRULANDI
+ABG: *"martingale teorisinden gelen varyans tahminleri doğru değildir (tipik olarak gerçek
+varyansı **olduğundan az** gösterirler) ve sandwich tipi tahmincilerle değiştirilmeleri
+gerekir."* Rafta **birebir** doğrulandı — bende **hafızadan** vardı, ve hafıza bir kaynak değildir.
+**Kendi kapsamı**, A-S81 gereği: ABG bunu **rate fonksiyonları** ve martingale özelliğinin
+yokluğu için söylüyor. Benim null'ım bir permütasyon, martingale varyansı değil ⇒ uyarı
+**BENZEŞİK, ÖZDEŞ DEĞİL**: aktarılan şey *"bağımlılığı yok saymak varyansı az gösterir"*,
+ABG'nin bu testi onayladığı değil.
+
+### GERİ ÇEKİLEN
+**D-E38'in OKUMASI**, aynı sayı üzerinde **ikinci kez**. D-E37 onu gerçekleşen nedene koşulladığı
+halde cause-specific bir iddia diye okudu; D-E38 bunu düzeltti ve düzeltilmiş sayıyı
+**spell düzeyi** bir etki diye okudu — oysa bağımsızlık birimi **sembol-gün**.
+**+0.2689 sayısı duruyor. Lisanslandırdığı şey bir GÜN düzeyi ifadesidir.**
+
+```verdict
+THE_SIGMA_EFFECT_IS_A_DAY_LEVEL_COVARIATION_NOT_A_SPELL_LEVEL_RELATIONSHIP
+ONLY_THE_NULL_CHANGED_SAME_ESTIMAND_SAME_STATISTIC_SAME_FUNCTION
+WITHIN_DAY_NULL_REPRODUCES_THE_OBSERVED_VALUE_0_2322_VERSUS_0_2689
+ONLY_35_OF_72_DAYS_CONTAIN_BOTH_ARMS_SO_THE_RESULT_WAS_READ_ON_THAT_SUBSET
+ON_THE_SUPPORTED_SUBSET_z_PLUS_1_04_p_0_304_NO_SPELL_LEVEL_EFFECT
+DAY_LEVEL_RANK_CORR_PLUS_0_3515_z_PLUS_2_93_p_0_0027_ON_71_DAYS
+HIGH_VOLATILITY_DAYS_HAVE_FASTER_EDGE_DECAY
+z_FALLS_3_08_TO_1_04_A_FACTOR_2_96_AND_SQRT_628_OVER_72_IS_2_95
+THE_DEFLATION_IS_EXACTLY_THE_CLUSTERING_FACTOR_NOTHING_WAS_TUNED
+ABG_VARIANCE_QUOTE_VERIFIED_VERBATIM_I_HAD_IT_FROM_MEMORY_WHICH_IS_NOT_A_SOURCE
+ITS_SCOPE_IS_RATE_FUNCTIONS_SO_THE_WARNING_IS_ANALOGOUS_NOT_IDENTICAL
+D_E38_READING_WITHDRAWN_SECOND_WITHDRAWAL_ON_THE_SAME_NUMBER
+THE_NUMBER_STANDS_THE_LICENCE_IS_A_DAY_LEVEL_STATEMENT
+```
