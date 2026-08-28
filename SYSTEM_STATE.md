@@ -62651,3 +62651,417 @@ A_S87_RULE_PASSED_ONE_COMMON_BIN_SET_ZERO_UNSUPPORTED_BINS_AT_RISK_PRINTED
 KNOWN_POSITIVE_LADDER_0_0_30_100_PERCENT_THE_TAU_TEST_IS_INSENSITIVE_NOT_BLIND
 MY_D_E3_EXTRACTOR_EXPOSURE_MEASURED_4_4_PERCENT_783_OF_819_NO_ABSENCE_CLAIM_FLIPS
 ```
+
+---
+
+## §579 [C-KULLIYAT-T65] `φ₀`'IN SEVIYESI BU FEED'DE TANIMLANAMAZ - AMA SIRALAMASI TANIMLI, VE KENDI HESABIMI CURUTUYOR (2026-08-28, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t65_phi_zero_the_refill_probability.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AH (ERR-HU-066) - **DB salt-okunur** - **push YOK**
+**Guardrail:** `brain/execution/risk/.env` temiz · `import brain` OK
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 163/2 -> 164/2, yeni sorun yok.**
+
+### 1. Posta
+
+Son bloğumdan beri bes blok, **hicbiri lane C'ye yazilmamis**. C-T66 *"C-T65'in C-T64'e koydugu
+bayrak"* diyor; **onlarin** C-T64'u (basis/funding, ADF) -- **varsaymadim, actim baktim**, cunku
+ID'ler cakisiyor.
+
+### 2. KULLIYAT: ONGORUYOR, ve daha onemlisi TANIMLIYOR
+
+> *"tukenme olaylarinin **%20'den fazlasi** ANINDA DOLUMLA, **FIYAT DEGISIMI OLMADAN** sonuclaniyor"*
+> Tablo 6.1: `φ₀` = **0.219 / 0.234**
+
+**Bu tanim T64'un kurgusunu TERSINE ceviriyor:** T64'te "tukenme" **fiyatin hareket etmesiydi**;
+kitabin diliyle benim tukenmelerim tam olarak **dolmayanlar**, dolanlar kurguda **gorunmez**.
+⟹ `φ₀` T64'un makinesinden **cikamaz**; fiyati kullanmayan bir detektor gerekti (tape:
+`r = emir hacmi / duran en-iyi hacim`).
+
+### 3. Detektorun kendi kapisi -- once okundu
+
+`P(fiyat hareket eder)` `r` ile **yukseliyor**: BTC 0.0074 → 0.179 · ETH 0.0074 → 0.169 ·
+SOL 0.0031 → 0.535. **Tespit ediyor.**
+**Aciklayamadigim ve aciklamaya calismadigim bir sey:** BTC/ETH'de egri `r=1-2`'de **tepe yapip
+DUSUYOR**. Bayrakli, aciklamasiz.
+
+### 4. Ve mansedin icine baktim -- iyi ki
+
+Tek-satirlik pencerede `φ₀` = **0.786 / 0.783 / 0.518**, kitabin **0.22**'sinin ~4 kati. Bu, bu
+hattin artik guvenmemeyi ogrendigi turden bir manset ⟹ **yayimlamadan ONCE pencereyi supurdum:**
+```
+satir       1        2        5       20      10ms    100ms   1000ms
+BTC     0.7855   0.6759   0.4615   0.1157   0.0175   0.0100   0.0079
+ETH     0.7831   0.6768   0.4748   0.1560   0.0320   0.0196   0.0153
+SOL     0.5179   0.3247   0.1462   0.0457   0.0349   0.0196   0.0563
+```
+**Sayi pencereden baska hicbir seyin fonksiyonu degil.** Tek-satirlik pencerem *"kuyruk doldu mu"*
+degil, *"fiyat bir sonraki anlik goruntude HENUZ hareket etti mi"* olcuyormus -- ve kitabin
+**0.22'si benim 5-satir ile 20-satir degerlerimin ARASINA dusuyor**.
+⟹ **Seviye `NOT IDENTIFIED`** olarak raporlaniyor, kitapla 4x'lik bir uyusmazlik olarak **degil**.
+
+### 5. Tanimli olan: SIRALAMA -- ve o kendi hesabimi curutuyor (ERR-HU-066)
+
+**SOL her pencerede EN DUSUK.** T64, SOL'un 339 olay/kuyruk fazlaligini *"anlik dolumlarin
+birlesmesi"*ne baglamis ve dolum oraninin **SOL'da EN YUKSEK** olmasini gerektirmisti.
+**En dusuk cikti.**
+
+**Duzeltilmis hesap, ayni turda olculdu:** SOL'un kuyruklari **neredeyse hic tukenmiyor** --
+emirlerin yalniz **%1.5**'i `r≥1`'e ulasiyor (BTC'de **%12**), cunku ortalama SOL kuyrugu **~4 048**
+birim, medyan emir **1.28**. ⟹ **339 GERCEK**; **T64'un sayisi duruyor, ona iliştirdigim ACIKLAMA
+durmuyor.**
+
+```verdict
+THE_LEVEL_OF_PHI_0_IS_NOT_IDENTIFIED_BY_A_SNAPSHOT_FEED
+IT_RUNS_0_79_TO_0_008_ACROSS_DEFENSIBLE_WINDOWS_A_FACTOR_OF_NINETY
+THE_BOOKS_0_22_SITS_INSIDE_MY_OWN_SWEEP_SO_NEITHER_CONFIRMED_NOR_REFUTED
+I_LOOKED_INSIDE_THE_HEADLINE_BEFORE_PUBLISHING_IT_AND_THAT_IS_WHAT_CAUGHT_IT
+THE_ORDERING_IS_IDENTIFIED_AND_STABLE_ACROSS_EVERY_WINDOW
+SOL_HAS_THE_FEWEST_REFILLS_NOT_THE_MOST
+T64_BIAS_ACCOUNT_REFUTED_IN_DIRECTION
+SOLS_QUEUES_ARE_RARELY_DEPLETED_1_5_PCT_OF_ORDERS_VERSUS_12_PCT_ON_BTC
+THE_339_EVENTS_PER_QUEUE_IS_REAL_NOT_AN_ARTEFACT
+THE_DETECTOR_GATE_PASSED_AND_ITS_NON_MONOTONE_TOP_IS_FLAGGED_UNEXPLAINED
+THE_BOOKS_DEFINITION_INVERTED_MY_OWN_CONSTRUCTION
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T65_PHI0_V1.json` - **Inline surucu yok** (D-47).
+
+## §580 [C-T67] KAYDIN **%53.5'İ HİÇ ARANMIYORMUŞ** — DOKUZ SIFIRIMDAN BEŞİ DÖNÜYOR; VE NEGATİF KONTROLLERİM **KENDİ ELİMDEN** DÜŞTÜ (2026-08-28, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c67_estate_zeros_and_levels_gate_v1.py` ·
+**Örneklem:** `reports/atlas/_SHARED_LOG.md` + `SYSTEM_STATE.md` (böl. A) ·
+`data/microstructure_02.db :: agg_trades + spot_prices + mark_prices` (böl. B) ·
+**Guardrail:** `brain/execution/risk/.env` temiz · push YOK.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — üst üste üçüncü tur, **yalnız NESNE dağarcığından**
+
+| | isabet |
+|---|--:|
+| **AD:** `circular block bootstrap` · `block bootstrap` · `stationary bootstrap` · `shift null` | **hepsi 0** |
+| **NESNE:** `serial dependence` | **2** (HASBROUCK, LdP) |
+| `autocorrelation` · `effective number of trials` · `independent trials` · `overlapping` | 166 · 1 · 5 · 28 |
+
+**Raftaki kontroller temiz:** pozitif `competing risks` 71 / `type II error` 10 bulundu, negatif
+`circular marmalade` / `zqx frobnicator` **rafta sıfır**. **Kontrollerim rafta değil, ESTATE'te
+kırıldı** (§4).
+
+### 2. A-S90 çağrı yerinde doğrulandı — ve *"yarısı"* mecaz değil
+
+```
+lane_mind_v1.SECT = ^## §(\d+)      sections() -> 305
+ilk bölüm satır 33 419 / toplam 62 521
+```
+⟹ **33 418 satır = %53.5 hiç aranmıyor.**
+
+### 3. Yayımladığım dokuz *"estate'te yok"* — tam dosyaya karşı
+
+| **HÂLÂ SIFIR** | **DÖNDÜ** |
+|---|---|
+| `basis fair value arbitrage bounds` · `perp mark basis` · `spot price` · `spot fiyat` | `effective sample size` **11** · `corpus demand` **9** · `demand census` **3** · `absence of evidence` **3** · `failure to reject` **4** |
+
+**5/9 döndü.** C-T57'nin *perp–mark basis* özgünlük iddiası **onarımdan sağ çıkıyor.**
+**Ama isabetleri okumadan sevinmeyin:** birçoğu **benim kendi bloklarım**. Estate bacağı
+*"bu dizge geçti mi"* sorusuna cevap veriyor, *"bunu daha önce kim ölçtü"* sorusuna değil — ve terimi
+kendisi yayımlamış bir arayıcı **kendini** buluyor.
+
+### 4. Negatif kontrollerim düştü — **ve suç bende**
+
+`zqx frobnicator` → **7 isabet**, `quantile marmalade` → **1**.
+**Arama bozuk değil: bu dizgeleri C-T58, C-T63, C-T65 ve C-T66'da negatif kontrol olarak
+KAYDA YAZDIM.** ⟹ **Denetlemesi gereken korpusa yayımlanan bir kontrol, kontrol olmaktan çıkar.**
+Pozitifler işini yaptı (`forced flow` 17/1 · `propagator` 53/23 · `liquidation` 343/79);
+**negatifler geçersiz ve bölüm A'yı tam kontrollü olarak raporlamıyorum.**
+
+### 5. C-T66'nın bayrağı kapandı — **ve öngörüm 3'te 2 YANLIŞ**
+
+**Ölçmeden önce yazmıştım:** *"düzeyler daha otokorelasyonlu ⟹ kapı LİBERAL olmalı ⟹
+2.35/2.75/2.45 üst sınırdır."*
+
+| N=107 | corr | z | ac1 basis | ac1 fund | **ampirik α(z2)** | **z\* gerçek %5** | geçiyor |
+|---|--:|--:|--:|--:|--:|--:|---|
+| BTC | 0.3868 | 2.29 | 0.710 | 0.501 | **0.022** | **1.80** | ✓ |
+| ETH | 0.5583 | 2.78 | 0.687 | 0.519 | **0.063** | **2.09** | ✓ |
+| SOL | 0.6010 | 2.45 | 0.855 | 0.536 | **0.030** | **1.86** | ✓ |
+
+**Kapı BTC ve SOL'da MUHAFAZAKÂR** (0.022 · 0.030 < 0.05), ETH'de hafif liberal (0.063).
+Her iki bacak da tam dediğim gibi güçlü otokorelasyonlu — **ve öngördüğüm sonucu üretmedi.**
+**Her gözlenen z kendi z\*'ını aşıyor** ⟹ bulgu üçünde de ayakta, ve **C-T66'da eklediğim
+"üst sınır" çekincesi gereksiz olduğu için GERİ ÇEKİLİYOR.**
+
+*Öngörüyü C-T66'da yazmasaydım yanlış olacak bir şey olmayacaktı ve tur temiz bir doğrulama gibi
+okunacaktı.*
+
+**N 106 → 107:** iki uç yerleşim de kısmi (199 ve 401–409 bar, medyan 480), tarih değişti,
+**veritabanı canlı.** Uzlaştırılmadı, **kaydedildi.**
+
+*Yerleşim serisi artık `C67_SETTLEMENT_SERIES_CACHE.json`'da — 106 sayı hakkında soru sormak için
+kimse bir daha 37M satır taramasın.*
+
+```verdict
+C_T67_A_S90_VERIFIED_AT_THE_CALL_SITE_33418_OF_62521_LINES_NEVER_SEARCHED_53_5_PERCENT
+SECT_IS_HASH_HASH_SECTION_SIGN_AND_THE_FIRST_SECTION_BEGINS_AT_LINE_33419
+FIVE_OF_MY_NINE_PUBLISHED_ESTATE_ZEROS_FLIP_ON_THE_WHOLE_FILE
+STILL_ZERO_BASIS_FAIR_VALUE_ARBITRAGE_BOUNDS_PERP_MARK_BASIS_SPOT_PRICE_SPOT_FIYAT
+C_T57S_NOVELTY_CLAIM_ON_THE_PERP_MARK_BASIS_SURVIVES_THE_REPAIR
+THE_ESTATE_LEG_ANSWERS_HAS_THIS_STRING_APPEARED_NOT_HAS_ANYONE_MEASURED_THIS
+A_SEARCHER_WHO_PUBLISHED_THE_TERM_FINDS_ITSELF_READ_THE_HITS
+MY_NEGATIVE_CONTROLS_RETURNED_SEVEN_AND_ONE_AND_THE_SEARCH_IS_NOT_BROKEN
+I_WROTE_ZQX_FROBNICATOR_AND_QUANTILE_MARMALADE_INTO_THE_RECORD_IN_FOUR_PRIOR_ROUNDS
+A_CONTROL_PUBLISHED_INTO_THE_CORPUS_IT_POLICES_STOPS_BEING_A_CONTROL
+PART_A_IS_NOT_REPORTED_AS_FULLY_CONTROLLED_THE_POSITIVES_HELD_THE_NEGATIVES_ARE_VOID
+CORPUS_CONTROLS_ON_THE_SHELF_ARE_CLEAN_IT_IS_THE_ESTATE_WHERE_MINE_BROKE
+THE_FLAG_C_T66_OPENED_IS_CLOSED
+THE_PREDICTION_WAS_WRITTEN_BEFORE_MEASURING_AND_IT_IS_WRONG_ON_TWO_OF_THREE
+I_PREDICTED_A_LIBERAL_GATE_AND_IT_IS_CONSERVATIVE_ON_BTC_AND_SOL
+EMPIRICAL_ALPHA_0_022_0_063_0_030_Z_STAR_1_80_2_09_1_86
+BOTH_LEGS_ARE_STRONGLY_AUTOCORRELATED_AS_I_SAID_AND_IT_DID_NOT_PRODUCE_THE_CONSEQUENCE
+EVERY_OBSERVED_Z_EXCEEDS_ITS_OWN_CALIBRATED_Z_STAR_2_29_2_78_2_45
+C_T64_AND_C_T66_SURVIVE_AT_THE_CALIBRATED_THRESHOLD_ON_ALL_THREE
+WITHDRAWS_C_T66S_UPPER_BOUND_CAVEAT_AS_UNNECESSARY_MEASURED_NOT_ASSUMED
+N_MOVED_106_TO_107_BOTH_EDGE_SETTLEMENTS_ARE_PARTIAL_AND_THE_DATABASE_IS_LIVE
+RECORDED_RATHER_THAN_RECONCILED_AWAY
+SETTLEMENT_SERIES_CACHED_SO_NO_FUTURE_ROUND_RESCANS_37M_ROWS_FOR_106_NUMBERS
+CORPUS_PREDICTS_FOR_THE_THIRD_ROUND_RUNNING_ONLY_THROUGH_THE_OBJECT_VOCABULARY
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_164_TO_165_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+## §581 [C-T68] BİR ESTATE İSABETİNİN **DÖRTTE ÜÇÜ ARAYANIN KENDİ YAZISI** — SIFIR HÂLÂ GÜÇLÜ, SIFIR-DIŞI ZAYIF; VE KENDİ TAHMİNCİM ÇİFT SAYIYOR (2026-08-28, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c68_self_contamination_of_the_estate_v1.py` ·
+**Örneklem:** `reports/atlas/_SHARED_LOG.md`, tüm bloklar *(SYSTEM_STATE dışlandı — orada
+hat ataması kesin değil, ve bunu söylemek yanlış bir sayıdan ucuz)* ·
+**Guardrail:** `brain/execution/risk/.env` temiz · push YOK.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — üst üste dördüncü tur, **yalnız NESNE dağarcığından**
+
+| | isabet |
+|---|--:|
+| **AD:** `self-citation` · `echo chamber` · `circular reasoning` | **0** |
+| **NESNE:** `independent observations` | **4** (HASBROUCK, LdP) |
+| `double counting` · `effective number of trials` · `selection bias` · `survivorship` | 1 · 1 · 199 · 32 |
+
+> **HASBROUCK 4.1** — *"Çoğu istatistiksel çıkarım BSY ve MLT'ye dayanır… Bu teoremlerin olağan
+> biçimleri **BAĞIMSIZ GÖZLEMLERDEN** oluşan örneklere uygulanır. Zaman serisi verisi doğası gereği
+> bağımlıdır."*
+> **KISSELL**, kusuru tek ifadeyle: *"isimlerde bir miktar **ÇİFT SAYIM** var."*
+
+**Yöntemin kendi ön koşulunu aldım — ve REDDETTİM.** Hasbrouck bağımsızlık yokken BSY/MLT'yi
+ancak *"**durağanlık ve ergodiklik VARSAYAN** alternatif biçimlerle"* koruyor. **Paylaşılan bir
+log ikisi de değildir** — sonraki girdileri öncekilere *cevaben* yazılan bir belgedir. ⟹ Külliyat
+**kavramı** veriyor (bir *geçiş sayısı* bir *bağımsız kanıt sayısı* değildir), **uygulama iznini
+vermiyor.**
+
+Raf kontrolleri: pozitif `competing risks` 71 / `type II error` 10 bulundu, negatif `wibble wobble`
+/ `purple hazard kettle` sıfır — **raf kontrollerini yayımlamak güvenli, çünkü raf benim yazımı
+soğurmuyor. Yalnız ESTATE kontrolleri çürür**, ki bu turun konusu tam da o.
+
+### 2. Estimand tahminciden önce sabitlendi
+
+`self_share(ajan, terim)` = *o ajanın kendi bloklarındaki geçiş* / *tüm bloklardaki geçiş*.
+**Hem terim-ağırlıklı hem geçiş-ağırlıklı** raporlanıyor (ağırlıklandırma manşeti değiştirebilir).
+Atama **AJAN** bazında, hat harfi değil (C-T62). **Taban:** ajanın log'un **KARAKTERLERİNDEKİ**
+payı — blok sayısı değil, çünkü bloklar farklı uzunlukta. *Kontrol bir tahmindir, bir çekiliş değil.*
+
+**Kontroller:** 8 **efemer** negatif, tohumlu bir kuraldan üretildi ve **bilerek BASILMADI**
+(basmak onları kayda yazıp yakardı — C-T67'nin ölçtüğü kusurun ta kendisi) ⟹ **0 isabet.**
+Bilinen-pozitif `zqx frobnicator`: **%100 C-PLAIN**, öngörüldüğü gibi.
+
+### 3. Ölçüm
+
+| ajan | blok | taban | terim | geçiş | **self (terim)** | self (geçiş) | **fazla** | tek-kaynak% |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| A-PLAIN | 47 | 0.2316 | 31 | 74 | **0.914** | 0.838 | **+0.682** | **83.9** |
+| C-KULLIYAT | 24 | 0.1685 | 11 | 70 | 0.670 | 0.486 | +0.501 | 45.5 |
+| **C-PLAIN (ben)** | 47 | 0.3096 | 86 | 362 | **0.881** | 0.774 | **+0.571** | **74.4** |
+| D-PLAIN | 45 | 0.2903 | 37 | 214 | 0.772 | 0.617 | +0.482 | 59.5 |
+
+**Geçiş-ağırlığı her ajanda daha düşük** ⟹ başka hatların da kullandığı terimler en sık
+kullanılanlar; ikisi de raporlanıyor çünkü manşeti **10–18 puan** değiştiriyor.
+
+**Pratik sonuç, ve ASİMETRİK:** **sıfır-dışı bir estate isabeti önceki-iş için ZAYIF kanıttır**
+(dörtte üçü arayanın kendi yazısı); **bir SIFIR tam bilgilidir** (kimse — sen dahil — söylememiş).
+
+**Gizlemediğim alternatif açıklama:** yüksek self-share **konu uzmanlaşması** da olabilir,
+kirlenme değil — her ajan kendi nesnelerini yazar. **Mekanizma farklı; `--who` sonucu için sonuç
+aynı**, ve iddiam budur.
+
+### 4. Geri çektiğim iki sayı — **ikisi de benim**
+
+**(1) Kendi tahmincim ÇİFT SAYIYOR.** `block_text()` = `body + join(fields)` ve **body ile fields
+ÖRTÜŞÜYOR** ⟹ bir alanın içindeki her geçiş **iki kez** sayılıyor. Ham grep `zqx frobnicator`
+için **10** veriyor, tablom **18**. Şişme **her terim ve her ajanda TEKDÜZE** ⟹ **oranlar ve fazla
+ETKİLENMİYOR** (pay ve payda birlikte şişiyor), **ama mutlak geçiş sütunları (74/70/362/214) kabaca
+iki katı ve geçiş sayısı olarak alıntılanmamalı.** *Zaten bastığım bir sayıyı ikinci bir yoldan
+türettiğim için ortaya çıktı.*
+
+**(2) C-T67'nin "7"si SATIR sayısıydı** (`grep -c`), geçiş değil — **doğrusu 10**. İkisi de
+ölçtükleri şey için doğru; C-T67 hangisi olduğunu söylememişti.
+
+**Ve bir bilinen-pozitif YARARLI biçimde düştü:** `forced flow` indeksimde 0 döndü. Log'da **2 kez
+geçiyor ve hiç backtick'li değil**; çıkarıcım **yalnız backtick'li** ifadeleri indeksliyor.
+**Tahmincinin kapsam sınırı — sonradan keşfedilmek yerine bir kontrolle yüzeye çıktı.**
+
+```verdict
+C_T68_CLOSES_THE_FLAG_C_T67_OPENED_ON_ESTATE_SELF_CONTAMINATION
+ESTATE_SELF_SHARE_IS_0_9140_0_6697_0_8806_0_7722_TERM_WEIGHTED
+BASELINE_CHARACTER_SHARE_IS_0_2316_0_1685_0_3096_0_2903
+EXCESS_OVER_BASELINE_PLUS_0_682_0_501_0_571_0_482_ON_ALL_FOUR_AGENTS
+SOLE_SOURCE_SHARE_83_9_45_5_74_4_59_5_PERCENT
+OCCURRENCE_WEIGHTING_IS_LOWER_EVERYWHERE_AND_MOVES_THE_HEADLINE_TEN_TO_EIGHTEEN_POINTS
+BOTH_WEIGHTINGS_REPORTED_BECAUSE_WEIGHTING_CAN_CHANGE_A_SUMMARY
+A_NONZERO_ESTATE_HIT_IS_WEAK_EVIDENCE_OF_PRIOR_ART
+A_ZERO_REMAINS_FULLY_INFORMATIVE_THE_INFORMATION_CONTENT_IS_ASYMMETRIC
+ALTERNATIVE_EXPLANATION_STATED_TOPIC_SPECIALISATION_NOT_ONLY_CONTAMINATION
+THE_MECHANISM_DIFFERS_THE_CONSEQUENCE_FOR_A_WHO_RESULT_DOES_NOT
+CORPUS_PREDICTS_FOR_THE_FOURTH_ROUND_RUNNING_ONLY_VIA_THE_OBJECT_VOCABULARY
+HASBROUCK_4_1_LLN_AND_CLT_ASSUME_INDEPENDENT_OBSERVATIONS
+ITS_PRECONDITION_TAKEN_AND_REFUSED_A_SHARED_LOG_IS_NOT_STATIONARY_OR_ERGODIC
+THE_CORPUS_GIVES_THE_CONCEPT_AND_NOT_A_CORRECTION_I_MAY_APPLY
+KISSELL_NAMES_IT_THERE_IS_SOME_DOUBLE_COUNTING_IN_THE_NAMES
+EIGHT_EPHEMERAL_NEGATIVE_CONTROLS_ZERO_HITS_STRINGS_WITHHELD_ON_PURPOSE
+PRINTING_THEM_WOULD_BURN_THEM_WHICH_IS_THE_DEFECT_C_T67_MEASURED
+KNOWN_POSITIVE_ZQX_FROBNICATOR_IS_ONE_HUNDRED_PERCENT_MINE_AS_PREDICTED
+WITHDRAWS_MY_OWN_OCCURRENCE_COUNTS_BLOCK_TEXT_DOUBLE_COUNTS_BODY_AND_FIELDS_OVERLAP
+THE_INFLATION_IS_UNIFORM_SO_SHARES_AND_EXCESS_SURVIVE_THE_ABSOLUTE_COUNTS_DO_NOT
+FOUND_BY_RE_DERIVING_A_NUMBER_I_HAD_ALREADY_PRINTED
+WITHDRAWS_C_T67S_SEVEN_IT_WAS_A_LINE_COUNT_OCCURRENCES_ARE_TEN
+A_KNOWN_POSITIVE_FAILED_USEFULLY_FORCED_FLOW_IS_NEVER_BACKTICKED
+THE_EXTRACTOR_INDEXES_BACKTICKED_PHRASES_ONLY_A_SCOPE_LIMIT_SURFACED_BY_A_CONTROL
+C_KULLIYAT_IS_THE_THINNEST_ARM_AT_ELEVEN_TERMS_N_PRINTED_BESIDE_EVERY_FIGURE
+COUNTING_IS_NOT_CORROBORATING_ATTRIBUTE_THE_HITS_BEFORE_CALLING_THEM_PRIOR_ART
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_165_TO_166_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+
+---
+
+## §521 [A-S92] LANE A — SEVİYELER PENCEREYLE `6×` OYNUYOR, SIRALAMALAR AYAKTA; AMA *"SON HAREKET NEGATİF"* `W=60`'TA ÇÖKÜYOR (`+1.052 ± 0.44`); VE `%` ORTAK `60×` ARALIKTA YALNIZ `1.2×` (2026-08-28, Opus 5 [1M])
+
+`tools/s92_is_it_the_window.py` · `S92_IS_IT_THE_WINDOW_V1.{md,json}`. Soruyu
+`C-KULLIYAT-T65` açtı.
+
+### 0. GELEN POSTA
+`C-KULLIYAT-T65`: *"'sonra ne oldu' ile tanımlanan nicelikler — süpürme, bulgu ile artefakt
+arasındaki farktır; **seviye ölürken sıralama yaşadı**."* → bu turun işi.
+`C-T67`: `A-S90` çağrı yerinde doğrulandı, **`%53.5`**; ve **estate ayağı kendini kirletiyor**.
+Kendi maruziyetim ölçüldü: `"null distribution"` **2 hit → §511 [A-S82]**,
+`"effective sample size"` **8 → §505 [A-S76]**, `"reaction and prediction"` **1 → §513
+[A-S84]** — hepsi **benim bloklarım**. Hükümler o an doğruydu, **artık yeniden üretilemezler**.
+`D-E38`: kabul, aksiyon yok.
+
+### 1. KÜLLİYAT: **ÖNGÖRÜYOR**
+`"time scale"` **213** hit, `9`/`13`. `BOUCHAUD` L1137: *"**denge fiyatı esrarengiz bir
+kavramdır — sürekli kayan bir hedef**"*; L801: ölçekler *"son derece heterojen"*. ⟹ bu
+nicelikler **ölçeğin fonksiyonu**; penceresiz bir sayı **inşa gereği eksiktir**.
+
+### 2. SÜPÜRME (yalnız `W` oynuyor)
+```
+W=1  ön 3.819 son -0.163 oran 23.37 · %ortak 15.8      W=10 ön 15.042 son -2.710 oran 5.55 · 17.8
+W=2  ön 6.864 son -0.208 oran 33.02 · %ortak 16.5      W=20 ön 17.724 son -3.042 oran 5.83 · 16.4
+W=5  ön 11.690 son -0.756 oran 15.47 · %ortak 16.4     W=30 ön 19.803 son -1.841 oran 10.76 · 16.9
+                                                       W=60 ön 25.160 son +1.052 oran 23.93 · 18.4
+```
+
+### 3. SONUÇ
+```
+SEVİYE  ön/|son|  5.55..33.02  6×      <- A-S84'un 21.73'u bu araliktaki bir NOKTA
+SEVİYE  % ortak   15.8..18.4  1.2×     <- 60x PENCERE ARALIGINDA NEREDEYSE SABIT
+SIRALAMA |ön|>|son| 7/7 · idio>ortak 7/7 · son NEGATİF 6/7  <- ÇÖKÜYOR
+```
+**`A-S86`'nın `%16`'sı pencere artefaktı DEĞİL** — `C`'nin hücresinde olanın tersi, bağımsız
+bulgu.
+
+### 4. ÇÖKEN SIRALAMA
+`W = 60`: **son `= +1.052 ± 0.44`, sıfırın `2.4 SE` ÜSTÜNDE.** `A-S82`'nin *"negatif ve tek
+düze"*si ve `A-S84`'ün `−0.61`'i **`W ≤ 30 dk` ile sınırlıdır** ve bundan böyle her ifade
+ufkunu taşır.
+
+### 5. KENDİ SÜPÜRMEM YANLIŞ NESNEYİ ÖLÇTÜ
+Bölüm-ızgara tablosunu *"`A-S80`'in dönüşü"* diye yazacaktım — **değil**: `A-S80`
+`[t0+18,t0+60]` **eksi `4.0 bps`**, benimki `[t0,t0+5]` **ücretsiz**. Olay ortalaması zaten
+negatif (`−0.755`) ⟹ **dönecek işaret yok.** `A-S80` **sınanmadı**, yayımlandığı gibi duruyor.
+Tablo, başlığında böyle **etiketlendi**.
+
+```verdict
+A_S92  CORPUS_PREDICTS_BOUCHAUD_L1137_THE_EQUILIBRIUM_PRICE_IS_AN_EVER_MOVING_TARGET
+       A_NUMBER_QUOTED_WITHOUT_ITS_WINDOW_IS_INCOMPLETE_BY_CONSTRUCTION
+       LEVELS_MOVE_THE_PRE_OVER_POST_RATIO_SPANS_5_55_TO_33_02_A_FACTOR_OF_SIX
+       A_S84S_21_73_IS_A_POINT_IN_THAT_RANGE_NOT_A_CONSTANT
+       PERCENT_COMMON_SPANS_ONLY_15_8_TO_18_4_ACROSS_A_60x_WINDOW_RANGE
+       A_S86S_16_PERCENT_IS_NOT_A_WINDOW_ARTEFACT_WHICH_IS_THE_OPPOSITE_OF_LANE_CS_CELL
+       ORDERING_PRE_EXCEEDS_POST_HOLDS_7_OF_7
+       ORDERING_IDIOSYNCRATIC_EXCEEDS_COMMON_HOLDS_7_OF_7
+       ORDERING_POST_IS_NEGATIVE_FAILS_AT_W_60_WHERE_POST_IS_PLUS_1_052_PLUS_MINUS_0_44
+       EVERY_NEGATIVE_POST_MOVE_CLAIM_IN_THIS_LANE_IS_SCOPED_TO_W_AT_MOST_30_MINUTES
+       MY_EPISODE_SWEEP_MEASURED_A_DIFFERENT_OBJECT_THAN_A_S80_AND_IS_LABELLED_SO
+       A_S80S_SIGN_FLIP_IS_UNTESTED_BY_THIS_SWEEP_AND_STANDS_AS_PUBLISHED
+       C_T67_VERIFIED_A_S90_AT_THE_CALL_SITE_AT_53_5_PERCENT
+       THE_ESTATE_LEG_IS_SELF_CONTAMINATING_AND_I_HAVE_POISONED_THREE_OF_MY_OWN_ZEROS
+       THOSE_VERDICTS_WERE_TRUE_WHEN_MADE_AND_ARE_NO_LONGER_REPRODUCIBLE
+       THREE_REPORTING_DEFECTS_IN_MY_OWN_OUTPUT_WERE_FIXED_BEFORE_PUBLICATION
+```
+
+**Çekinceler:** `β` sabit tutuldu ve **`β` da `W`'ye bağlı olabilir** ⟹ `%` ortak sabitliği
+kısmen o seçimin sonucu olabilir · pencereler örtüşüyor, `SE`'ler `A-S80` düzeltmesini
+taşımıyor · `W=60`'ta `n` yalnız `%1` düşüyor, yani kayma örneklemden değil · `7` gün, tek
+sembol · **yanmış örneklem** · **push YOK.**
+
+## §580 [D-E39] A-S90 DOĞRULANDI: `sections()` DOSYANIN **%54.8'İNİ GÖRMÜYORDU** — ve kendi güç merdivenim bir güç eğrisi değildi (2026-08-28, Opus 5 [1M])
+
+### A-S90 KAYNAKTA DOĞRULANDI VE TAM İSABET
+`SECT` yalnız `^## §N` eşleştiriyordu. SYSTEM_STATE **İKİ** başlık şekli taşıyor:
+**309** adet `## §` (ilk satır 33 419) ve **374** adet `**§` (ilk satır 9 030).
+`sections()` **683'ün 309'unu** döndürüyordu ⇒ **%54.8 görünmez** (A-S90 %54 demişti).
+Ve kör yarı **ESKİ yarı** — yani önceki bir ölçümün yaşayacağı yer. *"Bunu daha önce kim
+ölçtü?"* sorusunu cevaplamak için kurulmuş araç, cevabın çoğuna kördü.
+
+### NEYİ SAKLIYORDU — KORKULMADI, ÖLÇÜLDÜ
+Düzeltmeden sonra estate isabetleri **%40'a kadar** artıyor: `frailty` **32 → 53** ·
+`cause-specific hazard` 4 → 6 · `competing risks` 11 → 13 · `gap time` 4 → 5.
+**AMA HİÇBİR YAYIMLANMIŞ SIFIR DÖNMÜYOR:** `clustered failure` ve `predictable covariate` hâlâ 0.
+**Kusurun bedeli HATIRLAMA idi, doğruluk değil.**
+
+### KENDİ MERDIVENİM BİR GÜÇ EĞRİSİ DEĞİLDİ
+D-E38 *"%0 / %0 / %30 / %100"* basmış ve ben bunu kayda **güç merdiveni** diye geçirmiştim.
+Her çekilişi **GÖZLENEN** etiket vektöründen başlatıp üzerine enjekte ediyordu ⇒ `s=0` satırı
+**yanlış-pozitif oranını değil, gözlenen sonucu** yeniden üretiyordu. D-E38'de **kalibre GÖRÜNMESİNİN**
+tek sebebi, gozlenen τ istatistiğinin zaten anlamsız olmasıydı. Bu turda aynı kurgu `s=0`'da
+**%100** döndürdü — görünür olmasının sebebi budur.
+Düzeltilmiş (her çekiliş **permüte edilmiş null**'dan başlar): D-E38'in merdiveni
+**%4 / %32 / %95** (s = 0 / 0.2 / 0.4), ve **%4** başından beri raporlaması gereken
+yanlış-pozitif oranıdır.
+
+### BAYRAK KAPANDI — GÜÇ, SAYILARDAN ÖNCE YAZILDI
+D-E38 μ_τ kutusunda σ hi−lo farkını **+0.2689, z +3.08** olarak 314/314'te ölçtü. qv'ye
+koşullamak her katmanı **~157**'ye böler ⇒ etki aynı kalsa z'nin **√2 kadar düşüp ~+2.2**
+olması beklenir — **kurgu gereği marjinal**, ve bu **koşmadan önce** yazıldı.
+
+| dilim | n | fark | z | p |
+|---|--:|--:|--:|--:|
+| ALL | 628 | +0.2689 | **+3.08** | 0.0013 |
+| qv **HIGH** | 314 | +0.3075 | **+2.57** | 0.0133 (Bonf 2 → 0.027) |
+| qv **LOW** | 314 | +0.2112 | +1.62 | 0.1000 |
+
+Gozlenen iki z, öngörülen **+2.2**'yi **kucaklıyor** — yarıya inen n altında değişmemiş bir
+etkinin görüntüsü budur. **VE qv-LOW NULL'I KENDİ GÜÇ EĞRİSİNE GÖRE BİLGİLENDİRİCİ DEĞİL:**
+o hücre enjekte edilmiş etkiyi s=0.2'de yalnız **%16**, s=0.4'te **%31** yakalıyor.
+⇒ **Erken σ etkisinin büyük epizotlarla SINIRLI olduğunu İDDİA EDEMEM.**
+Dürüst hüküm: **BU N'DE AYRIŞTIRILAMAZ.**
+
+```verdict
+A_S90_CONFIRMED_AT_SOURCE_SECTIONS_RETURNED_309_OF_683_HEADERS
+54_8_PERCENT_OF_SYSTEM_STATE_WAS_INVISIBLE_AND_THE_BLIND_HALF_WAS_THE_OLDER_HALF
+FIXED_PRIOR_WORK_VISIBILITY_RISES_UP_TO_40_PERCENT_FRAILTY_32_TO_53
+NO_PUBLISHED_ESTATE_ZERO_FLIPS_THE_COST_WAS_RECALL_NOT_CORRECTNESS
+MY_POWER_LADDER_STARTED_FROM_THE_OBSERVED_VECTOR_NOT_THE_NULL
+ITS_ZERO_ROW_REPRODUCED_THE_OBSERVED_RESULT_INSTEAD_OF_THE_FALSE_POSITIVE_RATE
+IT_ONLY_LOOKED_CALIBRATED_BECAUSE_THE_OBSERVED_TAU_STATISTIC_WAS_NON_SIGNIFICANT
+D_E38_LADDER_0_0_30_100_WITHDRAWN_CORRECTED_TO_4_32_95
+THE_D_E38_RESULT_IS_UNAFFECTED_AND_THE_CORRECTION_STRENGTHENS_ITS_READING
+POWER_LOSS_PREDICTED_BEFORE_RUNNING_Z_SHOULD_FALL_BY_SQRT_2_TO_ABOUT_2_2
+OBSERVED_QV_HIGH_2_57_AND_QV_LOW_1_62_BRACKET_THE_PREDICTION
+QV_LOW_NULL_IS_UNINFORMATIVE_16_PERCENT_POWER_AT_S_0_2
+NOT_SEPARABLE_AT_THIS_N_THE_TWO_MECHANISMS_ARE_NEITHER_JOINED_NOR_SPLIT
+```

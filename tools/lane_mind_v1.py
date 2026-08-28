@@ -75,7 +75,13 @@ BLOCK = re.compile(r"^### (?P<hdr>[^\n]+)\n```\n(?P<body>.*?)^```", re.S | re.M)
 # cannot swallow anything.
 FIELD = re.compile(r"^(?P<k>[a-z][a-z ]*[A-D]?):(?P<v>.*?)(?=^[a-z][a-z ]*[A-D]?:|\Z)",
                    re.S | re.M)
-SECT = re.compile(r"^## §(?P<num>\d+)\s*(?P<title>.*)$", re.M)
+SECT = re.compile(r"^(?:## |\*\*)§(?P<num>\d+)\s*(?P<title>.*)$", re.M)
+# A-S90, VERIFIED AT SOURCE AND IT WAS RIGHT.  The old pattern matched `## §N` only, and
+# SYSTEM_STATE carries TWO header shapes: 309 `## §` starting at line 33,419 and 374 `**§`
+# starting at line 9,030.  So `sections()` returned 309 of 683 and 54.8% of the file was
+# invisible to the ESTATE half of `--who` -- the half whose whole purpose is answering "has
+# anyone measured this before?".  The blind half is the OLDER half, which is exactly where a
+# prior measurement would live.
 TOKEN = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){2,}\b")
 # every lane's id shape, in one place
 STABLE_ID = re.compile(r"^([ABCD]-[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)*)")

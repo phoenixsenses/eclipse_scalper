@@ -100,19 +100,15 @@
  "known_positive_ladder": [
   {
    "strength": 0.0,
-   "detect_rate": 0.0
-  },
-  {
-   "strength": 0.1,
-   "detect_rate": 0.0
+   "detect_rate": 0.04
   },
   {
    "strength": 0.2,
-   "detect_rate": 0.295
+   "detect_rate": 0.315
   },
   {
    "strength": 0.4,
-   "detect_rate": 1.0
+   "detect_rate": 0.95
   }
  ],
  "corpus": {

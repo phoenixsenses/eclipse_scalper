@@ -130,21 +130,25 @@ def main():
           " threshold is the p itself)" % (null.mean(), null.std(ddof=1), z, p2))
     print("  bins with a zero-risk stratum: %d" % len(unsupported))
 
-    # known-positive ladder: a zero here would need one, and a nonzero needs its floor
-    print("\n  KNOWN-POSITIVE LADDER -- move EDGE_GONE events toward the hi stratum by strength s")
+    # POWER LADDER, CORRECTED D-E39.  The first version started each draw from the OBSERVED
+    # label vector and injected on top of it, so its `s = 0` row reproduced the observed result
+    # rather than the false-positive rate.  A ladder whose zero row is not near alpha is not a
+    # power curve at all.  Each draw now starts from a PERMUTED (null) vector and injects from
+    # there, and the s = 0 column is printed as what it is: the false-positive rate.
+    print("")
+    print("  POWER LADDER -- each draw starts from a PERMUTED null, then injects")
     lad = []
-    for s in (0.0, 0.1, 0.2, 0.4):
+    eg = np.flatnonzero(cause == "EDGE_GONE")
+    for s in (0.0, 0.2, 0.4):
         hits = 0
         for _ in range(200):
-            hh = hi.copy()
-            eg = np.flatnonzero(cause == "EDGE_GONE")
-            flip = eg[rng.random(len(eg)) < s]
-            hh[flip] = True
+            hh = rng.permutation(hi)
+            hh[eg[rng.random(len(eg)) < s]] = True
             v = statistic(t, cause, hh, grid)
-            zz = (v - null.mean()) / null.std(ddof=1)
-            hits += abs(zz) > 1.96
+            hits += abs((v - null.mean()) / null.std(ddof=1)) > 1.96
         lad.append({"strength": s, "detect_rate": round(hits / 200.0, 3)})
-        print("     s=%.1f   detected %.0f%%" % (s, 100.0 * hits / 200))
+        tag = "   <- this IS the false-positive rate" if s == 0 else ""
+        print("     s=%.1f   detected %.0f%%%s" % (s, 100.0 * hits / 200, tag))
 
     res = {"prereg_sha256": h, "n": len(rows), "n_hi": int(hi.sum()), "n_lo": int((~hi).sum()),
            "estimand": "cumulative cause-specific hazard of EDGE_GONE to tau, hi-sigma minus lo",
