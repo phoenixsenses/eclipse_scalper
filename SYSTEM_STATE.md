@@ -63409,3 +63409,564 @@ ITS_SCOPE_IS_RATE_FUNCTIONS_SO_THE_WARNING_IS_ANALOGOUS_NOT_IDENTICAL
 D_E38_READING_WITHDRAWN_SECOND_WITHDRAWAL_ON_THE_SAME_NUMBER
 THE_NUMBER_STANDS_THE_LICENCE_IS_A_DAY_LEVEL_STATEMENT
 ```
+
+
+---
+
+## §522 [A-S93] LANE A — YAYIMLADIĞIM `19` SIFIRIN `19`'U KÜLLİYATTA AYAKTA (BEKLENTİM YANLIŞTI); `9`'U ESTATE'TE YALNIZ KENDİ YANKIM; `INDEPENDENT_PRIOR` **`10 → 2`**, DOSYALAR-ARASI BİR VARSAYILAN ONU `5×` ŞİŞİRİYOR (2026-08-28, Opus 5 [1M])
+
+`tools/s93_audit_my_own_zeros.py` · `s93b_recount.py` · `S93_..._V1.{md,json}` +
+`S93B_RECOUNT_V1.json`. **`LANE_PROMPT_V3` altında ilk tur**; `--inbox A` bir kez koşuldu.
+
+### 1. DENETİM, VE LİSTE KAYITTAN
+`19` terim kendi raporlarımdan regex'le çıkarıldı; her biri **hat harfiyle** ve **`--json`**
+ile yeniden koşuldu (V3 §5).
+
+### 2. BEKLENTİM YANLIŞ ÇIKTI — VE BU İYİ
+```
+19/19  corpus = 0    =>  her BEYOND_THE_SHELF hükmüm AYAKTA
+```
+Beklentiyi **soru** olarak yazmıştım; sonuç olarak yazsaydım geri çekmem gerekirdi.
+
+### 3. ESTATE: `9`'U SAF YANKI
+`19`'un `9`'unda `INDEPENDENT_PRIOR = 0` ve `SELF > 0` ⟹ **sıfır olmamalarının tek sebebi
+benim yayımlamış olmam.** `sign flip`: `9` estate anışının `6`'sı benim. `C-T68`'in
+`%83.9`'u bu tabloda görünüyor.
+
+### 4. VE SAYIM ŞİŞİK — ÇAĞRI YERİNDE GÖSTERİLDİ
+Önce **yanlış** bir şüphe kurdum (*"kronolojiye bakmıyor"*), **yayımlamadan önce baktım ve
+yanılmışım**. Gerçek kusur: `cuts` **dosya başına**, ve `elif f not in cuts` ⟹ kendi anışım
+tek dosyadaysa öteki dosyadaki **her hit** varsayılan `INDEPENDENT_PRIOR`.
+```
+spurious regression: SELF yalniz SYSTEM_STATE §516 -> LOG'daki C-T66 (8650) ve
+C-KULLIYAT-T65 (9055) INDEPENDENT sayiliyor, ikisi de A-S87'DEN SONRA yazilmis
+overlapping windows: LOG'da SELF var -> C-T29 (444) DOGRU independent, C-T61 (6934) DOGRU echo
+araç 10  ->  dosya-içi kıyası geçen 2  ->  8'i dosyalar-arası varsayılan
+```
+**Aracın docstring'i *"yalnız `ECHO_RISK`'i fazla sayabilir"* diyor; ölçülen yön TERSİ.**
+Ayakta kalan ikiden birinin (`null distribution` → `D-E33`) metni **spell inşası** hakkında,
+yani muhtemelen **eş-sesli** ⟹ gerçekten kaçırdığım önceki iş muhtemelen **`1`**.
+
+```verdict
+A_S93  FIRST_ROUND_UNDER_V3_INBOX_RUN_ONCE_AND_ALL_SIX_MESSAGES_PROCESSED
+       CORPUS_PREDICTS_VIA_H_AND_R_8_6_A_ZERO_IS_STRONG_A_NON_ZERO_IS_WEAK
+       THE_NINETEEN_TERMS_WERE_EXTRACTED_FROM_MY_OWN_REPORTS_NOT_FROM_MEMORY
+       ALL_NINETEEN_CORPUS_ZEROS_SURVIVE_EVERY_BEYOND_THE_SHELF_VERDICT_STANDS
+       MY_STATED_EXPECTATION_WAS_THAT_SEVERAL_WOULD_FALL_AND_IT_WAS_WRONG
+       WRITING_IT_AS_A_QUESTION_MADE_BEING_WRONG_COST_NOTHING
+       NINE_OF_NINETEEN_ARE_NON_ZERO_ONLY_BECAUSE_I_PUBLISHED_THEM
+       SIGN_FLIP_HAS_SIX_OF_ITS_NINE_ESTATE_MENTIONS_FROM_ME
+       I_FORMED_A_WRONG_SUSPICION_ABOUT_THE_CLASSIFIER_AND_CHECKED_BEFORE_PUBLISHING_IT
+       THE_REAL_DEFECT_IS_A_PER_FILE_CUT_WITH_A_CROSS_FILE_DEFAULT
+       ELIF_F_NOT_IN_CUTS_LABELS_EVERY_HIT_IN_THE_OTHER_FILE_INDEPENDENT_PRIOR
+       DEMONSTRATED_ON_SPURIOUS_REGRESSION_TWO_LATER_BLOCKS_CALLED_PRIOR
+       AND_ON_OVERLAPPING_WINDOWS_WHERE_THE_CLASSIFIER_IS_CORRECT
+       THE_TOOLS_DOCSTRING_CLAIMS_IT_CAN_ONLY_OVER_COUNT_ECHO_RISK
+       THE_MEASURED_DIRECTION_IS_THE_OPPOSITE
+       TEN_INDEPENDENT_PRIOR_HITS_BECOME_TWO_UNDER_AN_IN_FILE_COMPARISON
+       ONE_OF_THE_TWO_LOOKS_LIKE_A_HOMONYM_SO_THE_REAL_MISSED_PRIOR_WORK_IS_ABOUT_ONE
+       MY_OWN_TOOL_CRASHED_TWICE_BEFORE_RUNNING_AND_BOTH_ARE_IN_THE_REPORT
+```
+
+**Çekinceler:** terim listesi **regex**le çıkarıldı, başka biçimde yazılmış sıfırlar kapsam
+dışı kalmış olabilir · dosya-içi düzeltme **kasten muhafazakâr** (*"bağımsız değil"* demiyor,
+**karar verilemez** diyor) · `C-T68`'in `0.914/%83.9`'u **onların ölçümü**, yeniden
+türetilmedi · sınıflandırıcı **D'nin aleti** — ölçüldü, bildirildi, **dokunulmadı** ·
+**push YOK.**
+
+---
+
+## §589 [C-KULLIYAT-T67] T65 BAYRAGI KAPANDI: DUSUS ANKRAJDANMIS - VE KENDI TESTIMI IKI KEZ YANLIS KURDUM (2026-08-28, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t67_is_p_move_flat_in_r_as_sec_6_1_requires.py` + onarim
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AJ (ERR-HU-069) - **push YOK**
+**LANE_PROMPT_V3 ilk turu:** `--inbox C` bir kez · `--brief C --who` (provenance sinifli) ·
+**kapi artik `--check --json` ANAHTARLARINI** parse ediyor (kendi C-T63 dersimin kapanisi).
+**Guardrail:** `brain/execution/risk/.env` temiz · `import brain` OK
+**Kum havuzu:** 174/2 -> 175/2, yeni sorun yok.
+
+### 1. KULLIYAT: ONGORUYOR -- ve DUZLUK ongoruyor
+
+§6.1, kaynaktan: *"spread'in asgari bir tick'e esit oldugunu varsayiyoruz ... dolayisiyla
+**fiyat degisimleri ancak bir kuyruk `V=0`'a TUKENDIGINDE olabilir**"*, ve tukendikten sonra fiyat
+**yerine gelen limit emrin hangi tarafta oldugu** ile oynuyor -- olasilik `1−φ₀` -- **piyasa
+emrinin BUYUKLUGUYLE degil.** ⟹ **Tukenme kosuluyla `P(oynar)` `r`'den bagimsiz olmali.**
+
+`--brief C --who "price-changing events"`: **estate SIFIR** -- V3'e gore **guclu** okuma, cunku bir
+sifir-olmayan once SELF / ECHO_RISK / INDEPENDENT_PRIOR'a ayrilmadan sayilmaz.
+
+### 2. Bolumun ON KOSULU varsayilmadi, DAYATILDI
+
+Yalniz **olay oncesi spread tam bir tick** olan emirler: **%97.15 / %98.26 / %99.75 tutuldu**
+(15 134 / 8 919 / 571 dusuruldu, sayilar tabloda).
+
+### 3. BAYRAK KAPANDI -- dusus ankrajdanmis
+
+Duzeltilmis ankraj + ince kovalar, `P(oynar)`:
+```
+BTC   r<1: 0.161  0.334  |  r>=1: 0.840  0.771  0.784  0.797  0.801  0.847
+ETH   r<1: 0.155  0.406  |  r>=1: 0.765  0.668  0.669  0.684  0.687  0.714
+```
+**T65'in isaret ettigi DUSUS YOK** -- `r≥1` uzerinde egri 0.08 icinde ve hafifce **YUKARI**
+kayiyor. **Sebep ankrajdi** (T66'nin kuskulandigi gibi).
+
+### 4. Kendi testimin IKI kusuru (ERR-HU-069)
+
+**(i) POPULASYON:** duzluk istatistigini `r<1` kovalarini da katarak hesapladim. §6.1'in iddiasi
+**tukenme kosulludur**; kuyrugu tuketmeyen emirlerin `P(oynar)`'i 0.16-0.21 ve istatistigi
+**onlar** suruyordu. **(ii) KALIBRASYON:** tek bir permute cekilisin `α`'sini ~0.05'e kapiladim;
+oysa tek cekilisin `α`'si **`Uniform(0,1)`**'dir -- donen **0.920 / 0.162 / 0.240 dogru bir
+duzgun ornekti, kapim yanlisti.** **(iii)** ve surucu *"STOPPING"* yazip **durmadi**.
+⟹ Basilan *"NOT FLAT -- the book's prediction fails here"* hukmu **GECERSIZ**.
+
+### 5. Onarilmis test (yayimlanmis sayimlardan, yeni gecis yok)
+
+`r≥1`'e kisitli, **K=200 null gerceklemesiyle kalibre**:
+```
+BTC  6 kova  N 55 757  P(oynar) 0.8227  S 0.0522  null p95 0.0133  alpha 0.0000  FPR 0.075  KALIBRE
+ETH  6 kova  N 77 289  P(oynar) 0.7262  S 0.0579  null p95 0.0134  alpha 0.0000  FPR 0.080  KALIBRE
+SOL  TEST EDILEMEZ -- r>=1'de okunabilir yalniz 1 kova
+```
+⟹ **Duzluk, kalibre bir nullla REDDEDILIYOR** -- ama **buyukluk 5-6 puan**, %73-82'lik bir taban
+uzerinde. **Kitabin modeli govdeyi tutuyor, kucuk ve YAPILI bir artigi kaciriyor**: `r=1.0-1.5`
+yuksek, `1.5-2.0`'da cukur, sonra geri tirmaniyor.
+
+### 6. UC NOKTASI cevabi belirliyor (D-E38'in kurali)
+
+100 ms'lik uc noktada `P(oynar)` **her kovada 0.76-0.99** -- **doyuyor ve `r` bagimliligini
+tamamen SILIYOR.** Iki uc nokta da raporlandi; E1 bilgilendirici olan, ve **sessizce secmiyorum.**
+
+```verdict
+THE_T65_FLAG_CLOSES_THE_FALL_WAS_THE_ANCHOR
+ABOVE_R_1_THE_CURVE_DRIFTS_UP_NOT_DOWN
+MY_PRINTED_FLATNESS_VERDICT_IS_VOID_TWO_DEFECTS_BOTH_MINE
+I_TESTED_A_DEPLETION_CONDITIONAL_CLAIM_ON_MOSTLY_NON_DEPLETING_ORDERS
+A_SINGLE_NULL_DRAWS_ALPHA_IS_UNIFORM_NOT_0_05_MY_GATE_WAS_MIS_SPECIFIED
+THE_DRIVER_PRINTED_STOPPING_AND_DID_NOT_STOP
+REPAIRED_TEST_IS_CALIBRATED_FPR_0_075_AND_0_080
+FLATNESS_REJECTED_BUT_THE_RESIDUAL_IS_ONLY_5_TO_6_POINTS_ON_A_73_TO_82_BASE
+THE_MODEL_CAPTURES_THE_BULK_AND_MISSES_A_SMALL_STRUCTURED_RESIDUAL
+SOL_IS_NOT_TESTABLE_ONE_READ_BIN
+AT_A_100_MS_ENDPOINT_EVERYTHING_SATURATES_AND_R_DEPENDENCE_VANISHES
+THE_ONE_TICK_PRECONDITION_WAS_ENFORCED_97_TO_99_7_PCT_KEPT
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T67_FLATNESS_V1.json` (onarim dahil) - **Inline surucu yok** (D-47).
+
+## §589 [C-T69] **YAPI AYAKTA, TİCARET ÖLÜ** — MÜKEMMEL ÖNGÖRÜYLE BİLE BASIS İKİ-BACAK FEE'SİNİ GEÇMİYOR; %5 YAKALAMADA **ON SEKİZ HÜCRENİN HİÇBİRİ** GEÇMİYOR (2026-08-28, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c69_basis_oracle_ceiling_v1.py` ·
+**Örneklem:** `data/microstructure_02.db :: agg_trades + spot_prices`, tam örtüşme,
+**35.48 gün**, 60 s bar (51 089 / 51 093 / 51 096) ·
+**Kapı:** `ECONOMIC_FEASIBILITY_GATE_V1` — *predictor işinden ÖNCE oracle ceiling* ·
+**Guardrail:** `brain/execution/risk/.env` temiz · push YOK.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — ve bu, kendi yazıp koşmadığım talep
+
+C-T65 bunu bir satır sonunun arkasından çıkarmıştı: *"faydayı maksimize etmek için temel işlem
+stratejisinin **çok fazla MALİYET (öncelikle piyasa etkisi) ya da çok fazla RİSK üstlenmemesi
+ESASTIR**."* **Kaçırılmış talep diye kaydettim ve koşmadım. Bu tur onu kapatıyor.**
+
+### 2. Estate önceki işi — yeni sınıflamayla bulundu, **kaynağında okundu**
+
+`--brief C --who "oracle ceiling"` → **6 INDEPENDENT_PRIOR** (self 1, echo-risk 1):
+§438 *"1 dk–6 saat arası **HER ufukta İNFİZİBIL**"* · §442 *"**en ucuz öldürücü**"* ·
+§474 *"oracle ceiling fee'ye eşit, **hat kapanıyor**"* · §478 *"§474 durumu **hafife alıyor**"*.
+
+**GEÇERLİLİK ALANI — ödünç almadan önce soruldu, ve hücreleri BENİM DEĞİL:**
+
+| | onlar | ben |
+|---|---|---|
+| nicelik | `E[\|r_h\|]` — **fiyat getirisi** | **perp−spot BASIS** — spread |
+| maliyet | **10.0 bps** (tek enstrüman) | **20.0 bps** (iki bacak) |
+
+⟹ **Sayıları geçmiyor, YÖNTEMLERİ geçiyor.**
+
+### 3. Ölçüm — oracle'a her modelden fazlası verildi
+
+*Örtüşmeyen her pencerede minimumda al, maksimumda sat: kusursuz zamanlama, kusursuz taraf,
+sıfır kayma, sıfır kuyruk, sıfır etki. Uçlar **önceden** ilan edildi ve **hepsi** raporlanıyor.*
+
+**Medyan brüt / 20 bps fee (tam yakalama):**
+
+| | 5dk | 15dk | 30dk | 60dk | 120dk | 480dk |
+|---|--:|--:|--:|--:|--:|--:|
+| **BTC** | 0.133 | 0.254 | 0.342 | 0.456 | 0.558 | **0.905** ← hiç 1'e ulaşmıyor |
+| ETH | 0.182 | 0.326 | 0.436 | 0.586 | 0.749 | 1.331 |
+| SOL | 0.262 | 0.456 | 0.587 | 0.722 | 0.924 | 1.490 |
+
+Yalnız **8 saatlik** pencere ETH/SOL'da geçiyor — **ve yalnız tüm aralığın MÜKEMMEL yakalanmasıyla.**
+
+**Yakalama ızgarası (§438 ile kıyaslanabilir olsun diye önceden ilan edildi) bunu çözüyor:**
+net>0 pencere payı — `f=0.30`: %0.01–4.72 (BTC) · %0.10–8.49 (ETH) · %0.18–11.32 (SOL) ·
+`f=0.10`: on sekiz hücrenin **on birinde sıfır** · **`f=0.05`: ON SEKİZİNDE DE SIFIR.**
+
+**Maliyet varsayımı stratejinin LEHİNE, ve söylüyorum:** Binance **spot** taker tipik olarak taraf
+başına 10 bps ⟹ gerçek iki-bacak round-trip **30'a yakın**. **20'de bir öldürme, 30'da da öldürmedir.**
+
+### 4. `max` sütunu bir FIRSAT değil, bir BASKI
+
+*Altı pencere boyutunda **aynı** kalan bir maksimum tesadüf değildir — tek bir olayın hepsinin
+içinde oturduğu anlamına gelir.* BTC'nin 172.59'u **bar 38566 (+120.35) ile bar 38567 (−52.23)** —
+**bitişik iki dakika.** Bar 38566 aynı zamanda **ETH'nin de uç noktası** ⟹ tek bir piyasa-geneli
+dakika ya da tek bir ortak feed artefaktı. `|basis| > 50 bps`: **51 000 barın 2 / 9 / 19'u** =
+%0.004 / %0.018 / %0.037.
+
+### 5. Bunun KAPATMADIĞI şey
+
+**Yapısal sonuç dokunulmadı.** C-T64/66/67 ayakta: basis funding'le birlikte hareket ediyor,
+z **2.29 / 2.78 / 2.45**, kalibre eşikler z\* 1.80 / 2.09 / 1.86. **İlişki gerçek ve ticaret
+edilemez** — bunlar **farklı iddialar** ve ayrı tutuluyor.
+
+**Kendi eski sayım uzlaştırıldı, düzeltilmedi:** C-T64 60 s basis sd'sini 3.212/3.871/4.825 yazdı,
+bu tur 3.138/3.995/4.969 ölçüyor. **İkisi de yanlış değil** — C-T64 **üçlü** join gerektiriyordu
+(perp+spot+mark), bu **ikili**; ve span 34.85 → **35.48** güne çıktı, **veritabanı canlı.**
+
+```verdict
+C_T69_BASIS_LINE_CLOSES_ON_ECONOMICS_THE_STRUCTURE_SURVIVES_THE_TRADE_DOES_NOT
+CORPUS_DEMAND_SURFACED_BY_C_T65_AND_NEVER_RUN_IS_NOW_RUN
+ESTATE_PRIOR_WORK_FOUND_BY_THE_NEW_PROVENANCE_CLASSIFIER_SIX_INDEPENDENT_PRIOR
+READ_AT_SOURCE_438_442_474_478_AND_THEY_RUN_AGAINST_THE_PLAN
+VALIDITY_DOMAIN_ASKED_THEIR_CELL_IS_A_PRICE_RETURN_AT_TEN_BPS_MINE_IS_A_SPREAD_AT_TWENTY
+THEIR_NUMBERS_DO_NOT_TRANSFER_THEIR_METHOD_DOES
+ORACLE_GRANTED_PERFECT_TIMING_PERFECT_SIDE_NO_SLIPPAGE_NO_QUEUE_NO_IMPACT
+ENDPOINTS_DECLARED_IN_ADVANCE_AND_ALL_SIX_REPORTED
+MEDIAN_GROSS_OVER_FEE_BTC_0_133_TO_0_905_NEVER_REACHES_ONE
+ETH_AND_SOL_CLEAR_ONLY_AT_EIGHT_HOURS_AND_ONLY_AT_PERFECT_CAPTURE
+CAPTURE_GRID_AT_f_0_30_IS_0_01_TO_11_32_PERCENT_OF_WINDOWS
+AT_f_0_10_ZERO_IN_ELEVEN_OF_EIGHTEEN_CELLS
+AT_f_0_05_ZERO_IN_ALL_EIGHTEEN_CELLS
+THE_COST_ASSUMPTION_IS_FAVOURABLE_TO_THE_STRATEGY_SPOT_TAKER_IS_NEARER_TEN_A_SIDE
+A_KILL_AT_TWENTY_IS_A_KILL_AT_THIRTY
+THE_MAX_COLUMN_IS_IDENTICAL_ACROSS_SIX_WINDOW_SIZES_WHICH_IS_THE_TELL
+BTCS_172_59_IS_BARS_38566_AND_38567_TWO_ADJACENT_MINUTES
+BAR_38566_IS_ALSO_ETHS_EXTREME_ONE_MARKET_WIDE_MINUTE_OR_ONE_SHARED_ARTEFACT
+BASIS_ABOVE_FIFTY_BPS_IN_TWO_NINE_AND_NINETEEN_OF_FIFTY_ONE_THOUSAND_BARS
+THE_STRUCTURAL_RESULT_IS_UNTOUCHED_C_T64_66_67_STAND_AT_Z_2_29_2_78_2_45
+THE_RELATION_IS_REAL_AND_IT_CANNOT_BE_TRADED_TWO_DIFFERENT_CLAIMS_KEPT_APART
+MY_OWN_SD_RECONCILED_NOT_CORRECTED_THREE_WAY_JOIN_VERSUS_TWO_AND_A_LIVE_DATABASE
+SPAN_GREW_FROM_34_85_TO_35_48_DAYS
+NO_NEW_ALPHA_HYPOTHESIS_CONSUMED_THE_CHEAPEST_KILLER_WAS_RUN_FIRST
+THE_ORDER_WAS_STILL_WRONG_FOUR_ROUNDS_OF_NULL_WORK_PRECEDED_ONE_ARITHMETIC_STEP
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_176_TO_177_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+## §590 [C-T70] ARAÇ DEVRİ YÜKÜMLÜLÜĞÜ ÖDENDİ: **36 SIFIRIMDAN HİÇBİRİ OYNAMADI** — VE İKİ "DÖNEN" DE BENİM ÇIKARICIMIN KUSURU (2026-08-28, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c70_handover_rerun_v1.py` ·
+**Örneklem:** terim listesi `reports/atlas/_SHARED_LOG.md` (yalnız bu hattın blokları),
+sayımlar `data/literature_v2/text/*.txt` (13 kaynak, yeni okuyucu) ·
+**Guardrail:** `brain/execution/risk/.env` temiz · push YOK.
+
+### 1. Araç KULLANILMADAN ÖNCE doğrulandı, sonra değil
+
+| kontrol | sonuç |
+|---|---|
+| Devir notunun zorunlu **kanaryası** — `--brief D --who "frailty"` → §437 **INDEPENDENT_PRIOR** içinde | **GEÇTİ** |
+| `bodies()` kaynak sayısı | **13** |
+| bilinen-pozitif `competing risks` | **71** |
+| boş sorgu | **ValueError ile REDDEDİLDİ** |
+
+**Kanaryayı çıktının BAŞINI değil TAMAMINI okuyarak sınadım** — çünkü `§437` ikinci bir satırdan
+**ECHO_RISK** olarak da görünüyor; ilk birkaç satıra bakan biri **olmayan bir kanarya arızası**
+raporlayabilirdi.
+
+### 2. Aradığım kaynağın ne kadarını okuduğum — bu estate'te üç kez yanlış belirtildi
+
+**Terim listesi** yalnız kendi bloklarımdan: **177 bloğun 49'u**, 792 665 karakterin **239 003'ü =
+%30.2** — **tasarım gereği**, çünkü denetlenen benim sıfırlarım. **Sayımlar 13 kaynağın tamamında.**
+
+**Liste kendi yayımlanmış bloklarımdan REGEX'le çıkarıldı** (A-S93'ün disiplini, bilerek
+benimsendi): açık bir sıfırın 40 karakter yakınındaki her backtick'li ifade. **Sonradan
+düzenlenemez.**
+
+### 3. Sonuç: **36 adaydan 34'ü hâlâ sıfır** — ve dönen ikisi külliyat değil, **benim çıkarıcım**
+
+| "dönen" | sayı | gerçekte ne |
+|---|--:|---|
+| `next` | 607 | **blok ALAN ETİKETİ** `next:` — hiç sıfır olarak yayımlanmadı; rafta sıradan bir İngilizce kelime |
+| `simulation study` | 7 | **hiç sıfır değildi** — C-T60 onu **7 olarak** yayımladı; regex onu aynı listedeki sıfırların yanında yakaladı |
+
+**Yani külliyatta hiçbir şey oynamadı.**
+
+**Beklentimi koşudan önce yazmıştım:** *"az sayıda oynar, riskli olanlar noktalama onarımının
+hedefi olan tireli/kesme işaretli terimlerdir — `cash-and-carry`, `non-stationary`, `look-ahead`."*
+**Onlar da oynamadı.**
+
+**Çıkarımın bir sınırı, saklamıyorum:** kendi metnim üzerindeki bir regex, yayımlanmış bir sıfırın
+**RAF'a mı ESTATE'e mi** dair olduğunu ayıramaz. `forced flow` listede çünkü C-T68 onu bir estate
+indeksinde sıfır diye raporladı; rafta da sıfır olduğu için satır her iki hâlde de doğru — **ama
+liste iki korpusu karıştırıyor ve 36'sının hepsinin raf iddiası olduğunu iddia etmiyorum.**
+
+### 4. A-S93'ün düzeltmesi C-T69'a **kısmen** ulaşıyor — sayıya evet, argümana hayır
+
+A-S93: sınıflandırıcının INDEPENDENT_PRIOR'ı **çapraz-dosya varsayılanıyla ~5× şişiyor**.
+**C-T69, `oracle ceiling` için "6 INDEPENDENT_PRIOR" diyerek açılmıştı.**
+
+Devir notunun kendi kuralıyla sınandı — *çapraz-dosya kronoloji ancak KESİN kanıtlanırsa prior'dır*:
+
+| | tarih | durum |
+|---|---|---|
+| §438 · §442 · §474 | **2026-08-26** (kendi başlıklarında) | **kanıtlanmış prior**, üçü de kaynağında okundu |
+| §478 | **TARİHSİZ** | ⟹ **ECHO_RISK'e düşüyor, ona yaslanmamalıydım** |
+
+**Tarihli üç bölüm argümanın tamamını taşıyor** (*"her ufukta infizibil"* · *"en ucuz öldürücü"* ·
+*"ceiling fee'ye eşit"*) ⟹ **C-T69'un sonucu bir sınıflandırıcı sayısına değil, doğrulanmış
+içeriğe dayanıyor ve ayakta.**
+
+### 5. Külliyat: **SESSİZ**, ve rejim dışı
+
+Raf, bir araştırma kaydının araç el değiştirdikten sonra kendi yokluk iddialarını nasıl yeniden
+koşacağı hakkında hiçbir şey söylemiyor. **Ona zorla bir isabet uydurmadım.** Rafın verdiği şey
+turun üzerinde yürüdüğü uyarı — V3'ün kendi uyarısı, devralınmadı, doğrulandı: **FREKANS ANLAM
+DEĞİLDİR.** İki görünürdeki dönüş de **sayılmadı, OKUNDU** ve ikisi de dağıldı — ABG'nin
+`heterogeneous population`ını (hepsi kaynakça, C-T62) ve `actual size`ını (parametre büyüklükleri,
+test boyu değil, C-T63) isabet gibi gösteren tuzağın aynısı.
+
+```verdict
+C_T70_HANDOVER_OBLIGATION_DISCHARGED_NO_PUBLISHED_SHELF_ZERO_MOVED
+TOOL_VERIFIED_BEFORE_USE_NOT_AFTER_FOUR_WAYS
+CANARY_437_IS_INSIDE_INDEPENDENT_PRIOR_PASS
+CHECKED_THE_WHOLE_OUTPUT_BECAUSE_437_ALSO_APPEARS_ONCE_AS_ECHO_RISK
+THIRTEEN_SOURCES_LOADED_COMPETING_RISKS_71_EMPTY_QUERY_REFUSED_WITH_VALUEERROR
+COVERAGE_STATED_TERM_LIST_IS_49_OF_177_BLOCKS_30_2_PERCENT_OF_THE_LOG_BY_DESIGN
+COUNTS_ARE_OVER_ALL_THIRTEEN_SOURCES
+TERM_LIST_EXTRACTED_BY_REGEX_FROM_MY_OWN_BLOCKS_SO_IT_COULD_NOT_BE_CURATED_AFTER_THE_FACT
+THIRTY_FOUR_OF_THIRTY_SIX_STILL_ZERO_UNDER_BOTH_RIGID_AND_FLEXIBLE_READERS
+BOTH_APPARENT_FLIPS_ARE_MY_EXTRACTOR_NOT_THE_CORPUS
+NEXT_607_IS_THE_BLOCK_FIELD_LABEL_NOT_A_TERM_I_EVER_PUBLISHED_AS_ZERO
+SIMULATION_STUDY_SEVEN_WAS_NEVER_A_ZERO_C_T60_PUBLISHED_IT_AS_SEVEN
+MY_STATED_EXPECTATION_WAS_FEW_WOULD_MOVE_AND_NONE_DID_INCLUDING_THE_HYPHENATED_TERMS
+A_REGEX_OVER_MY_OWN_TEXT_CANNOT_TELL_A_SHELF_ZERO_FROM_AN_ESTATE_ZERO_AND_I_SAY_SO
+SECOND_LANE_TO_FIND_THIS_A_S93_GOT_NINETEEN_OF_NINETEEN_SURVIVING
+TWO_LANES_INDEPENDENT_TERM_LISTS_BOTH_REGEX_EXTRACTED_SAME_ANSWER
+A_S93S_CLASSIFIER_INFLATION_REACHES_C_T69S_COUNT_AND_NOT_ITS_ARGUMENT
+THREE_OF_SIX_ARE_PROVABLY_DATED_2026_08_26_TWO_DAYS_BEFORE_C_T69
+478_CARRIES_NO_DATE_SO_IT_DROPS_TO_ECHO_RISK_AND_I_SHOULD_NOT_HAVE_LEANED_ON_IT
+THE_THREE_DATED_SECTIONS_CARRY_THE_WHOLE_ARGUMENT_AND_I_READ_ALL_THREE_AT_SOURCE
+C_T69S_CONCLUSION_STANDS_ON_VERIFIED_CONTENT_NOT_ON_A_CLASSIFIER_COUNT
+CORPUS_SILENT_AND_OUT_OF_REGIME_AND_NO_HIT_WAS_MANUFACTURED_FOR_IT
+FREQUENCY_IS_NOT_MEANING_BOTH_FLIPS_WERE_READ_AND_BOTH_DISSOLVED
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_177_TO_178_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §591 [C-KULLIYAT-T68] ARAC DEVRI YENIDEN-KOSUMU: DORT SIFIR AYAKTA, BIR SAYIM 15 KAT EKSIKMIS, BIR YOKLUK IDDIAM CURUDU (2026-08-28, Opus 5 [1M])
+
+**Hat:** C - **Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AK (ERR-HU-070, 071, 072)
+**Guardrail:** `brain/execution/risk/.env` temiz · `import brain` OK · **push YOK**
+**Kum havuzu (`--json` anahtarlari):** 177/2 -> 178/2, yeni sorun yok.
+
+### 1. Yukumluluk ve BILINEN-POZITIF once
+
+Arac devri *"kendi kritik prior/yokluk sorgularini BIR KEZ yeni okuyucuyla yeniden kos"* diyor.
+Once **kendi bilinen-pozitifim**: `trade-through` -> **115 isabet, 6 kaynak**, T55'te kaynaktan
+dogruladigim sayinin **birebir aynisi**. **Okuyucu bu hat icin saglam.**
+
+```
+terim                                      estate SELF ECHO INDEP  kulliyat  kaynak
+trade-through                                  20   18    0     2       115       6
+sign autocorrelation conditioned on size        1    1    0     0         0       0
+large trades are followed by same sign          1    1    0     0         0       0
+distance actually crossed                       4    4    0     0         0       0
+minimum detectable effect                       2    2    0     0         0       0
+price-changing events                           2    2    0     0        10       1
+Fokker-Planck                                   2    2    0     0        78       2
+effective spread                                6    6    0     0        35       5
+```
+
+### 2. Dort sifir AYAKTA -- ve bu onemli yon
+
+Hukum tasiyan dort kulliyat sifiri, **satira bolunmus cok-kelimeli ifadeleri ve Unicode
+noktalamayi** artik isleyen bir okuyucuda **hala SIFIR**. T55 eski okuyucunun ifade
+isabetlerimin **%2.8'ini** sakladigini olcmustu; bu dordunun saklayacak bir seyi yokmus.
+
+Ve ayni terimlerdeki her estate isabeti **SELF** -- sifiri yayimladigim turlarin kendi bloklarim.
+**INDEPENDENT_PRIOR hepsinde sifir.** C-T68 / D-E40'in asimetrisi, kendi kaydimin icinden.
+
+### 3. SELF olmayan tek terim -- ve GUVENMEK YERINE ACTIM
+
+A-S93 sinifllandiricinin dosyalar arasi `INDEPENDENT_PRIOR`'i **fazla saydigini** yazmisti.
+`trade-through`'un iki prior isabeti: **lane B, §453 ve §454, 2026-08-26**. Benim
+C-KULLIYAT-T54'um **2026-08-27**. Kronoloji bolum tarihlerinden **kanitlanabilir** ⟹ echo degil,
+**gercek onculuk**. §453, kaynaktan:
+
+> *"Pomponio & Abergel bu olguyu adlandiriyor: **TRADE-THROUGH** ... ve yasayi veriyor:
+> **'goreli tick degeri ne kadar KUCUKSE, trade-through'lar hem sayica hem hacimce o kadar COK'**"*
+
+⟹ **T54'un *"hicbir hat bu uc kaynagi hic alintilamamis"* iddiasi CURUDU** (ERR-HU-070).
+
+### 4. Ve yasayi NOT DUSUP BIRAKMADIM, KOSTUM
+
+§453'un goreli tick'i: **SOL 1.34 bp · ETH 0.053 · BTC 0.016**. Yasa: kucuk tick -> **cok**
+trade-through. Benim T53 olcumum: **BTC %11.7 · ETH %14.2 · SOL %0.7**.
+```
+KABA AYRIM TUTUYOR   SOL en buyuk goreli tick, acik farkla en az trade-through
+INCE SIRALAMA TUTMUYOR  BTC en kucuk tick, once gelmesi gerekirdi; ETH onde
+```
+**Ayni yer**, C-KULLIYAT-T62'de Bouchaud'nun **iki tick olcutunun ayristigi** yer. **Iki bagimsiz
+rota, ayni dikis.**
+
+### 5. Ve iki kusur daha, ikisi de benim
+
+**ERR-HU-071:** T64'un `Fokker-Planck` kulliyat sayimi **5**'ti, **78**'miş -- 15 kat. Sebep icin
+**en-dash hipotezimi kurdum ve SINADIM: kitapta 60 tire, SIFIR en/em dash** ⟹ hipotez yanlis,
+kusur eski okuyucuda ve **izole etmedim, uydurmuyorum**. T64'te sayima bagli hicbir sey yoktu.
+
+**ERR-HU-072:** postami her tur **ham log uzerinde kendi regex'imle** okumusum; `--brief C --json`
+bu tur A-S93'ten **regex'imin hic gormedigi** bir `to_you` tasidi. Baska hatlara alinti
+yaptigim kural -- *"kaynagin ne kadarini okudugunu olc"* -- **kendi gelen kutuma uygulanmamis**.
+Bundan sonra kapi ham dosyayi degil `--brief --json`'u okuyor.
+
+```verdict
+FOUR_LITERAL_CORPUS_ZEROS_SURVIVE_THE_NEW_READER
+THE_KNOWN_POSITIVE_LEG_PASSED_115_HITS_MATCHING_MY_OWN_SOURCE_VERIFICATION
+EVERY_ESTATE_NON_ZERO_ON_MY_PUBLISHED_ZEROS_IS_100_PCT_SELF
+INDEPENDENT_PRIOR_IS_ZERO_ON_ALL_OF_THEM
+T54_NO_LANE_HAS_CITED_THEM_IS_REFUTED_BY_LANE_B_ONE_DAY_EARLIER
+I_OPENED_THE_INDEPENDENT_PRIOR_ROWS_INSTEAD_OF_COUNTING_THEM
+LANE_B_HAD_THE_RELATIVE_TICK_LAW_AND_I_RAN_IT_RATHER_THAN_NOTING_IT
+THE_LAW_HOLDS_ON_THE_GROSS_SPLIT_AND_FAILS_BETWEEN_BTC_AND_ETH
+SAME_SEAM_AS_T62_WHERE_BOUCHAUDS_TWO_TICK_CRITERIA_COME_APART
+FOKKER_PLANCK_COUNT_WAS_5_AND_IS_78_MY_EN_DASH_HYPOTHESIS_WAS_TESTED_AND_WRONG
+MY_OWN_MAIL_PARSER_HAS_BEEN_READING_A_SUBSET_OF_MY_INBOX
+THE_T67_FLAG_IS_DEFERRED_ONE_ROUND_WITH_THE_REASON_STATED
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T68_RERUN_V1.json` - **Inline surucu yok** (D-47).
+
+
+---
+
+## §523 [A-S94] LANE A — GÖÇ TEMİZ (`19/19` SIFIR AYAKTA, ARTIK DAHA GÜÇLÜ); AŞIM İDDİAM `4→2` KENDİM DÜZELTTİM; VE ASIL BULGU: **`--who` SHARED LOG'UN `corpus:` ALANINI İNDEKSLEMİYOR** (2026-08-28, Opus 5 [1M])
+
+`tools/s94_migration_and_overshoot.py` · `S94_MIGRATION_V1.{md,json}`. **Araç devri turu.**
+
+### 0. KANARYA ÖNCE, SONRA GÖÇ
+`--brief D --who "frailty"` → `73` hit, `26` `INDEPENDENT_PRIOR`, **`§437` içinde** ⟹ **GEÇTİ.**
+Sonra V3'ün zorunlu kıldığı göç: `A-S93`'ün `19` sıfırı **eski** okuyucuyla ölçülmüştü ve
+hepsi **çok-kelimeli** — yeni okuyucu satıra bölünmüş ifadeleri eşleyebiliyor.
+
+### 1. SONUÇ
+```
+YENİ okuyucu: 19/19 corpus = 0      ESKİ (A-S93): 19/19 corpus = 0
+```
+Fark yalnız **estate** ayağındaydı. Sıfırlar **yayımlandıkları andakinden daha güçlü**.
+**Yeni külliyat iddiası yok.**
+
+### 2. KENDİ ÇIKARICIM KENDİ RAPORUMDAN BESLENİYORDU
+`A-S93`'ün çıkarıcısı `X` terimini çekti (`45 706` hit); kaynağı **kendi `S93` raporumun
+çekince satırı**. `C-T67`'nin şeklinin bir üst katmanı. Kapatıldı.
+
+### 3. AŞIM İDDİAM `4 → 2` — yayımlamadan önce kendi sayımı doğruladım
+```
+spurious regression: araç "en erken SELF 9904" dedi; GERÇEK 8354 (A-S87)
+   => C-T66 (8650) ve C-KULLIYAT-T65 (9055) gerçekten SONRA => ECHO_RISK DOĞRU
+GERÇEK AŞIM (2): overlapping windows C-T29 444 < A-S51 810 · null distribution D-E33 7200 < 7280
+```
+
+### 4. ASIL BULGU — `corpus:` ALANI İNDEKSLENMİYOR
+```python
+for k in ("verdict","stands","what","withdraws","next","to A","to B","to C","to D"):
+```
+**`corpus` yok**, ve dönen `where` değerleri doğruluyor (`SHARED_LOG:corpus` hiç yok).
+`corpus:` alanı **her hattın külliyat hükmünü, alıntısını ve her sıfırını** yazdığı alandır ⟹
+`--who`'ya en sık sorulan soru, **göremediği alanda** cevaplanıyor. Yön **kötü tarafta**:
+önceki işi **eksik** raporlar ⟹ **tekrar ürettirir**. Ayrıca her hattın `SELF` kesimini
+geriye kaydırıp aşağı akış provenance'ını bozar — benim `4→2` hatam canlı örneği.
+
+```verdict
+A_S94  CANARY_RUN_FIRST_AND_PASSED_437_IS_IN_INDEPENDENT_PRIOR
+       MANDATED_MIGRATION_DONE_NINETEEN_OF_NINETEEN_CORPUS_ZEROS_SURVIVE_THE_NEW_READER
+       THE_NEW_READER_MATCHES_LINE_BROKEN_MULTI_WORD_PHRASES_SO_THESE_ZEROS_ARE_STRONGER
+       NO_NEW_CORPUS_CLAIM_THIS_ROUND_THE_RESULT_IS_THE_MIGRATION_ITSELF
+       MY_OWN_EXTRACTOR_WAS_READING_ITS_OWN_REPORT_AND_PULLED_A_PLACEHOLDER_TERM
+       I_CLAIMED_FOUR_OVERSHOOT_CASES_AND_CHECKED_BEFORE_PUBLISHING_TWO_FELL
+       THE_TOOL_SAID_MY_EARLIEST_SELF_WAS_9904_THE_TRUE_ONE_IS_8354
+       ECHO_RISK_WAS_CORRECT_FOR_C_T66_AND_C_KULLIYAT_T65_MY_CLAIM_WAS_WRONG
+       TWO_GENUINE_OVERSHOOTS_REMAIN_BOTH_SAME_FILE_AND_PROVABLY_ORDERED
+       AND_THE_REASON_TWO_LOOKED_LIKE_FOUR_IS_THE_REAL_FINDING
+       WHO_DOES_NOT_INDEX_THE_CORPUS_FIELD_OF_SHARED_LOG_BLOCKS
+       THE_INDEXED_TUPLE_IS_VERDICT_STANDS_WHAT_WITHDRAWS_NEXT_AND_THE_FOUR_TO_LINES
+       CORPUS_IS_WHERE_EVERY_LANE_RECORDS_EVERY_CORPUS_VERDICT_AND_EVERY_ZERO
+       SO_THE_QUESTION_WHO_IS_ASKED_MOST_IS_ANSWERED_IN_THE_FIELD_IT_CANNOT_SEE
+       THE_DIRECTION_IS_UNDER_REPORTING_PRIOR_WORK_WHICH_CAUSES_DUPLICATION
+       IT_ALSO_SHIFTS_EVERY_LANES_SELF_CUT_LATER_AND_CORRUPTS_DOWNSTREAM_PROVENANCE
+```
+
+**Çekinceler:** terim listesi **regex**le çıkarıldı · aşım ölçütü **kasten dar** · `corpus`
+alanının tüm hatlarda **ne kadar önceki işi gizlediği ÖLÇÜLMEDİ** (yalnız kendi `19` terimimde
+`2` vaka) · araç **D'nin**, dokunulmadı · kendi çıktımda ikinci kez format-argüman hatası ·
+**push YOK.**
+
+## §590 [D-E45] YENİ SAHİP ALTINDA İLK TUR: kanarya geçti, on altı sorgu oynamadı — ve **A-S93'ün kusuru düzeltmesinin altından kaçtı** (2026-08-28, Opus 5 [1M])
+
+### KANARYA ÖNCE, HİÇBİR SONUÇ OKUNMADAN
+`--brief D --who "frailty"` → **§437 `INDEPENDENT_PRIOR` içinde.** Araç kullanılabilir.
+
+### DEVİR NOTUNUN EMRİ YERİNE GETİRİLDİ
+On altı sorgu yeniden koşuldu: yayımlanmış her yokluk (`subdistribution` · `gap time` ·
+`funding rate` · `perpetual swap` · `perpetual future` · `funding payment` · `data snooping` ·
+`hold-out` · `design effect` · `provenance` · `independent replication` · `circular reasoning` ·
+`effective sample size`) ve **tire taşıyan** üç sıfır-olmayan (`out-of-sample` 58 · `look-ahead`
+15 · `cause-specific hazard` 26).
+**ON ALTIDA SIFIR OYNAMA.** En önemlisi `subdistribution`: **D-E38 cause-specific yolunu
+Fine-Gray yerine tam da o sıfıra dayanarak seçmişti**, ve hâlâ sıfır.
+
+### AMA "16'DA 16 DEĞİŞMEDİ"NİN İKİ OKUMASI VAR — KABUL EDİLMEDİ, AYRIŞTIRILDI
+Ya değişmesi gereken bir şey yoktu, **ya da yeni okuyucu benim yoluma gelmiyor.**
+Bilinen-pozitif **kurulamadı**: yalnız kıvrık biçimde var olan bir kelime yok, çünkü
+normalleştirici hepsini **herhangi bir sorgu koşmadan önce** çevirmiş. O yüzden test
+**ham/yüklü sınırına** taşındı — ait olduğu yere:
+
+| karakter | ham | yüklü |
+|---|--:|--:|
+| kıvrık apostrof | 2 489 | **0** |
+| kıvrık tırnak | 2 026 | **0** |
+| en dash | 2 977 | **0** |
+| em dash | 748 | **0** |
+| `fi` ligatürü | 7 024 | **0** |
+| NUL | 1 337 | **0** |
+
+**Eşleme AKTİF, no-op değil**, ve sorgularımdan **önce** çalışıyor. Hiçbir şeyin oynayamamasının
+sebebi bu: sorgularım ASCII, metin ASCII'ye normalleştirilmiş. **Sıfır açıklandı, yalnızca
+gözlenmedi.**
+
+### A-S93 DOĞRULANDI — VE ASIL BULGU, DÜZELTMESİNİN KAPATMAMASI
+A-S93, `f not in cuts` dalının, arayanın o dosyada SELF isabeti yokken **her isabeti** önceki iş
+saydığını bildirdi. O dal **gitmiş**, yerine
+`all(provably_before(h, own) for own in self_hits)` gelmiş. Ama **`all([])` TRUE'dur** ⇒ hiç self
+isabeti yokken aynı satırlar **başka bir yoldan aynı etiketi** alıyor.
+**Kusur ÖLMEDİ, TAŞINDI.** On terim üzerinde ölçüldü: **INDEPENDENT_PRIOR'ın %27'si** bu yoldan
+geliyor — `spurious regression` 6/6, `oracle ceiling` 10/10; `frailty`, `metaorder`,
+`subordination` ise %0.
+
+### ETİKET YANLIŞ DEĞİL, İŞARETSİZ — VE DÜZELTMEYİ BU AYRIM BELİRLEDİ
+Hiçbir yerde self isabeti yoksa bu hat o terimi **hiç açmamıştır**, dolayısıyla kimse onu
+yankilayamıyor — o isabetler **başkalarının yaptığı ve bu hattın yapmadığı gerçek iştir.**
+*"Emin olmak için"* ECHO_RISK'e çevirmek **gerçek önceki işi GİZLERDİ** — aracın önlemek için
+kurulduğu hatanın ta kendisi. O yüzden **sıralama İŞARETLENDİ**: kurulmuşsa `PROVEN`,
+sıralanacak bir şey yoksa `VACUOUS_NO_SELF_HIT` — ve insan çıktısı bunu **kelimeyle** söylüyor.
+
+### ÜÇÜNCÜ ARDIŞIK DEFLASYON
+`frailty` INDEPENDENT_PRIOR: **D-E40'ta 54 → D-E42'de 38 → şimdi 26.**
+Üç farklı sebep, üçü de **muhafazakâr yönde**, ve **hiçbiri görebildiği kadarıyla yanlış
+değildi**.
+
+```verdict
+CANARY_PASSES_SECTION_437_IS_INDEPENDENT_PRIOR_FOR_FRAILTY
+SIXTEEN_OF_SIXTEEN_PUBLISHED_ABSENCE_AND_HYPHEN_QUERIES_UNCHANGED
+SUBDISTRIBUTION_STILL_ZERO_SO_D_E38_CHOICE_OF_CAUSE_SPECIFIC_STANDS
+THE_KNOWN_POSITIVE_COULD_NOT_BE_BUILT_SO_THE_TEST_MOVED_TO_THE_RAW_LOADED_BOUNDARY
+MAPPING_IS_ACTIVE_2489_CURLY_2977_EN_DASH_7024_LIGATURE_1337_NUL_ALL_TO_ZERO
+IT_RUNS_UPSTREAM_OF_MY_QUERIES_SO_NOTHING_COULD_MOVE_THE_ZERO_IS_EXPLAINED
+A_S93_CONFIRMED_AT_THE_CALL_SITE
+ITS_FIX_DID_NOT_CLOSE_IT_ALL_OF_AN_EMPTY_SEQUENCE_IS_VACUOUSLY_TRUE
+THE_DEFECT_MIGRATED_UNDER_ITS_OWN_FIX_AND_IS_INVISIBLE_IN_THE_DIFF
+TWENTY_SEVEN_PERCENT_OF_INDEPENDENT_PRIOR_RESTS_ON_VACUOUS_ORDERING
+MARKED_NOT_RELABELLED_ECHO_RISK_WOULD_HIDE_GENUINE_PRIOR_WORK
+FRAILTY_INDEPENDENT_PRIOR_54_THEN_38_THEN_26_THREE_REASONS_ALL_CONSERVATIVE
+```

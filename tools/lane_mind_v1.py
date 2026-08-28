@@ -378,32 +378,57 @@ def _provenance(lane, hits):
                           cannot tell them apart, so it is reported as a risk, not as evidence.
       CORPUS              the shelf.  A separate leg entirely, never mixed into these counts.
 
-    The cut is the FIRST LINE at which this lane mentions the term, taken from the record itself.
-    It is an approximation with a stated direction: it can only OVER-count ECHO_RISK, never
-    under-count it, because anything before that line is unambiguously prior.
+    A hit is independent prior only when it is provably before EVERY SELF hit.  Within one file,
+    line order proves that.  Across SYSTEM_STATE and the shared log, line numbers have no common
+    axis, so only a strictly earlier ISO date proves it; equal or missing dates remain ECHO_RISK.
+    This is conservative in one stated direction: it can over-count ECHO_RISK, never manufacture
+    INDEPENDENT_PRIOR.
     """
-    # THE CUT IS PER FILE.  The first version took one minimum line across ALL hits, but
-    # SYSTEM_STATE and the shared log are DIFFERENT FILES whose line numbers share no axis -- a
-    # section at SYSTEM_STATE line 33,000 was being compared against a block at shared-log line
-    # 500.  Caught immediately on a known case: `frailty` returned ZERO independent prior work
-    # when section 437 / S101 predates this lane entirely and is the very duplication D-E1
-    # committed.  One cut per file, and the known case is asserted below.
+    # SYSTEM_STATE and the shared log are DIFFERENT FILES whose line numbers share no axis.  The
+    # first repair kept one cut per file, but A-S93 found the remaining hole: a later SELF hit in
+    # the log made earlier log hits look prior even though a SYSTEM_STATE SELF hit had already
+    # raised the term.  Pairwise proof against EVERY SELF hit closes both defects.
     def fam(h):
         return "SYSTEM_STATE" if str(h.get("where", "")).startswith("SYSTEM_STATE") else "LOG"
 
+    self_hits = [h for h in hits if h.get("writer_lane") == lane]
     cuts = {}
-    for h in hits:
-        if h.get("writer_lane") == lane:
-            f = fam(h)
-            cuts[f] = min(cuts.get(f, h["line"]), h["line"])
-    for h in hits:
+    for h in self_hits:
         f = fam(h)
+        cuts[f] = min(cuts.get(f, h["line"]), h["line"])
+
+    def provably_before(hit, own):
+        if fam(hit) == fam(own):
+            return hit["line"] < own["line"]
+        hd, od = str(hit.get("date") or ""), str(own.get("date") or "")
+        return bool(hd and od and hd < od)
+
+    # A-S93 IS RIGHT AND THE FIX DID NOT CLOSE IT -- THE DEFECT MOVED.  A-S93 reported that
+    # `f not in cuts` called every hit in a file prior work when the asker had no SELF hit there.
+    # That branch is gone, but `all(provably_before(h, own) for own in self_hits)` is VACUOUSLY
+    # TRUE when `self_hits` is empty, so the same hits get the same label by a different route.
+    # Measured over ten terms: 27% of all INDEPENDENT_PRIOR comes from that case
+    # (`spurious regression` 6 of 6, `oracle ceiling` 10 of 10).
+    #
+    # BUT THE LABEL IS NOT WRONG, ONLY UNMARKED.  With no self hit anywhere in the record, this
+    # lane never raised the term, so nobody can be echoing it -- the hits ARE work by others that
+    # this lane has not done, which is exactly what the caller needs to know.  Turning them into
+    # ECHO_RISK "to be safe" would HIDE genuine prior work, which is the failure this tool exists
+    # to prevent.  So the ordering is marked instead: PROVEN when it was actually established,
+    # VACUOUS_NO_SELF_HIT when there was nothing to order against.
+    for h in hits:
         if h.get("writer_lane") == lane:
             h["provenance"] = "SELF"
-        elif f not in cuts or h["line"] < cuts[f]:
+            h["ordering"] = "-"
+        elif not self_hits:
             h["provenance"] = "INDEPENDENT_PRIOR"
+            h["ordering"] = "VACUOUS_NO_SELF_HIT"
+        elif all(provably_before(h, own) for own in self_hits):
+            h["provenance"] = "INDEPENDENT_PRIOR"
+            h["ordering"] = "PROVEN"
         else:
             h["provenance"] = "ECHO_RISK"
+            h["ordering"] = "-"
     return hits, cuts
 
 
@@ -414,7 +439,11 @@ def who(terms, bl, sec, lane=None):
     returned unclassified, which is what the first year of this tool did and what made a raw hit
     count read as prior work.
     """
-    pats = [re.compile(re.escape(t), re.I) for t in terms]
+    # WHITESPACE IS NOT LITERAL HERE EITHER.  The corpus call site learned this in D-E22, but the
+    # estate call site kept `re.escape(term)`: SYSTEM_STATE section 281 contains "The fixed" at
+    # one line end and "design uses" on the next, while `--who "fixed design"` returned ZERO.
+    # A fix lands in a call site, not in a concept.  Single-word terms are unchanged.
+    pats = [re.compile(r"\s+".join(re.escape(w) for w in t.split()), re.I) for t in terms]
 
     def hit(s):
         return all(p.search(s) for p in pats)
@@ -504,15 +533,28 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
     omission -- provided the terms are discriminating, which this function cannot check.
     """
     try:
-        from tools.corpus_text_v1 import bodies
+        from tools.corpus_text_v1 import bodies, normalise
     except Exception as e:                                  # corpus absent is not a crash
         return {"error": "corpus unreadable: %s" % e, "per_source": {}, "total": 0}
+    terms = list(terms)
+    if not terms:
+        raise ValueError("corpus query requires at least one term")
+    # One query, one shelf snapshot.  The old path re-read and re-normalised all 13 books once
+    # per term for frequencies and then once again for results.  Besides wasting minutes in the
+    # acceptance suite, a mid-query shelf change could make diagnostics and hits describe
+    # different corpus states.
+    corpus = bodies()
     # WHITESPACE IS NOT LITERAL.  `re.escape("funding rate")` demands EXACTLY one space, but PDF
     # text carries a NEWLINE wherever the phrase straddles a line break, and column layout gives
     # runs of spaces.  Measured on eight control phrases known to be in the shelf: `limit order`
     # 1639 -> 1744, `order book` 1143 -> 1218, `market impact` 603 -> 642.  6.0% of real phrase
     # hits were INVISIBLE to this function.  Every word boundary is now `\s+`.
-    pats = [(t, re.compile(r"\s+".join(re.escape(w) for w in t.split()), re.I)) for t in terms]
+    pats = []
+    for t in terms:
+        words = normalise(t).split()
+        if not words:
+            raise ValueError("corpus query term is empty after normalisation")
+        pats.append((t, re.compile(r"\s+".join(re.escape(w) for w in words), re.I)))
     # HOW DISCRIMINATING IS EACH TERM?  A term that occurs thousands of times carries no
     # selectivity, and a proximity search anchored beside it returns coincidence.  Measured:
     # `--who restricted mean` returns 29 hits in 7 sources; `--who "restricted mean"` returns 5 in
@@ -520,10 +562,10 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
     # cause is that `mean` occurs 2,446 times while `restricted` occurs 77.
     freq = {}
     for t, pp in pats:
-        freq[t] = sum(len(pp.findall(b)) for b in bodies().values())
+        freq[t] = sum(len(pp.findall(b)) for b in corpus.values())
     weak = [t for t, n in freq.items() if n > NON_DISCRIMINATING_AT]
     out, total = {}, 0
-    for name, body in sorted(bodies().items()):
+    for name, body in sorted(corpus.items()):
         counts = {t: len(p.findall(body)) for t, p in pats}
         if min(counts.values()) == 0:
             continue                                        # a term absent -> no match here
@@ -810,6 +852,19 @@ def main():
     ap.add_argument("--no-corpus", action="store_true",
                     help="--who: skip the corpus half (estate only)")
     a = ap.parse_args()
+    # Provenance is defined only for the four actual lanes.  Previously a typo such as
+    # `--brief E --who frailty` found no SELF cut and therefore classified every estate hit as
+    # INDEPENDENT_PRIOR.  An invalid identity must fail closed before any evidence is rendered.
+    for flag, value in (("--brief", a.brief), ("--inbox", a.inbox),
+                        ("--promises", a.promises)):
+        if value is not None and value.upper() not in LANES:
+            ap.error("%s lane must be one of %s" % (flag, ", ".join(LANES)))
+    # These two human-only renderers predate the JSON contract and currently print prose followed
+    # by `{}`, which is neither JSON nor useful machine data.  Adding new keys is forbidden by the
+    # handover.  Reject the unsupported combination explicitly instead of emitting counterfeit
+    # machine output; valid JSON commands and all existing keys remain unchanged.
+    if a.json and (a.promises or a.inbox):
+        ap.error("--json is not supported for --promises or --inbox; no schema is frozen")
     if not any([a.brief, a.who, a.owed, a.ct, a.check, a.inbox, a.promises]):
         ap.print_help()
         return 0
@@ -939,13 +994,28 @@ def main():
                         print("        -> %s" % ln.strip()[:150])
     if "who" in out:
         print("\nWHO HAS TOUCHED THIS BEFORE  (%d hits)" % len(out["who"]))
+        asker = out.get("who_asker_lane")
         prov = {}
         for _h in out.get("who", []):
             prov[_h.get("provenance","UNCLASSIFIED")] = prov.get(_h.get("provenance","UNCLASSIFIED"), 0) + 1
-        if prov:
+        if not asker:
+            # Without the asking lane there is no SELF cut and therefore no chronology-based
+            # provenance classification.  The old renderer nevertheless converted a bag of
+            # UNCLASSIFIED hits into "INDEPENDENT PRIOR WORK: 0" and then published the strong
+            # negative "NO INDEPENDENT PRIOR WORK".  That was a fabricated absence claim.
+            print("  PROVENANCE UNCLASSIFIED: pass a lane with --brief, --inbox, or --promises.")
+            print("  No independent-prior count is identifiable without the asking lane.")
+        elif prov:
             _ip = prov.get("INDEPENDENT_PRIOR", 0)
+            _vac = sum(1 for _h in out.get("who", [])
+                       if _h.get("ordering") == "VACUOUS_NO_SELF_HIT")
             print("  INDEPENDENT PRIOR WORK: %d      (self %d, echo-risk %d)"
                   % (_ip, prov.get("SELF", 0), prov.get("ECHO_RISK", 0)))
+            if _vac:
+                print("     of which %d rest on VACUOUS ordering: this lane has NO hit anywhere in"
+                      % _vac)
+                print("     the record for this term, so nothing was ordered against.  The label")
+                print("     still means real work by others -- it does NOT mean a proven sequence.")
             # THE ASYMMETRY HAS A STRUCTURAL REASON, NOT JUST AN EMPIRICAL ONE (D-E41).
             # C-T68 measured that a zero is strong and a non-zero is weak.  H&R 8.6 says WHY:
             # "conditioning on the common effect Y of two independent causes A and E ALWAYS
@@ -970,8 +1040,9 @@ def main():
                 print("     ECHO_RISK = another writer, but AFTER this lane first raised the term.")
                 print("     The record cannot separate an independent result from a reply (C-T67).")
         for h in out["who"]:
-            print("  %-22s %-8s %-8s line %-7s %s"
-                  % (h["where"], h["ref"], h["stable_id"] or "-", h["line"], h["text"]))
+            print("  %-22s %-8s %-8s line %-7s %-18s %s"
+                  % (h["where"], h["ref"], h["stable_id"] or "-", h["line"],
+                     h.get("provenance", "UNCLASSIFIED"), h["text"]))
         if not out["who"]:
             print("  none in the estate -- and an empty result here is a CLAIM, not a default.")
             print("  This estate writes in Turkish AND English, often in the same section.")
