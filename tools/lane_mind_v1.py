@@ -483,8 +483,13 @@ def who(terms, bl, sec, lane=None):
     # this?" was the one never searched.  Same shape as A-S90's header defect one round earlier:
     # searching a subset of the record while reporting on all of it.
     for b in bl:
-        for k in ("verdict", "stands", "what", "withdraws", "next",
-                  "to A", "to B", "to C", "to D"):
+        # A HARDCODED FIELD LIST GOES STALE, SO THERE IS NO LIST.  D-E42 widened this from three
+        # fields to nine and A-S94 found the tenth one round later: `corpus`, present in 45 blocks
+        # and 40,678 characters -- the field where lanes record WHAT THE SHELF SAID, invisible to
+        # the command that asks what the shelf said.  An `also` field exists too, in one block,
+        # which nobody would have thought to add.  Every field the record actually carries is read
+        # now, in a stable order so the reported `where` stays deterministic.
+        for k in sorted(b["fields"]):
             v = b["fields"].get(k, "")
             if hit(v):
                 snip = re.sub(r"\s+", " ", v)

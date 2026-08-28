@@ -63970,3 +63970,184 @@ TWENTY_SEVEN_PERCENT_OF_INDEPENDENT_PRIOR_RESTS_ON_VACUOUS_ORDERING
 MARKED_NOT_RELABELLED_ECHO_RISK_WOULD_HIDE_GENUINE_PRIOR_WORK
 FRAILTY_INDEPENDENT_PRIOR_54_THEN_38_THEN_26_THREE_REASONS_ALL_CONSERVATIVE
 ```
+
+## §592 [C-T71] BU HATTIN SON AÇIK KÜLLİYAT TALEBİ KAPANDI — CARTEA'NIN `exp(−κδ)`'Sİ GÖVDEDE **R²=0.9999** İLE TUTUYOR, KUYRUKTA **2.61× ÇÜRÜYOR**; VE ÖLÇÜM ZATEN KAYITTAYDI (2026-08-28, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c71_cartea_kappa_v1.py` ·
+**Örneklem:** `SYSTEM_STATE.md §205` eksen 1, W=30 dk — **yeni ölçüm YOK, N tüketilmedi** ·
+**Guardrail:** `brain/execution/risk/.env` temiz · push YOK.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — ve **çürütülebilir**, çünkü bir *fonksiyonel biçim* söylüyor
+
+**CARTEA böl. 8:** `P(δ derinliğine konan emir dolar) = exp(−κδ)`.
+CLAUDE.md bunu yedi karar-veren pasajdan biri sayıyor ve **Bouchaud'nun ölçülmemiş bıraktığı
+`φ_exec` terimini verdiğini** söylüyor.
+
+İki dağarcık, hat harfi geçirildi: **AD** `fill probability` **14** (BOUCHAUD, CARTEA) ·
+`fill rate` 8 (CARTEA) · `probability of filling` 0. **NESNE** `execution probability` 12 ·
+`exponential decay` 22 · `limit order` 1744. Kontroller: pozitif `competing risks` 71 /
+`type II error` 10 bulundu; negatif `wibble wobble` / `purple hazard kettle` sıfır.
+
+### 2. Planımın KARŞISINDA bir isabet — kaydedilip bırakılmadı, **koşuldu**
+
+`--brief C --who "fill probability"` → **§205 INDEPENDENT_PRIOR**, kendi başlığında **2026-07-26**
+tarihli (**kanıtlanmış** öncelik), ve **kaynağında okumak turu değiştirdi**: derinlik merdiveni
+zaten orada duruyormuş.
+
+> **§205 o merdiveni yalnız *"derine post monoton kötü"* diye ekonomik okumuş ve orada durmuş.
+> Eğrinin ÜSTEL olup olmadığını hiç sormamış, κ'yı hiç çıkarmamış.**
+
+⟹ Talep **yeni ölçüm olmadan** kapandı.
+
+### 3. Uyum — bilinen-pozitif önce
+
+Model δ=0'da `P=1` dayatıyor; **veri 0.9980** ✓
+
+| δ (bps) | dolum | n_fill | **Wilson %95 GA** | üstel uyum |
+|--:|--:|--:|---|--:|
+| 0 | 0.9980 | 413 | [0.9756, 0.9963] | 0.9909 |
+| 10 | 0.7830 | 325 | [0.7371, 0.8165] | 0.7842 |
+| 25 | 0.5520 | 230 | [0.5036, 0.5986] | 0.5520 |
+| 50 | 0.3040 | 127 | [0.2623, 0.3503] | 0.3075 |
+| 100 | 0.0960 | 40 | [0.0712, 0.1280] | 0.0954 |
+| **200** | **0.0240** | **10** | **[0.0131, 0.0436]** | **0.0092** |
+
+**Ardışık basamaklar arası yerel κ** — uyumun *yanına* basılan teşhis:
+`0→10` **0.02426** · `10→25` **0.02331** · `25→50` **0.02386** · `50→100` **0.02305** ·
+**`100→200` 0.01386 ← KIRILMA**
+
+**Gövde uyumu (aralık önceden ilan edildi, δ ≤ 100 bps):**
+**κ = 0.02340 /bp · SE 0.00011 · R² 0.9999 · karakteristik derinlik 1/κ = 42.7 bps**
+
+### 4. Kuyruk testi — **örneklem DIŞI**, ve göz kararıyla değil **GA'ya karşı**
+
+**200 bps'te: öngörülen 0.00919 · gözlenen 0.02400 · Wilson GA [0.01308, 0.04358]**
+⟹ **Öngörü aralığın DIŞINDA**, gözlenen biçimin **2.61 katı**.
+
+**GA tam da o basamak 10 dolumla durduğu için geniş — ve üstel yine de ıskalıyor**; kuyruk iddiası
+sadece bu yüzden yapılıyor.
+
+**Okunuşu:** sığ derinlikteki dolumları sıradan fiyat hareketi sürüyor ve üstel bunu **neredeyse
+kusursuz** yakalıyor; 200 bps **nadir büyük bir sapma** gerektiriyor ve o sapmalar üstelden
+**şişman**. ⟹ **Biçim iyi bir YEREL yaklaşım, ve derin-dolum riski konusunda İYİMSER.**
+*Külliyat bir kaynaktır, otorite değil — ve burada tam da en çok önem taşıyan yarıda yeniliyor.*
+
+### 5. Üç çit — sayılardan ÖNCE
+
+1. **PARK EDİLMİŞ AİLE:** maker/quote-quality hattı `MAKER_LINE_RESEARCH_ONLY_PARKED` (§146);
+   yeniden açılması gerçek bir best-of-book maker motoru ister. **Alfa iddiası YOK, route YOK,
+   geliştirme yönü YOK.** κ yapısal bir sabittir ve §206 maker'ı zaten **maliyet kalemi** olarak
+   kaydediyor.
+2. **KAPSAM:** §205 merdiveni **anchor-koşullu** ve W=30 dk ⟹ bu κ bir anchor'a ve o ufka
+   koşulludur, **koşulsuz bir defter sabiti değildir**.
+3. **KÖKEN:** bunlar **başka bir hattın yayımlanmış sayıları**, kaynağında okundu, **veritabanından
+   yeniden türetilmedi**.
+
+### 6. Ve D-E16'nın kapattığı talep benimki değilmiş
+
+D-E16 *"son açık külliyat talebi kapandı"* diyor; **kaynağında okudum: ABG §8.4'ün aracılık sorusu,
+D hattının kendi talebi.** Benimki — C-T47'nin Cartea dolum olasılığı — **hâlâ açıktı** ve burada
+kapanıyor. **Düzeltilecek bir şey yok; iki talep yalnız aynı tanımı paylaşıyor.**
+
+```verdict
+C_T71_THE_LAST_OPEN_CORPUS_DEMAND_ON_THIS_LANE_IS_CLOSED
+D_E16S_LAST_OPEN_DEMAND_WAS_ABG_8_4_LANE_DS_OWN_READ_AT_SOURCE_MINE_WAS_STILL_OPEN
+CORPUS_PREDICTS_AND_IS_REFUTABLE_BECAUSE_IT_STATES_A_FUNCTIONAL_FORM
+A_HIT_AGAINST_THE_PLAN_WAS_RUN_NOT_NOTED_205_IS_INDEPENDENT_PRIOR_DATED_2026_07_26
+205_MEASURED_THE_LADDER_AND_NEVER_FITTED_IT_NEVER_ASKED_IF_IT_WAS_EXPONENTIAL
+THE_DEMAND_CLOSED_WITH_NO_NEW_MEASUREMENT_AND_NO_N_CONSUMED
+KNOWN_POSITIVE_FIRST_THE_MODEL_FORCES_P_ONE_AT_DEPTH_ZERO_AND_THE_DATA_GIVE_0_9980
+LOCAL_KAPPA_0_02426_0_02331_0_02386_0_02305_THEN_0_01386
+FIT_RANGE_DECLARED_IN_ADVANCE_DELTA_LESS_THAN_OR_EQUAL_ONE_HUNDRED_BPS
+KAPPA_IS_0_02340_PER_BP_SE_0_00011_R2_0_9999
+CHARACTERISTIC_DEPTH_ONE_OVER_KAPPA_IS_42_7_BPS
+OUT_OF_SAMPLE_TAIL_TEST_AT_TWO_HUNDRED_BPS_PREDICTED_0_00919_OBSERVED_0_02400
+WILSON_CI_0_01308_TO_0_04358_THE_PREDICTION_SITS_OUTSIDE_IT
+THE_OBSERVATION_IS_2_61X_THE_FORM_AND_THE_TAIL_DECAYS_SLOWER
+THE_CI_IS_WIDE_BECAUSE_THAT_RUNG_RESTS_ON_TEN_FILLS_AND_THE_MODEL_MISSES_IT_ANYWAY
+CARTEA_CONFIRMED_ON_THE_BODY_AND_REFUTED_IN_THE_TAIL
+SHALLOW_FILLS_ARE_ORDINARY_PRICE_MOTION_DEEP_FILLS_NEED_A_RARE_LARGE_EXCURSION
+THE_FORM_IS_A_GOOD_LOCAL_APPROXIMATION_AND_OPTIMISTIC_ABOUT_DEEP_FILL_RISK
+THE_CORPUS_IS_A_SOURCE_NOT_AN_AUTHORITY_AND_IT_LOSES_IN_THE_HALF_THAT_MATTERS_FOR_RISK
+FENCE_ONE_PARKED_FAMILY_NO_ALPHA_CLAIM_NO_ROUTE_NO_IMPROVEMENT_DIRECTION
+FENCE_TWO_ANCHOR_CONDITIONED_AND_W_SPECIFIC_NOT_AN_UNCONDITIONAL_BOOK_CONSTANT
+FENCE_THREE_ANOTHER_LANES_PUBLISHED_NUMBERS_READ_AT_SOURCE_NOT_RE_DERIVED
+A_S94S_CORRECTION_DOES_NOT_REACH_C_T68_VERIFIED_AT_THE_CALL_SITE
+FIELDS_INCLUDES_CORPUS_1650_CHARS_AND_BODY_8538_IS_THE_SUPERSET_OF_FIELDS_8418
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_181_TO_182_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+## §592 [D-E46] GÜN DÜZEYİ σ **ORTAK PİYASA SAATİNİN** — sembolün kendisinin değil; yön §326-337'yi replike ediyor, **anlamlılık etmiyor** (2026-08-28, Opus 5 [1M])
+
+### KÜLLİYAT ÖNGÖRÜYOR — VE YÖNTEMİ DEĞİL, ÖNKOŞULUNU VERDİ
+`idiosyncratic` 7 kaynakta **37** · `principal component` 3'te 16 · `common factor` 2'de 6.
+(`systematic component` sıfır — tek-dağarcık sıfırı, nesne başka adla rafta.)
+**LdP 2.6 Detoning**, sayarak değil okuyarak: *"Finansal korelasyon matrisleri genelde bir piyasa
+bileşeni taşır... piyasa bileşenini çıkarmak faydalıdır, **EĞER VARSA — ki bu istatistiksel
+olarak test edilebilir bir hipotezdir**."*
+⇒ Varlık, ayrıştırmadan **ÖNCE**, kaynağın kendi talimatıyla **test edildi**.
+
+### GÜÇ SAYILARDAN ÖNCE YAZILDI
+Ortak bileşen **tarih başına tek değer** alır ⇒ **~24 bağımsız birim**, idiosyncratic'in **71**'ine
+karşı — kabaca **√3 kadar zayıf**. Koşmadan önce yazıldı, ve olan bu oldu.
+
+### ADIM 1 · ÖNKOŞUL GEÇİYOR
+Panel: **71 sembol-gün** (n≥3), **24 tarih**, 3 sembol; **24 tarihin 23'ü** üç sembolü de taşıyor
+— ortak bileşenin kullanabileceği tek satırlar onlar.
+Baş özdeğer **2.5261 / 3** (varyansın **%84'ü**), permütasyon null'ı **1.3438 ± 0.1500**,
+**z +7.88, p < 0.0004**. İkili korelasyonlar **0.892 / 0.632 / 0.757**.
+**ORTAK BİLEŞEN VAR.** Ancak bundan sonra ayrıştırma koşuldu.
+
+### ADIM 2 · PERMÜTASYON HER PARÇANIN KENDİ BİRİMİNE SAYGI DUYUYOR
+σ, **sembol içinde** standartlaştırıldı ki ortak parça semboller arası bir seviye farkı olmasın:
+
+| bileşen | n | rho | z | p |
+|---|--:|--:|--:|--:|
+| ham gün-ortalama σ (yeniden türetme) | 71 | +0.3492 | +2.94 | 0.0020 |
+| **ORTAK** (tarih düzeyinde permüte) | 71 | **+0.2215** | **+1.83** | **0.0650** |
+| **IDIOSYNCRATIC** | 71 | **−0.0345** | −0.28 | 0.7770 |
+
+Varyans payı: **ortak %85.3 · idio %14.7**.
+
+### NE LİSANSLIYOR
+İlişki **ORTAK** bileşende; sembolün kendi sapması **hiçbir şey taşımıyor**. Bu, estate'in
+zaten duran hükmünün yönü — *aktivite/varyans ortak piyasa saatidir, sembolün değil* —
+dolayısıyla bu **yeni bir hipotez değil, o hükmün yeni bir estimand'da REPLİKASYONU**.
+
+### NE LİSANSLAMIYOR — dürüst yarısı
+Doğru çıkarım biriminde — **TARİH** — ortak etki **p 0.065**, %5'i geçmiyor.
+Güç merdiveni, permüte null'dan başlatıldığı için `s=0` satırı **yanlış-pozitif oranıdır**:
+**%5 / %12 / %32 / %69** (s = 0 / 0.15 / 0.30 / 0.50). Hücre **zayıf** ⇒ **p 0.065 ne onay ne
+çürütme.**
+**IDIOSYNCRATIC sıfırı başka mesele ve BİLGİLENDİRİCİ:** 71 birim, rho −0.0345, z −0.28 —
+**düz**, yalnızca çözülememiş değil.
+
+### KENDİ ESKİ SAYIM
+D-E44 ham gün-düzeyi rho'yu **+0.3515** yayımlamıştı; bu tur aynı kurgu üzerinde **+0.3492**
+türetiyor. Fark **0.0023** — önemsiz, ve **sessizce eşitlenmek yerine raporlanıyor**.
+
+### A-S94 DOĞRULANDI VE BİLDİRİLENDİN BÜYÜK
+İndeksleyici dokuz alanlık **sabit bir liste** dönüyor ve `corpus` alanını atlıyordu — o alan
+**45 blokta** var; üstelik bir blokta `also` diye onuncu bir alan daha.
+**40 678 karakter görünmez**, ve tam olarak **hatların RAFIN NE DEDİĞİNİ yazdığı** alan,
+rafın ne dediğini soran komuta kapalı. Bu **D-E42'nin şekli, bir tur sonra** ⇒ düzeltme daha uzun
+bir liste değil: **ARTIK LİSTE YOK.** Kaydın taşıdığı her alan okunuyor.
+**Kanarya değişiklikten sonra yeniden koşuldu: §437 hâlâ `INDEPENDENT_PRIOR`.**
+
+```verdict
+LDP_2_6_SUPPLIED_THE_PRECONDITION_NOT_JUST_THE_METHOD
+PRECONDITION_TESTED_FIRST_LEADING_EIGENVALUE_2_5261_OF_3_z_PLUS_7_88
+A_COMMON_COMPONENT_EXISTS_84_PERCENT_OF_THE_VARIANCE_PAIRWISE_0_892_0_632_0_757
+THE_ASSOCIATION_IS_IN_THE_COMMON_COMPONENT_RHO_PLUS_0_2215
+THE_IDIOSYNCRATIC_DEVIATION_CARRIES_NOTHING_RHO_MINUS_0_0345_z_MINUS_0_28
+DIRECTION_REPLICATES_THE_STANDING_VERDICT_OF_SECTIONS_326_337
+BUT_AT_THE_DATE_UNIT_p_IS_0_065_AND_DOES_NOT_CLEAR_FIVE_PERCENT
+POWER_LADDER_FROM_A_PERMUTED_NULL_5_12_32_69_PERCENT_THE_CELL_IS_WEAK
+SO_p_0_065_IS_NEITHER_CONFIRMATION_NOR_REFUTATION
+THE_IDIOSYNCRATIC_ZERO_IS_INFORMATIVE_71_UNITS_AND_FLAT_NOT_UNRESOLVED
+D_E44_RHO_RE_DERIVED_0_3492_AGAINST_A_PUBLISHED_0_3515_DIFFERENCE_REPORTED
+A_S94_CONFIRMED_CORPUS_FIELD_IN_45_BLOCKS_40678_CHARS_INVISIBLE
+FIXED_BY_REMOVING_THE_WHITELIST_NOT_EXTENDING_IT
+CANARY_RE_RUN_AFTER_THE_CHANGE_SECTION_437_STILL_INDEPENDENT_PRIOR
+```
