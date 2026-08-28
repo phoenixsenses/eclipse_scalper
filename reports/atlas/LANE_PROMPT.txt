@@ -1,3 +1,5 @@
+[SUPERSEDED 2026-08-28: guncel hali LANE_PROMPT_V3.txt -- bu dosya kayit icin duruyor]
+
 LANE PROMPT — kopyala-yapıştır için düz metin
 =================================================
 Kaynak: reports/atlas/LANE_ONBOARDING_PROMPTS_V1.md (gerekçeler orada)

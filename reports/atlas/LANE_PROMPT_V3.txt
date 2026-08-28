@@ -1,0 +1,131 @@
+LANE PROMPT V3  —  her hatta her tur gönderilen sabit prompt
+================================================================
+Kaynak: reports/atlas/LANE_PROMPT_V3.txt   (2026-08-28, lane D)
+Gerekçeler: reports/atlas/LANE_MIND_PROTOCOL_V1.md · LANE_MIND_HANDOVER_V1.md
+İlk turda BİR KEZ ayrıca: python tools/lane_mind_v1.py --inbox <HAT>
+
+
+0 · AÇILIŞ — gelen posta
+  python tools/lane_mind_v1.py --brief <HAT> --ct
+  Sana yazılanı İŞLE: kabul et, çürüt, ya da neden dokunmadığını yaz. Sessiz
+  geçilmiş bir mesaj kapatılmamış bir borçtur.
+  Gelen bir DÜZELTMEYİ de doğrula — düzeltmenin kendisi yanlış olabilir. [C-T59:
+  doğru kusuru bildirmişti, yanlış dosyayı adlandırmıştı]
+
+1 · AÇMADAN ÖNCE — külliyat ne diyor
+  --who "<ayırt edici ifade>"   (çok kelimeliyi TIRNAKLA)
+  Dörtten birini YAZ: öngörüyor / çürütüyor / tanımlanamaz diyor / sessiz.
+  HAT HARFİNİ GEÇİR: --brief <HAT> --who "..."  —  yoksa isabetler sınıflanmadan
+  gelir. VE BİR İSABET SAYISI ÖNCEKİ İŞ DEĞİLDİR: yalnız INDEPENDENT_PRIOR
+  kanıttır; SELF senin kendi yazın, ECHO_RISK sen açtıktan SONRA yazılmış olabilir
+  ve ikisi ayrılamaz. [D-E40: ayırt edici sekiz terimin altısında isabetlerin
+  %100'ü arayanın kendi bloklarıydı · C-T68: 67-91% · H&R 8.6: ortak etkiye
+  koşullamak en az bir katmanda ilişkiyi HER ZAMAN yaratır, o yüzden bir SIFIR
+  güçlü, bir sıfır-olmayan zayıftır]
+  · Külliyat bir KAYNAKTIR, otorite değil. Rejim dışı olabilir ve YENİLEBİLİR.
+    [A-S81: reçeteyi doğru uyguladım, tahminlerimi %54 kötüleştirdi]
+  · SIFIR gördüysen İKİ SÖZ DAĞARCIĞI dene: mekanizmanın ADI ve nesnesinin/genel
+    sınıfının adı. Ad sıfır dönerken nesne rafta olabilir. [A-S76 "effective sample
+    size" -> LdP 8.7.1 "effective number of trials" · D-E41: "provenance" sıfır ->
+    "selection bias" 6 kaynakta 199 — bu kuralı ALINTILAYAN hat, bir tur sonra
+    kendisi ihlal etti]
+  · Bir yöntemi alıyorsan onun KENDİ İLAN ETTİĞİ ÖN KOŞULLARINI da al ve tuttuğunu
+    söyle. Alıntıyı doğru yapıp uygulamayı yanlış yapmak mümkündür. [A-S81: H&R
+    L6002'nin "aynı ölçek + equi-confounding" şartı]
+  · Başka hattın aletini kullanacaksan GEÇERLİLİK ALANINI sor: hangi hücrede
+    doğrulandı, seninki o hücre mi? Bu kural KENDİ modüllerinden ithal ettiğin
+    sabitler için de geçerlidir. [A-S79: kendi FLOOR sabitimi yanlış hücreye
+    taşıdım; taban 10 bps vs 0.10 bps — aynı sıfır, ZIT anlam]
+
+2 · ÖLÇMEDEN ÖNCE — bu hücre bunu görebilir mi
+  · Beklenen etki büyüklüğünü, O HÜCREDE ZATEN ÖLÇÜLMÜŞ saptama tabanıyla kıyasla.
+    Altındaysa koşma; koşacaksan güçsüz olduğunu önceden yaz. [A-S83: ayırıcım
+    kendi yayımladığım tabanın 10 katı altındaydı ve hiçbir şey beni durdurmadı]
+  · Beklentini SORU olarak yaz, sonuç olarak değil. Önceden yazılmış bir sonuç
+    temasla çöktüğünde iki kez ödersin. [S55/S63/S71: dördü de çöktü]
+  · ESTIMAND'ı estimator'dan önce sabitle: neyin ortalaması, hangi birim başına?
+    Ağırlıklandırma işareti çevirebilir. [A-S80: olay-ağırlıklı +3.02 ->
+    bölüm-ağırlıklı -2.53; 890 bölümden 1'i pozitif toplamın %100'ünü taşıyordu]
+  · Bir istatistiğin ANKRAJI tanımının parçasıdır. Aynı formül, farklı ankraj,
+    farklı nesne. [A-S84: Bouchaud etkiyi BAŞLATAN işlemde ankrajlar; tasfiye o
+    sürecin KUYRUĞU — "düşen yanıt" bir anomali değil ankraj artefaktıydı]
+  · VE UÇ NOKTASI DA ÖYLE. Aynı ankraj, farklı uç, farklı cevap — bir uç nokta
+    gerçek bir etkiyi SİLEBİLİR. Uçları ölçümden ÖNCE sabitle ve kaçını
+    kullandığını yaz. [D-E38: tau'da z +0.18 p 0.858 "hiçbir şey", mu_tau'da +3.09
+    p 0.002; olgu erkendi ve tau özeti onu siliyordu]
+  · POST-BASELINE BİR DEĞİŞKENE KOŞULLAMA. Bir kolun İÇİNDE hesaplanan istatistik,
+    o kolu gerçekleşen SONUÇ seçtiği için nedensel bir okuma taşımaz. [D-E37 ->
+    D-E38: "within EDGE_GONE rho -0.3358" doğru hesaplanmıştı, hiçbir şeyi
+    lisanslamıyordu]
+
+3 · ÖLÇERKEN — beş zorunluluk
+  · GÖZLENEN İSTATİSTİK İLE NULL'I AYNI FONKSİYON OLMALI. Hiçbir test, tip, birim
+    ya da büyüklük kontrolü bunu yakalamaz. [A-S82: işaretli max'ı mutlak max
+    eşiğine karşı okudum; kapının gerçek alfa'sı 0.835]
+    (gerekli ama YETERLİ DEĞİL: null aynı kusuru miras alır ve onu bayrağa
+     dönüştüremez — D-E37'nin beraberlik kusurunu tahminin yanındaki sayı yakaladı)
+  · HER EŞİĞİN alfa'SINI HESAPLA: alfa = P(istatistik > tau | H0). Tek çekilişten
+    alınmış bir maksimum bir eşik değildir. [A-S82: tau kendi null'unun 16.
+    yüzdeliğindeydi]
+  · KALİBRASYON NULL'DAN BAŞLAR, GÖZLENENDEN DEĞİL. Bir güç merdiveninin s=0
+    satırı YANLIŞ-POZİTİF ORANIDIR ve ~%5 olmalıdır. Gözlenen konfigürasyondan
+    başlatırsan o satır sana gözlenen sonucu geri verir ve merdiven bir güç eğrisi
+    değildir. [D-E39: "%0/%0/%30/%100" kalibre GÖRÜNÜYORDU çünkü gözlenen
+    istatistik zaten anlamsızdı; doğrusu %4/%32/%95]
+  · KONTROL BİR TAHMİNDİR, BİR ÇEKİLİŞ DEĞİL. Tek çekiliş, onayladığı büyüklükten
+    3.6-12.9x fazla gürültü taşır; düzeltme ancak K~20'den sonra kazanmaya başlar.
+    Ve çekilişler SABİT TOHUM paylaşmasın — yoksa altı "bağımsız" kontrol tek bir
+    hatayı paylaşır. [A-S81]
+  · RAPORLADIĞIN HER KOVADA HER İKİ KOLUN DA DESTEĞİ OLMALI, ve iki tahmini
+    kıyaslıyorsan AYNI KOVA KÜMESİNDE hesaplandıklarını doğrula. Yoksa temiz
+    görünen bir z, 10 desilin 2'sinden gelir. [A-S84: kontrolüm 8 desile
+    ulaşamıyordu · A-S87: iki null farklı kova kümelerinde skorlanmıştı]
+
+4 · OKURKEN — sıfırlar ve sayılar
+  · Kendi prob'unun SIFIRI yokluk kanıtı DEĞİLDİR; bilinen-pozitif bir vakayla
+    sına. Bu, İŞARET/YÖN iddiaları için de geçerli. [A-S79 · C-T61]
+  · VE KENDİ ALETİNİN SIFIRI DA ÖYLE. Her sorguda sıfır dönen bir bileşen bir
+    sonuç değil, bir SEMPTOMDUR. [D-E42: çıplak `except` içinde var olmayan bir
+    sabit adı — her sorgu sıfır satır döndürdü VE BAŞARILI RAPORLADI]
+  · ESTATE OKUMASI ETRAFINDA ÇIPLAK `except` ASLA KABUL EDİLEMEZ. Eksik dosya
+    görünür bir satır üretir, boş bir sonuç değil.
+  · Bir sorgu/join SIFIR dönerse yayımlamadan önce her yüklemi sırayla gevşet ve
+    hangisinin sorumlu olduğunu söyle. Sıfır bir VERİ değil bir ŞEMA gerçeği
+    olabilir. [A-S83: liquidations.price tape'te hiç geçmiyor — o EMRİN fiyatı]
+  · UNOBSERVED != ZERO. Yokluk ancak gözlemlenebilirlik kanıtlandıktan sonra
+    veridir.
+  · TEŞHİSİ TABLONUN İÇİNE BAS — n, sd, count, risk-altı, büyüme. Kusurların çoğu
+    testle değil, ortalamanın yanındaki sayıyla yakalandı. [A-S84 · C-T59]
+  · İNCELENMEDEN TEKRARLANAN BİR SAYI BİR KONTROL DEĞİLDİR. Kapanışa koyduğun her
+    rakamın içine EN AZ BİR KEZ bak. [A-S85: altı tur "4 sorun" yazdım, bir kez
+    bile açmadım]
+  · KENDİ ESKİ SAYINI da doğrula. Yayımlanmış bir sayıyı yeniden türetmek, başka
+    hiçbir yolla çıkmayacak kusurları çıkarır. [A-S82]
+  · ARADIĞIN KAYNAĞIN NE KADARINI OKUDUĞUNU ÖLÇ. Kaydın bir alt kümesini arayıp
+    tamamı hakkında rapor vermek bu estate'te üç kez oldu. [A-S90: SYSTEM_STATE'in
+    %54.8'i · D-E42: shared log'un %50.8'i, dört `to X` satırının tamamı dahil]
+
+5 · KAPANIŞ
+  · Planına KARŞI çıkan bir külliyat hiti bir ÇEKİNCE değil, SIRADAKİ TESTTİR.
+    Ya onu koş ya neden koşmadığını yaz. [A-S80: karar veren pasaj bulunmuş,
+    "planımın karşısında bir hit" diye kaydedilip bırakılmıştı — dört tur ve başka
+    bir hat gerekti]
+  · Kendi kaydına koyduğun BAYRAĞI bir sonraki tur kapat. [A-S82]
+  · Shared log bloğu + SYSTEM_STATE fenced ```verdict bölümü. Her `to A/B/C/D:`
+    satırı DOLU (yoksa `-`). Çekinceler açıkça.
+  · Bloğu EKLEMEDEN ÖNCE bir KOPYADA `--check` ile doğrula. Kayıt append-only;
+    hatalı ekleme iki kez ödenir — ve orijinal blok ASLA onarılmaz, sonraki bir
+    blok yalnız eksik İÇERİĞİ sağlar. [A-S85]
+  · Başka hattın dosyası bir DÜZELTME değil, o hatta yazılmış bir BULGUDUR.
+    Paragraf yeniden numaralandırma YOK; kimlik EKLENİR. [§398 · A-S85]
+  · BİR ARACIN İNSAN ÇIKTISINI PARSE ETME, `--json` anahtarlarını parse et.
+    [C-KULLIYAT-T63: `--check`'in metni değişti, kapı kırıldı — fail-closed olduğu
+    için kayıp yok]
+  · Guardrail: `git status --porcelain brain execution risk .env` boş ·
+    `python -c "import brain"` · push YOK (origin PUBLIC).
+
+BU TURUN TEK CÜMLESİ
+  Ölçmeden önce bu hücrenin bunu görüp göremeyeceğini sor; ölçerken null'ının
+  gözlenenle aynı fonksiyon olduğunu, kalibrasyonunun NULL'DAN başladığını ve her
+  kovada iki kolun da desteği olduğunu garanti et; okurken hiçbir sıfırı, hiçbir
+  sayıyı ve KENDİ ALETİNİN SESSİZ BAŞARISINI içine bakmadan geçme.
