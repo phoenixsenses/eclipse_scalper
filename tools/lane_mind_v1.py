@@ -340,9 +340,19 @@ def owed(bl):
             "inbox": inbox}
 
 
-def _lane_of(sid):
-    """Lane letter from a stable id like `D-E39` or `C-KULLIYAT-T65`; None when unstamped."""
+def _lane_of(sid, title=""):
+    """Lane letter from a stable id like `D-E39`, or from a section title's `[D-E40]` stamp.
+
+    SYSTEM_STATE sections do not carry the id in `stable_id`; they carry it in the TITLE as
+    `[D-E40]`.  Reading only `stable_id` classified this lane's OWN sections as another writer's,
+    so `--who "inverse gaussian"` reported 1 INDEPENDENT_PRIOR that was section 582 -- a section
+    written by this lane one round earlier.  A classifier that counts my own work as independent
+    prior work is the exact failure it was built to prevent.
+    """
     m = re.match(r"^([ABCD])-", str(sid or ""))
+    if m:
+        return m.group(1)
+    m = re.search(r"\[([ABCD])-[A-Za-z0-9_\-]+\]", str(title or ""))
     return m.group(1) if m else None
 
 
@@ -415,14 +425,14 @@ def who(terms, bl, sec, lane=None):
         if hit(hay):
             res.append({"where": "SYSTEM_STATE", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
-                        "writer_lane": _lane_of(s["stable_id"]),
+                        "writer_lane": _lane_of(s["stable_id"], s["title"]),
                         "date": s["date"], "text": s["title"][:150]})
             continue
         tok = next((t for t in s["tokens"] if hit(t)), None)
         if tok:
             res.append({"where": "SYSTEM_STATE:token", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
-                        "writer_lane": _lane_of(s["stable_id"]),
+                        "writer_lane": _lane_of(s["stable_id"], s["title"]),
                         "date": s["date"], "text": tok})
             continue
         # THE BODY MUST BE SEARCHED TOO.  The first version of this function looked
@@ -434,7 +444,7 @@ def who(terms, bl, sec, lane=None):
             ln = next((l for l in s["body"].splitlines() if hit(l)), "")
             res.append({"where": "SYSTEM_STATE:body", "ref": "§%d" % s["section"],
                         "stable_id": s["stable_id"], "line": s["line"],
-                        "writer_lane": _lane_of(s["stable_id"]),
+                        "writer_lane": _lane_of(s["stable_id"], s["title"]),
                         "date": s["date"],
                         "text": (s["title"][:60] + "  ~  " + re.sub(r"\s+", " ", ln).strip())[:170]})
     for b in bl:
@@ -908,11 +918,26 @@ def main():
             _ip = prov.get("INDEPENDENT_PRIOR", 0)
             print("  INDEPENDENT PRIOR WORK: %d      (self %d, echo-risk %d)"
                   % (_ip, prov.get("SELF", 0), prov.get("ECHO_RISK", 0)))
+            # THE ASYMMETRY HAS A STRUCTURAL REASON, NOT JUST AN EMPIRICAL ONE (D-E41).
+            # C-T68 measured that a zero is strong and a non-zero is weak.  H&R 8.6 says WHY:
+            # "conditioning on the common effect Y of two independent causes A and E ALWAYS
+            # induces a conditional association between A and E in at least one of the strata
+            # of Y", while a special situation leaves the OTHER stratum conditionally
+            # independent.  Here the causes are (A) the topic is worth studying and (E) this
+            # lane raised it; the common effect is (Y) another lane wrote about it.  So the
+            # HIT-EXISTS stratum always carries induced association -- that is ECHO_RISK --
+            # and the NO-HIT stratum is the one that can stay clean.  H&R 8.5: adjusting means
+            # treating selection as a treatment and requires POSITIVITY for it, which fails
+            # here because a term only this lane uses has no chance of being written by
+            # another lane at all.  So the class is REPORTED, never adjusted away.
             if _ip == 0:
-                print("  >> NO INDEPENDENT PRIOR WORK.  a hit count is not prior work: on lane D terms")
-                print("     six of eight distinctive terms were 100% the searcher's own blocks (C-T68")
-                print("     measured 67-91%).  SELF is not evidence and ECHO_RISK may be a response")
-                print("     to this lane rather than independent of it.")
+                print("  >> NO INDEPENDENT PRIOR WORK.  a hit count is not prior work: on lane D")
+                print("     terms six of eight distinctive terms were 100% the searcher's own")
+                print("     blocks (C-T68 measured 67-91%).  SELF is not evidence, and ECHO_RISK")
+                print("     may be a response to this lane rather than independent of it.")
+                print("     A ZERO HERE IS THE STRONG READING (H&R 8.6): a hit is a common effect,")
+                print("     and conditioning on it always induces association in that stratum; the")
+                print("     no-hit stratum is the one that can stay clean.")
             if prov.get("ECHO_RISK"):
                 print("     ECHO_RISK = another writer, but AFTER this lane first raised the term.")
                 print("     The record cannot separate an independent result from a reply (C-T67).")

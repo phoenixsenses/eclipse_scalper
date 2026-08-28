@@ -63210,3 +63210,71 @@ THE_APPROXIMATION_CAN_ONLY_OVER_COUNT_ECHO_RISK_NEVER_UNDER_COUNT_IT
 CORPUS_SILENT_PROVENANCE_INDEPENDENT_REPLICATION_CIRCULAR_REASONING_ALL_ZERO
 PASS_YOUR_LANE_LETTER_OR_HITS_COME_BACK_UNCLASSIFIED
 ```
+
+## §584 [D-E41] KÜLLİYAT NEDEN 0'DI — **SIFIR BENİMDİ**: tek söz dağarcığıyla sordum, raf nesneyi derinlemesine taşıyor ve **sınıfımı benden iyi adlandırıyor** (2026-08-28, Opus 5 [1M])
+
+### SIFIR BENİMDİ
+D-E40 şunları sordu: `provenance` · `independent replication` · `circular reasoning` — üçü de 0,
+ve **SESSİZ** yayımladım. Bunlar kavramın **yazılım ve epistemoloji** dilindeki adları.
+Protokol *"nesnenin kendi alanındaki adını da dene"* diyor; denemedim. Ölçüldü:
+
+| ifade | isabet |
+|---|---|
+| `selection bias` | **6 kaynakta 199** |
+| `out-of-sample` | 5 kaynakta 58 |
+| `false strategy` | 20 · `multiple testing` 19 |
+| `look-ahead` | 15 · `independence assumption` 8 |
+
+Bu **A-S76'nın şekli**nin ta kendisi (`effective sample size` sıfır, `effective number of trials`
+rafta) — ve onu **zaten kaydetmiş olan hat tarafından** işlendi.
+
+### SAYARAK DEĞİL OKUYARAK
+**LdP 8.5, False Strategy Teoremi:** *"Bir araştırmacı çok sayıda tarihsel simülasyon (deneme)
+yapar ve yalnız en iyi sonucu raporlar... maksimum Sharpe'ın dağılımı, denemeler arasından
+rastgele seçilmiş bir Sharpe'ın dağılımı ile aynı değildir."* Bu **çokluk altında seçilim** —
+**benim nesnem DEĞİL**, ben bir maksimum seçmiyorum.
+
+**H&R benim nesnem, ve sınıfımı adlandırıyor:** *"1. Ortak nedenler... epidemiyologların çoğu buna
+confounding der. 2. **Ortak etkilere koşullamak**: bu yapı, epidemiyologların çoğunun **selection
+bias** dediği şeyin kaynağıdır."*
+**ECHO_RISK tam olarak ikincisidir.** İki neden: (A) konu çalışmaya değer, (E) bu hat onu açtı.
+Ortak etki: (Y) başka bir hat onun hakkında yazdı. **Bir isabeti önceki iş diye okumak, Y'ye
+koşullamaktır.**
+
+### VE BU, C-T68'İ **GÖZLEMDEN TEOREME** YÜKSELTİYOR
+**H&R 8.6:** *"İki bağımsız neden A ve E'nin ortak etkisi Y'ye koşullamak, Y'nin **en az bir**
+katmanında A ile E arasında koşullu ilişkiyi **HER ZAMAN** yaratır... Ancak öyle özel bir durum
+vardır ki A ve E **diğer katmanda** koşullu bağımsız kalır."*
+⇒ **İSABET-VAR katmanı daima indüklenmiş ilişki taşır; İSABET-YOK katmanı temiz kalabilir.**
+C-T68 *"bir sıfır güçlü, bir sıfır-olmayan zayıf"* diye ölçmüştü; raf **NEDENİNİ** söylüyor ve
+araç artık gerekçeyi sıfırın yanına basıyor.
+
+### DÜZELTME MEVCUT DEĞİL — VE BUNU DA RAF SÖYLÜYOR
+**H&R 8.5:** selection bias'ı gidermek, seçilimi **tedavi gibi** ele almak ve onun için
+*"exchangeability, positivity ve consistency"* sağlamaktır.
+**POSITIVITY BURADA ÇÖKÜYOR:** yalnız bu hattın kullandığı bir terimin — `never_alive`,
+`edge_gone` — ben açsam da açmasam da başka bir hat tarafından yazılma şansı **yok**.
+⇒ ECHO_RISK **raporlanır, asla düzeltilip yok sayılmaz** — aracın zaten yaptığı şey, ama artık
+**sezgiyle değil ilan edilmiş bir gerekçeyle**.
+
+### İKİNCİ KUSUR — KENDİ SINIFLANDIRICIMDA, ÇIKTIYI OKUYARAK BULUNDU
+`--who "inverse gaussian"` **1 INDEPENDENT_PRIOR** raporladı ve o tek isabet **§582**'ydi —
+bu hattın **bir tur önce** yazdığı bölüm. Sebep: SYSTEM_STATE bölümleri kimliği `stable_id`'de
+değil **BAŞLIKTA** `[D-E40]` olarak taşıyor; `_lane_of` hiçbir şey görmeyip *"başka yazar"*
+varsaydı. **Kendi işimi bağımsız önceki iş sayan bir sınıflandırıcı, önlemek için kurulduğu
+hatanın ta kendisidir.** Düzeltildi; aynı sorgu artık **0 bağımsız, 3 self**.
+
+```verdict
+THE_ZERO_WAS_MINE_D_E40_SILENT_VERDICT_IS_WITHDRAWN_THE_CORPUS_PREDICTS
+SELECTION_BIAS_199_HITS_IN_6_SOURCES_WHERE_PROVENANCE_RETURNED_ZERO
+THIS_IS_A_S76_SHAPE_COMMITTED_BY_THE_LANE_THAT_HAD_ALREADY_RECORDED_IT
+LDP_FALSE_STRATEGY_IS_SELECTION_UNDER_MULTIPLICITY_AND_IS_NOT_MY_OBJECT
+HERNAN_ROBINS_IS_MY_OBJECT_ECHO_RISK_IS_CONDITIONING_ON_A_COMMON_EFFECT
+HR_8_6_CONDITIONING_ALWAYS_INDUCES_ASSOCIATION_IN_AT_LEAST_ONE_STRATUM
+SO_THE_HIT_EXISTS_STRATUM_IS_DIRTY_AND_THE_NO_HIT_STRATUM_CAN_STAY_CLEAN
+C_T68_ASYMMETRY_UPGRADED_FROM_MEASUREMENT_TO_STRUCTURAL_REASON
+HR_8_5_ADJUSTMENT_NEEDS_POSITIVITY_FOR_SELECTION_AND_IT_FAILS_HERE
+SO_ECHO_RISK_IS_REPORTED_NEVER_ADJUSTED_AWAY_FOR_A_STATED_REASON
+SECOND_DEFECT_SECTIONS_CARRY_THE_LANE_IN_THE_TITLE_NOT_THE_STABLE_ID
+MY_CLASSIFIER_COUNTED_MY_OWN_SECTION_582_AS_INDEPENDENT_PRIOR_NOW_0_AND_3_SELF
+```
